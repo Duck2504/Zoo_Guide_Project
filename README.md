@@ -4,7 +4,7 @@
 * **Giảng viên hướng dẫn:** **TS. Nguyễn Quốc Huy**
 * **Khoa:** Công Nghệ Thông Tin
 * **Đề tài:** **Thuyết minh tự động đa ngôn ngữ**
-* **Chủ quyền quốc gia:** *Quần đảo Hoàng Sa và Trường Sa là của Việt Nam 🇻🇳*
+
 
 ---
 
