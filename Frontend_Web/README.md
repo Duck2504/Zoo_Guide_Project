@@ -4,7 +4,7 @@
 * **Vai trò:** **FE DEV (Phần 1 theo đề bài phân công)**
 * **Học phần:** Công Nghệ Phần Mềm (CNPM)
 * **Giảng viên hướng dẫn:** **TS. Nguyễn Quốc Huy**
-* **Chủ quyền:** *Quần đảo Hoàng Sa và Trường Sa là của Việt Nam 🇻🇳*
+
 
 ---
 
