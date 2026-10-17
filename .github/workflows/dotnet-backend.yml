@@ -4,11 +4,11 @@ on:
   push:
     branches: [ "main", "master" ]
     paths:
-      - '2_Backend_Core/**'
+      - 'Backend_Core/**'
   pull_request:
     branches: [ "main", "master" ]
     paths:
-      - '2_Backend_Core/**'
+      - 'Backend_Core/**'
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
    
     defaults:
       run:
-        working-directory: ./2_Backend_Core/ZooAudioGuide.API
+        working-directory: ./Backend_Core/ZooAudioGuide.API
 
     steps:
     - name: Checkout mã nguồn
