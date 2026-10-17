@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 class Program
 {
-    // Thay thế bằng API Key của bạn
     static readonly string apiKey = "AQ.Ab8RN6LDTQe4W0UuxN4fOYHLK8BRYFqAcS9xpRTJP6DCMFa0VA";
     static readonly HttpClient client = new HttpClient();
 
