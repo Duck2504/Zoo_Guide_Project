@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ZooAudioGuide.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d92fdce672889d90677f176d153e3ed2b635fdfc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a563ef26b271f4aba5fcdd0ce3ad683e6ced1e0f")]
 [assembly: System.Reflection.AssemblyProductAttribute("ZooAudioGuide.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ZooAudioGuide.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
