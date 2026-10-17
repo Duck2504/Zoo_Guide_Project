@@ -3,6 +3,8 @@ using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+// phần này là một ví dụ về cách viết unit test cho một API dịch thuật và tổng hợp giọng nói (TTS)
+//  trong một ứng dụng C# sử dụng xUnit và WebApplicationFactory.
 
 // Dịch vụ giả: không gọi API thật
 public class FakeTranslator : ITranslator
