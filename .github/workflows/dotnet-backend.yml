@@ -1,0 +1,35 @@
+name: Core Backend CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - '2_Backend_Core/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - '2_Backend_Core/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+   
+    defaults:
+      run:
+        working-directory: ./2_Backend_Core/ZooAudioGuide.API
+
+    steps:
+    - name: Checkout mã nguồn
+      uses: actions/checkout@v4
+
+    - name: Cài đặt .NET Core
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Khôi phục các thư viện
+      run: dotnet restore
+
+    - name: Biên dịch
+      run: dotnet build --no-restore --configuration Release
