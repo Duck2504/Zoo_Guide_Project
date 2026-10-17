@@ -224,24 +224,31 @@ export default function App() {
       (pos) => {
         setIsLocating(false);
         const { latitude, longitude, accuracy } = pos.coords;
-        // Ánh xạ vào tỷ lệ % bản đồ vườn thú:
-        // kinh độ 106.7035 -> 106.7075 (~0.0040)
-        // vĩ độ 10.7855 -> 10.7895 (~0.0040)
-        const pctX = Math.max(8, Math.min(92, ((longitude - 106.7035) / 0.0040) * 100));
-        const pctY = Math.max(8, Math.min(92, ((10.7895 - latitude) / 0.0040) * 100));
-        setUserLocation({
-          lon: longitude,
-          lat: latitude,
-          mapLeft: `${pctX.toFixed(1)}%`,
-          mapTop: `${pctY.toFixed(1)}%`,
-          label: `GPS Trực Tiếp (±${Math.round(accuracy)}m)`,
-          isRealGPS: true
-        });
-        showToast("Đã định vị thành công tọa độ thực tế của bạn!", "success");
+        const inside = isPointInsideZoo(latitude, longitude);
+
+        if (inside) {
+          setUserLocation({
+            lon: parseFloat(longitude.toFixed(6)),
+            lat: parseFloat(latitude.toFixed(6)),
+            label: `GPS Hiện Tại Của Bạn (±${Math.round(accuracy)}m)`,
+            isRealGPS: true
+          });
+          showToast(`Đã nhận vị trí GPS của bạn trong Vườn Thú [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]!`, "success");
+        } else {
+          // Khi người dùng đang ở ngoài vườn thú (ở nhà/trường học/văn phòng):
+          setUserLocation({
+            lon: 106.7040,
+            lat: 10.7868,
+            label: `GPS Của Bạn [${latitude.toFixed(4)}, ${longitude.toFixed(4)}] → Đặt tại Cổng Chính`,
+            isRealGPS: true,
+            userActualCoords: { lat: latitude, lon: longitude }
+          });
+          showToast(`Đã nhận GPS thực tế của bạn [${latitude.toFixed(4)}, ${longitude.toFixed(4)}]! Điểm xuất phát được đặt tại Cổng Chính Vườn Thú để bắt đầu đi thử.`, "success");
+        }
       },
       (err) => {
         setIsLocating(false);
-        showToast("Không thể lấy GPS (đang dùng vị trí Cổng chính)", "info");
+        showToast("Không thể lấy GPS từ trình duyệt (đang dùng vị trí Cổng chính)", "info");
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -1283,6 +1290,8 @@ export default function App() {
             handleSpeech={handleSpeech}
             isSpeaking={isSpeaking}
             calculateDistance={calculateDistance}
+            onGetLiveGPS={handleGetLiveGPS}
+            isLocating={isLocating}
           />
         )}
 

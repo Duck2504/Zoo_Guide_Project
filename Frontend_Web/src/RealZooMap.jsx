@@ -50,7 +50,9 @@ export default function RealZooMap({
   setTourLang,
   handleSpeech,
   isSpeaking,
-  calculateDistance
+  calculateDistance,
+  onGetLiveGPS,
+  isLocating
 }) {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -607,47 +609,97 @@ export default function RealZooMap({
             </div>
           </div>
         ) : (
-          /* When NOT on tour: Clean Launch Button */
           <div style={{
-            background: 'linear-gradient(135deg, #065f46 0%, #064e3b 100%)',
+            background: 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
             color: '#ffffff',
             borderRadius: '14px',
             padding: '16px 20px',
             marginBottom: '14px',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: '12px',
-            boxShadow: '0 4px 12px rgba(6, 95, 70, 0.2)'
+            border: '1px solid #10b981',
+            boxShadow: '0 4px 14px rgba(6, 78, 59, 0.25)'
           }}>
-            <div>
-              <h4 style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 'bold' }}>
-                Hành Trình Thuyết Minh Tự Động Qua Từng Địa Điểm
-              </h4>
-              <p style={{ margin: 0, fontSize: '12px', color: '#a7f3d0' }}>
-                Hệ thống sẽ dẫn đường lần lượt qua từng chuồng thú trên bản đồ thực tế và tự động phát thuyết minh tiếng Việt tại mỗi điểm.
-              </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h4 style={{ margin: '0 0 3px', fontSize: '15px', fontWeight: 'bold' }}>
+                  Hành Trình Thuyết Minh Tự Động Qua Từng Địa Điểm
+                </h4>
+                <div style={{ fontSize: '12px', color: '#a7f3d0', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                  <span>Vị trí hiện tại của bạn:</span>
+                  <strong style={{ color: '#fde047', backgroundColor: 'rgba(0,0,0,0.3)', padding: '2px 8px', borderRadius: '6px' }}>
+                    {userLocation.label || `[${userLocation.lat}, ${userLocation.lon}]`}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Action Buttons: Get GPS + Start Tour */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  onClick={onGetLiveGPS}
+                  disabled={isLocating}
+                  title="Nhận tọa độ GPS thực tế của bạn từ trình duyệt"
+                  style={{
+                    backgroundColor: '#0284c7',
+                    color: '#ffffff',
+                    border: '1px solid #38bdf8',
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: isLocating ? 'wait' : 'pointer',
+                    boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {isLocating ? 'Đang dò GPS...' : 'Lấy Vị Trí Của Tôi (GPS)'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (mapRef.current) {
+                      mapRef.current.flyTo([userLocation.lat, userLocation.lon], 18, { animate: true });
+                    }
+                  }}
+                  title="Xem vị trí người dùng trên bản đồ"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    color: '#ffffff',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Xem Vị Trí
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onStartTour}
+                  style={{
+                    backgroundColor: '#10b981',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '10px 22px',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '800',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  Bắt Đầu Đi Thử
+                </button>
+              </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onStartTour}
-              style={{
-                backgroundColor: '#10b981',
-                color: '#ffffff',
-                border: 'none',
-                padding: '11px 20px',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.35)',
-                transition: 'all 0.15s'
-              }}
-            >
-              Bắt Đầu Hành Trình Tham Quan
-            </button>
+            <p style={{ margin: 0, fontSize: '11px', color: '#93c5fd', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '8px' }}>
+              Khi bấm <strong>"Bắt Đầu Đi Thử"</strong>, xe tham quan sẽ xuất phát từ vị trí hiện tại của bạn, di chuyển tuần tự qua 8 phân khu chuồng động vật và tự động phát thuyết minh tiếng Việt tại mỗi điểm.
+            </p>
           </div>
         )}
 
@@ -667,13 +719,13 @@ export default function RealZooMap({
 
         {/* Quick Departure Point Picker */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Xuất phát từ:</span>
+          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Chọn nhanh điểm xuất phát:</span>
           {[
-            { label: 'Cổng Nguyễn Bỉnh Khiêm', lat: 10.7865, lon: 106.7045 },
-            { label: 'Cổng Nguyễn Thị Minh Khai', lat: 10.7878, lon: 106.7038 },
-            { label: 'Cầu Thị Nghè', lat: 10.7892, lon: 106.7072 },
-            { label: 'Đền Thờ Vua Hùng', lat: 10.7860, lon: 106.7048 },
-            { label: 'Hồ Sen Trung Tâm', lat: 10.7875, lon: 106.7055 }
+            { label: 'Cổng Nguyễn Bỉnh Khiêm', lat: 10.7868, lon: 106.7040 },
+            { label: 'Cổng Nguyễn Thị Minh Khai', lat: 10.7882, lon: 106.7039 },
+            { label: 'Cầu Thị Nghè (Góc Vườn Thú)', lat: 10.7886, lon: 106.7065 },
+            { label: 'Đền Thờ Vua Hùng', lat: 10.7863, lon: 106.7046 },
+            { label: 'Hồ Sen & Đảo Linh Trưởng', lat: 10.7875, lon: 106.7055 }
           ].map((pt, idx) => (
             <button
               key={idx}
@@ -685,22 +737,43 @@ export default function RealZooMap({
                   label: pt.label,
                   isRealGPS: false
                 });
-                showToast(`Đã chọn điểm xuất phát: ${pt.label}`, "info");
+                if (mapRef.current) {
+                  mapRef.current.panTo([pt.lat, pt.lon], { animate: true });
+                }
+                showToast(`Đã đặt điểm xuất phát: ${pt.label}`, "info");
               }}
               style={{
                 backgroundColor: (userLocation.lat === pt.lat && userLocation.lon === pt.lon) ? '#059669' : '#f1f5f9',
                 color: (userLocation.lat === pt.lat && userLocation.lon === pt.lon) ? '#ffffff' : '#334155',
                 border: '1px solid #cbd5e1',
-                padding: '4px 10px',
+                padding: '5px 12px',
                 borderRadius: '6px',
                 fontSize: '11px',
                 fontWeight: 'bold',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.15s'
               }}
             >
               {pt.label}
             </button>
           ))}
+          <button
+            type="button"
+            onClick={onGetLiveGPS}
+            disabled={isLocating}
+            style={{
+              backgroundColor: '#0284c7',
+              color: '#ffffff',
+              border: 'none',
+              padding: '5px 12px',
+              borderRadius: '6px',
+              fontSize: '11px',
+              fontWeight: 'bold',
+              cursor: isLocating ? 'wait' : 'pointer'
+            }}
+          >
+            {isLocating ? 'Đang dò GPS...' : 'GPS Trực Tiếp'}
+          </button>
         </div>
       </div>
 
