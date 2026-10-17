@@ -1,10 +1,10 @@
 # 🦁 Frontend Web Admin — Thảo Cầm Viên Sài Gòn
 ## Phân Hệ Quản Trị Hệ Thống Thuyết Minh Sở Thú Tự Động (React.js)
 
-* **Vai trò:** **FE DEV (Phần 1 theo đề bài phân công)**
+* **Vai trò:** **FE DEV **
 * **Học phần:** Công Nghệ Phần Mềm (CNPM)
 * **Giảng viên hướng dẫn:** **TS. Nguyễn Quốc Huy**
-* **Chủ quyền:** *Quần đảo Hoàng Sa và Trường Sa là của Việt Nam 🇻🇳*
+
 
 ---
 

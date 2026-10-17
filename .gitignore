@@ -16,3 +16,9 @@ obj/
 # OS
 Thumbs.db
 .DS_Store
+
+# Reports & Documents
+*.docx
+*.doc
+*.pdf
+*Bao_Cao*
