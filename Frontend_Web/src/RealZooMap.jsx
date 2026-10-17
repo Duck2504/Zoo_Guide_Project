@@ -30,6 +30,43 @@ export function isPointInsideZoo(lat, lon) {
   return inside;
 }
 
+// Danh sách các Cổng Vào Vườn Thú Thực Tế
+export const ZOO_GATES = [
+  {
+    id: 'gate-1',
+    name: 'Cổng 1 (Nguyễn Bỉnh Khiêm)',
+    shortName: 'Cổng 1 (Chính)',
+    subtitle: 'Cổng chính vườn thú - Đối diện đại lộ Lê Duẩn',
+    address: 'Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1',
+    lat: 10.7868,
+    lon: 106.7040,
+    color: '#d97706',
+    icon: '⛩️'
+  },
+  {
+    id: 'gate-2',
+    name: 'Cổng 2 (Nguyễn Thị Minh Khai)',
+    shortName: 'Cổng 2 (Minh Khai)',
+    subtitle: 'Cổng phụ - Gần ngã ba Nguyễn Bỉnh Khiêm & Cầu Thị Nghè',
+    address: 'Số 1 Nguyễn Thị Minh Khai, P. Bến Nghé, Quận 1',
+    lat: 10.7882,
+    lon: 106.7039,
+    color: '#b45309',
+    icon: '⛩️'
+  },
+  {
+    id: 'gate-3',
+    name: 'Cổng 3 (Nguyễn Hữu Cảnh - Đền Hùng)',
+    shortName: 'Cổng 3 (Nguyễn Hữu Cảnh)',
+    subtitle: 'Cổng phụ / Bãi xe - Phía Đền Hùng & Bảo Tàng',
+    address: 'Góc Nguyễn Bỉnh Khiêm & Nguyễn Hữu Cảnh',
+    lat: 10.7861,
+    lon: 106.7052,
+    color: '#92400e',
+    icon: '⛩️'
+  }
+];
+
 export default function RealZooMap({
   animals,
   selectedAnimal,
@@ -53,12 +90,17 @@ export default function RealZooMap({
   calculateDistance,
   onGetLiveGPS,
   isLocating,
-  onWalkToAnimal
+  onWalkToAnimal,
+  selectedGate,
+  onSelectGate,
+  onWalkFromGateToAnimal,
+  onStartTourFromGate
 }) {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const tileLayerRef = useRef(null);
   const animalsLayerRef = useRef(null);
+  const gatesLayerRef = useRef(null);
   const boundaryLayerRef = useRef(null);
   const userMarkerRef = useRef(null);
   const routeLineRef = useRef(null);
@@ -123,6 +165,7 @@ export default function RealZooMap({
     });
 
     animalsLayerRef.current = L.layerGroup().addTo(map);
+    gatesLayerRef.current = L.layerGroup().addTo(map);
 
     // Click anywhere on map to reposition user (when not on auto tour)
     map.on('click', (e) => {
@@ -303,6 +346,147 @@ export default function RealZooMap({
     };
   }, [animals, selectedAnimal, navigationTarget, tourState, onWalkToAnimal]);
 
+  // 3b. Render Entrance Gate Markers (Cổng Vào Vườn Thú)
+  useEffect(() => {
+    if (!mapRef.current || !gatesLayerRef.current) return;
+
+    gatesLayerRef.current.clearLayers();
+
+    ZOO_GATES.forEach((gate) => {
+      const isSelectedGate = selectedGate?.id === gate.id;
+
+      const gateHtml = `
+        <div style="position: relative; width: 44px; height: 44px; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+          <div style="
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, ${isSelectedGate ? '#f59e0b' : '#d97706'} 0%, ${isSelectedGate ? '#d97706' : '#92400e'} 100%);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 4px 14px rgba(217,119,6,0.45);
+            transition: transform 0.2s;
+            ${isSelectedGate ? 'transform: scale(1.12); box-shadow: 0 0 0 4px rgba(245,158,11,0.5);' : ''}
+          ">
+            ⛩️
+          </div>
+          <div style="
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            background: ${isSelectedGate ? '#78350f' : 'rgba(120,53,15,0.95)'};
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 5px;
+            border: 1px solid #fcd34d;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            pointer-events: none;
+          ">
+            ${gate.shortName}
+          </div>
+        </div>
+      `;
+
+      const gateMarker = L.marker([gate.lat, gate.lon], {
+        icon: L.divIcon({
+          className: 'custom-gate-marker',
+          html: gateHtml,
+          iconSize: [44, 44],
+          iconAnchor: [22, 22]
+        }),
+        zIndexOffset: isSelectedGate ? 600 : 350
+      });
+
+      const popupHtml = `
+        <div style="font-family: inherit; width: 230px; padding: 4px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:22px;">⛩️</span>
+            <div>
+              <h4 style="margin:0;font-size:13px;font-weight:800;color:#78350f;">${gate.name}</h4>
+              <p style="margin:1px 0 0;font-size:10px;color:#64748b;">${gate.address}</p>
+            </div>
+          </div>
+          <p style="margin:0 0 8px;font-size:11px;color:#475569;line-height:1.4;">
+            ${gate.subtitle}
+          </p>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <button
+              type="button"
+              onclick="window.__setTouristAtGate && window.__setTouristAtGate('${gate.id}')"
+              style="
+                width: 100%;
+                background: #d97706;
+                color: #ffffff;
+                border: none;
+                padding: 7px 10px;
+                border-radius: 7px;
+                font-size: 11px;
+                font-weight: 800;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                box-shadow: 0 2px 6px rgba(217,119,6,0.3);
+              "
+            >
+              <span>🚶</span>
+              <span>Đặt Người Đi Bộ Tại Cổng Này</span>
+            </button>
+            <button
+              type="button"
+              onclick="window.__startTourFromGate && window.__startTourFromGate('${gate.id}')"
+              style="
+                width: 100%;
+                background: #059669;
+                color: #ffffff;
+                border: none;
+                padding: 7px 10px;
+                border-radius: 7px;
+                font-size: 11px;
+                font-weight: 800;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                box-shadow: 0 2px 6px rgba(5,150,105,0.3);
+              "
+            >
+              <span>🚶</span>
+              <span>Đi Thử Từ Cổng Này (8 Điểm)</span>
+            </button>
+          </div>
+        </div>
+      `;
+      gateMarker.bindPopup(popupHtml);
+
+      gateMarker.on('click', () => {
+        if (onSelectGate) onSelectGate(gate);
+      });
+
+      gatesLayerRef.current.addLayer(gateMarker);
+    });
+
+    window.__setTouristAtGate = (gateId) => {
+      const g = ZOO_GATES.find(x => x.id === gateId);
+      if (g && onSelectGate) onSelectGate(g);
+    };
+
+    window.__startTourFromGate = (gateId) => {
+      const g = ZOO_GATES.find(x => x.id === gateId);
+      if (g && onStartTourFromGate) onStartTourFromGate(g);
+    };
+  }, [selectedGate, onSelectGate, onStartTourFromGate]);
+
   // 4. GPS Location Marker - Hình Người Đi Thử / Du Khách (Human Pedestrian Walking Avatar)
   useEffect(() => {
     if (!mapRef.current) return;
@@ -336,7 +520,7 @@ export default function RealZooMap({
             background: ${isTouring ? '#34d399' : '#60a5fa'};
             ${isTouring ? 'animation: tour-ping 1.2s infinite;' : ''}
           "></span>
-          <span>${isTouring ? 'Tôi (Đang đi thử...)' : 'Vị Trí Của Tôi'}</span>
+          <span>${userLocation.label ? userLocation.label : (isTouring ? 'Tôi (Đang đi thử...)' : 'Vị Trí Của Tôi')}</span>
         </div>
 
         <!-- Radar Pulse on Ground beneath Feet -->
@@ -473,7 +657,7 @@ export default function RealZooMap({
         .foot-pulse {
           animation: footPulseEffect 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
-        .custom-user-marker, .custom-animal-marker, .leaflet-div-icon {
+        .custom-user-marker, .custom-animal-marker, .custom-gate-marker, .leaflet-div-icon {
           background: transparent !important;
           border: none !important;
         }
@@ -830,6 +1014,128 @@ export default function RealZooMap({
           ))}
         </div>
 
+        {/* KHỐI ĐIỀU KHIỂN: XUẤT PHÁT TỪ TỪNG CỔNG VÀO (Người đi bộ từng cổng vào các địa điểm) */}
+        <div style={{
+          backgroundColor: '#fffbeb',
+          border: '1.5px solid #fcd34d',
+          borderRadius: '12px',
+          padding: '10px 14px',
+          marginBottom: '10px',
+          boxShadow: '0 2px 8px rgba(217, 119, 6, 0.08)'
+        }}>
+          {/* Hàng 1: Chọn Cổng Xuất Phát */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px', borderBottom: '1px solid #fef3c7', paddingBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '18px' }}>⛩️</span>
+              <span style={{ fontSize: '12px', fontWeight: '800', color: '#92400e' }}>
+                XUẤT PHÁT TỪ TỪNG CỔNG VÀO:
+              </span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              {ZOO_GATES.map((gate) => {
+                const isSelected = selectedGate?.id === gate.id;
+                return (
+                  <button
+                    key={gate.id}
+                    type="button"
+                    onClick={() => {
+                      if (onSelectGate) onSelectGate(gate);
+                    }}
+                    style={{
+                      backgroundColor: isSelected ? '#d97706' : '#ffffff',
+                      color: isSelected ? '#ffffff' : '#92400e',
+                      border: isSelected ? '1.5px solid #b45309' : '1px solid #fcd34d',
+                      padding: '5px 12px',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: '800',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      boxShadow: isSelected ? '0 2px 6px rgba(217,119,6,0.35)' : 'none',
+                      transition: 'all 0.15s'
+                    }}
+                  >
+                    <span>⛩️</span>
+                    <span>{gate.shortName}</span>
+                    {isSelected && <span style={{ fontSize: '10px', background: '#ffffff', color: '#d97706', padding: '1px 5px', borderRadius: '4px', fontWeight: '900' }}>Vị trí hiện tại</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Hàng 2: Hành động đi bộ từ Cổng đã chọn */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              onClick={() => {
+                if (onStartTourFromGate && selectedGate) {
+                  onStartTourFromGate(selectedGate);
+                } else if (onStartTour) {
+                  onStartTour();
+                }
+              }}
+              style={{
+                backgroundColor: '#059669',
+                color: '#ffffff',
+                border: 'none',
+                padding: '6px 13px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 2px 6px rgba(5,150,105,0.3)',
+                transition: 'all 0.15s'
+              }}
+            >
+              <span>🚶</span>
+              <span>Đi Thử Từ {selectedGate?.shortName || 'Cổng'} Vào 8 Điểm (Lần Lượt)</span>
+            </button>
+
+            <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '800' }}>
+              Đi từ {selectedGate?.shortName || 'cổng'} đến:
+            </span>
+
+            {animals.map((an, idx) => (
+              <button
+                key={an.id}
+                type="button"
+                onClick={() => {
+                  if (onWalkFromGateToAnimal && selectedGate) {
+                    onWalkFromGateToAnimal(selectedGate, an);
+                  } else if (onWalkToAnimal) {
+                    onWalkToAnimal(an);
+                  }
+                }}
+                title={`Người đi bộ từ ${selectedGate?.shortName || 'Cổng'} đến ${an.name}`}
+                style={{
+                  backgroundColor: selectedAnimal?.id === an.id ? '#047857' : '#ffffff',
+                  color: selectedAnimal?.id === an.id ? '#ffffff' : '#1e293b',
+                  border: '1px solid #cbd5e1',
+                  padding: '4px 9px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '3px',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <span>🚶</span>
+                <span>{idx + 1}. {an.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Real Leaflet Map Container */}
         <div
           ref={mapContainerRef}
@@ -930,6 +1236,39 @@ export default function RealZooMap({
           <div><strong>Chế độ ăn:</strong> {selectedAnimal.diet}</div>
           <div><strong>Khoảng cách:</strong> <strong style={{ color: '#2563eb' }}>{calculateDistance(userLocation.lat, userLocation.lon, selectedAnimal.coordinates.lat, selectedAnimal.coordinates.lon)}m</strong></div>
         </div>
+
+        {/* Action: Hình người đi từ Cổng đến chuồng này */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onWalkFromGateToAnimal && selectedGate) {
+              onWalkFromGateToAnimal(selectedGate, selectedAnimal);
+            } else if (onWalkToAnimal) {
+              onWalkToAnimal(selectedAnimal);
+            }
+          }}
+          style={{
+            width: '100%',
+            backgroundColor: '#d97706',
+            color: '#ffffff',
+            padding: '11px 14px',
+            borderRadius: '10px',
+            border: 'none',
+            fontWeight: '800',
+            fontSize: '12px',
+            cursor: 'pointer',
+            marginBottom: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: '0 3px 10px rgba(217, 119, 6, 0.3)',
+            transition: 'all 0.15s'
+          }}
+        >
+          <span style={{ fontSize: '16px' }}>🚶</span>
+          <span>Đi Từ {selectedGate?.shortName || 'Cổng'} Đến {selectedAnimal.name}</span>
+        </button>
 
         {/* Action: Hình người đi thử đến chuồng này */}
         <button

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import RealZooMap, { ZOO_BOUNDARY_POLYGON, isPointInsideZoo } from './RealZooMap.jsx';
+import RealZooMap, { ZOO_BOUNDARY_POLYGON, isPointInsideZoo, ZOO_GATES } from './RealZooMap.jsx';
 import RealPickerMap from './RealPickerMap.jsx';
 
 // 8 Loài động vật mẫu đại diện vườn thú (Tất cả tọa độ nằm 100% bên trong ranh giới khuôn viên Vườn Thú)
@@ -170,6 +170,7 @@ export default function App() {
     label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)',
     isRealGPS: false
   });
+  const [selectedGate, setSelectedGate] = useState(ZOO_GATES[0]);
   const [isLocating, setIsLocating] = useState(false);
 
   // Trạng thái Chỉ đường (Navigation)
@@ -350,6 +351,106 @@ export default function App() {
     setIsWalking(false);
     setNavigationTarget(null);
     showToast("Đã dừng chỉ đường.", "info");
+  };
+
+  // Đặt hình người đi bộ tại một cổng vào
+  const placeTouristAtGate = (gate) => {
+    setSelectedGate(gate);
+    cancelNavigation();
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
+
+    setUserLocation({
+      lat: gate.lat,
+      lon: gate.lon,
+      label: `Tôi (Tại ${gate.name})`,
+      isRealGPS: false
+    });
+    showToast(`Đã đặt người đi bộ tại: ${gate.name}! Sẵn sàng xuất phát.`, "success");
+  };
+
+  // Người đi bộ xuất phát từ một cổng đi vào một địa điểm cụ thể
+  const walkFromGateToAnimal = (gate, targetAnimal) => {
+    setSelectedGate(gate);
+    cancelNavigation();
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    setSelectedAnimal(targetAnimal);
+    setNavigationTarget(targetAnimal);
+
+    setTourState({
+      isActive: true,
+      isPaused: false,
+      currentStopIndex: animals.findIndex(a => a.id === targetAnimal.id),
+      phase: 'driving'
+    });
+
+    showToast(`Người đi bộ xuất phát từ ${gate.shortName} -> đang di chuyển đến: ${targetAnimal.name}...`, "info");
+
+    const startLat = gate.lat;
+    const startLon = gate.lon;
+    const targetLat = targetAnimal.coordinates.lat;
+    const targetLon = targetAnimal.coordinates.lon;
+
+    let step = 0;
+    const totalSteps = 28;
+
+    tourTimerRef.current = setInterval(() => {
+      step++;
+      const p = step / totalSteps;
+      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+      if (p >= 1) {
+        clearInterval(tourTimerRef.current);
+        tourTimerRef.current = null;
+
+        setUserLocation(prev => ({
+          ...prev,
+          lat: targetLat,
+          lon: targetLon,
+          label: `Tại chuồng ${targetAnimal.name}`
+        }));
+
+        setTourState(prev => ({ ...prev, phase: 'narrating' }));
+        showToast(`ĐÃ ĐẾN NƠI: Người đi bộ từ ${gate.shortName} đã đến chuồng ${targetAnimal.name}! Bắt đầu thuyết minh.`, "success");
+
+        const speechContent = `Quý khách vừa đi bộ từ ${gate.name} đến điểm tham quan ${targetAnimal.name}. ` + targetAnimal.descriptionVi;
+        speakWithCallback(speechContent, tourLang, () => {
+          showToast(`Đã hoàn tất thuyết minh tại chuồng ${targetAnimal.name}!`, "info");
+          setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
+        });
+      } else {
+        const curLat = parseFloat((startLat + (targetLat - startLat) * ease).toFixed(6));
+        const curLon = parseFloat((startLon + (targetLon - startLon) * ease).toFixed(6));
+        setUserLocation(prev => ({
+          ...prev,
+          lat: curLat,
+          lon: curLon,
+          label: `Đi từ ${gate.shortName} -> ${targetAnimal.name}...`
+        }));
+      }
+    }, 60);
+  };
+
+  // Bắt đầu tour đi bộ từ một cổng vào lần lượt 8 địa điểm
+  const startTourFromGate = (gate) => {
+    setSelectedGate(gate);
+    setUserLocation({
+      lat: gate.lat,
+      lon: gate.lon,
+      label: `Xuất phát từ ${gate.name}`,
+      isRealGPS: false
+    });
+    showToast(`Bắt đầu hành trình đi bộ từ ${gate.name} lần lượt qua 8 địa điểm...`, "success");
+    setTimeout(() => {
+      startAutoTour();
+    }, 200);
   };
 
   // 0. Cho hình người đi thử đến một điểm cụ thể theo yêu cầu
@@ -1514,6 +1615,10 @@ export default function App() {
             onStartNavigation={startNavigation}
             onCancelNavigation={cancelNavigation}
             onWalkToAnimal={walkToAnimal}
+            selectedGate={selectedGate}
+            onSelectGate={placeTouristAtGate}
+            onWalkFromGateToAnimal={walkFromGateToAnimal}
+            onStartTourFromGate={startTourFromGate}
             showToast={showToast}
             tourLang={tourLang}
             setTourLang={setTourLang}
