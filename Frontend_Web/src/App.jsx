@@ -1527,7 +1527,7 @@ export default function App() {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>
-                    👁️ Bản Xem Trước Thẻ Du Khách (Live Preview)
+                    Bản Xem Trước Thẻ Du Khách (Live Preview)
                   </h3>
                   <span style={{ backgroundColor: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
                     Đồng Bộ Tức Thì
@@ -1542,7 +1542,7 @@ export default function App() {
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     <div style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: 'rgba(0,0,0,0.65)', padding: '3px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold' }}>
-                      📍 {formData.zone}
+                      {formData.zone}
                     </div>
                     <div style={{ position: 'absolute', bottom: '10px', right: '10px', backgroundColor: '#10b981', color: '#ffffff', padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold' }}>
                       Geofence: {formData.radius}m
@@ -1565,9 +1565,9 @@ export default function App() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', backgroundColor: '#1e293b', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', color: '#34d399', margin: '10px 0', fontFamily: 'monospace' }}>
-                      <span>🌐 Kinh độ: {formData.lon}</span>
+                      <span>Kinh độ: {formData.lon}</span>
                       <span>|</span>
-                      <span>🌐 Vĩ độ: {formData.lat}</span>
+                      <span>Vĩ độ: {formData.lat}</span>
                     </div>
 
                     <p style={{ fontSize: '12px', color: '#e2e8f0', lineHeight: '1.6', backgroundColor: '#1e293b', padding: '10px', borderRadius: '8px', maxHeight: '120px', overflowY: 'auto' }}>
@@ -1590,7 +1590,7 @@ export default function App() {
                         marginTop: '10px'
                       }}
                     >
-                      {isSpeaking ? '⏹ Dừng Giọng Đọc' : '▶ Nghe Thuyết Minh vườn thú'}
+                      {isSpeaking ? 'Dừng Giọng Đọc' : 'Nghe Thuyết Minh Vườn Thú'}
                     </button>
                   </div>
                 </div>

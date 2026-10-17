@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Khám Phá Thảo Cầm Viên Sài Gòn — Hệ Thống Thuyết Minh Tự Động Đa Ngôn Ngữ</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>" />
+  <title>Khám Phá Vườn Thú — Hệ Thống Thuyết Minh Tự Động Đa Ngôn Ngữ</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%23059669%22><path d=%22M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z%22/></svg>" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -133,8 +133,11 @@
       <div class="flex items-center space-x-3.5">
         <div class="relative group">
           <div class="absolute -inset-1 bg-gradient-to-r from-zoo-400 to-emerald-500 rounded-2xl blur opacity-60 group-hover:opacity-100 transition duration-300"></div>
-          <div class="relative w-11 h-11 bg-zoo-600 rounded-xl flex items-center justify-center text-2xl shadow-lg border border-zoo-400/40">
-            🦁
+          <div class="relative w-11 h-11 bg-zoo-600 rounded-xl flex items-center justify-center text-white shadow-lg border border-zoo-400/40">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
           </div>
         </div>
         <div>
@@ -201,7 +204,7 @@
         <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs group-hover:scale-110 transition">
           <i class="fa-solid fa-map-location-dot"></i>
         </span>
-        <span>Bản Đồ Thảo Cầm Viên (Tranh Vẽ & Vệ Tinh GPS)</span>
+        <span>Bản Đồ Vườn Thú (Tranh Vẽ & Vệ Tinh GPS)</span>
         <span class="bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-md">Mới: Tranh Vẽ Gốc</span>
       </button>
 
@@ -248,17 +251,16 @@
       
       <!-- Top Overview Banner & Fast Preset Buttons -->
       <div class="bg-gradient-to-r from-zoo-900 via-zoo-800 to-emerald-900 text-white rounded-2xl p-5 shadow-lg border border-zoo-700/60 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 relative overflow-hidden">
-        <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl pointer-events-none select-none">🌿</div>
         
         <div class="relative z-10 max-w-2xl">
           <div class="inline-flex items-center gap-2 bg-zoo-500/20 border border-zoo-400/30 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-zoo-300 mb-2">
             <i class="fa-solid fa-shield-cat"></i> CỔNG BIÊN TẬP NỘI DUNG VƯỜN THÚ (CMS)
           </div>
           <h2 class="text-lg sm:text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-            <span>🌿 Thêm Chuồng Động Vật, Tọa Độ GPS & Bài Thuyết Minh Tiếng Việt</span>
+            <span>Thêm Chuồng Động Vật, Tọa Độ GPS & Bài Thuyết Minh Tiếng Việt</span>
           </h2>
           <p class="text-xs sm:text-sm text-zoo-200/90 mt-1 leading-relaxed">
-            Thiết lập dữ liệu loài theo đúng bản đồ Thảo Cầm Viên Sài Gòn: định vị GPS, điều chỉnh Geofence tự động và biên soạn bài thuyết minh tiếng Việt chuẩn du lịch.
+            Thiết lập dữ liệu loài theo đúng bản đồ Vườn Thú: định vị GPS, điều chỉnh Geofence tự động và biên soạn bài thuyết minh tiếng Việt chuẩn du lịch.
           </p>
         </div>
 
@@ -266,16 +268,16 @@
         <div class="relative z-10 flex flex-wrap gap-2">
           <span class="text-xs font-semibold text-zoo-300 self-center hidden sm:inline">Nạp dữ liệu mẫu:</span>
           <button type="button" onclick="loadAnimalPreset('voi')" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/20 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
-            <span>🐘</span><span>Voi Châu Á</span>
+            <span>Voi Châu Á</span>
           </button>
           <button type="button" onclick="loadAnimalPreset('ho')" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/20 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
-            <span>🐅</span><span>Hổ Đông Dương</span>
+            <span>Hổ Đông Dương</span>
           </button>
           <button type="button" onclick="loadAnimalPreset('huou')" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/20 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
-            <span>🦒</span><span>Hươu Cao Cổ</span>
+            <span>Hươu Cao Cổ</span>
           </button>
           <button type="button" onclick="loadAnimalPreset('vuon')" class="bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/20 text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm">
-            <span>🐒</span><span>Vượn Má Vàng</span>
+            <span>Vượn Má Vàng</span>
           </button>
         </div>
       </div>
@@ -303,8 +305,7 @@
                     Tên Loài Động Vật (Tiếng Việt) <span class="text-red-500">*</span>
                   </label>
                   <div class="relative">
-                    <input type="text" id="f-name" required placeholder="VD: Voi Châu Á, Hổ Đông Dương..." class="w-full text-xs font-semibold p-3 pl-9 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:border-zoo-500 focus:outline-none transition" oninput="syncLivePreview()" />
-                    <span class="absolute left-3 top-3 text-slate-400 text-sm">🦁</span>
+                    <input type="text" id="f-name" required placeholder="VD: Voi Châu Á, Hổ Đông Dương..." class="w-full text-xs font-semibold p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:border-zoo-500 focus:outline-none transition" oninput="syncLivePreview()" />
                   </div>
                 </div>
 
@@ -313,8 +314,7 @@
                     Tên Khoa Học (Danh pháp Latin)
                   </label>
                   <div class="relative">
-                    <input type="text" id="f-sciname" placeholder="VD: Elephas maximus, Panthera tigris..." class="w-full text-xs italic font-medium p-3 pl-9 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:border-zoo-500 focus:outline-none transition" oninput="syncLivePreview()" />
-                    <span class="absolute left-3 top-3 text-slate-400 text-sm">🔬</span>
+                    <input type="text" id="f-sciname" placeholder="VD: Elephas maximus, Panthera tigris..." class="w-full text-xs italic font-medium p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:border-zoo-500 focus:outline-none transition" oninput="syncLivePreview()" />
                   </div>
                 </div>
               </div>
@@ -361,7 +361,7 @@
                 <div class="flex items-center space-x-2.5">
                   <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white text-xs font-extrabold flex items-center justify-center shadow-sm">2</span>
                   <div>
-                    <h3 class="text-sm font-bold text-slate-800 tracking-tight">Tọa Độ GPS & Bán Kính Geofence Kích Hoạt Tự Động (Bản Đồ Thảo Cầm Viên)</h3>
+                    <h3 class="text-sm font-bold text-slate-800 tracking-tight">Tọa Độ GPS & Bán Kính Geofence Kích Hoạt Tự Động (Bản Đồ Vườn Thú)</h3>
                     <p class="text-[11px] text-slate-500">Nhấp vào bất kỳ chuồng thú hoặc điểm nào trên bản đồ để ghim GPS & nghe thuyết minh đa ngôn ngữ tức thì.</p>
                   </div>
                 </div>
@@ -398,13 +398,13 @@
                 </div>
               </div>
 
-              <!-- REAL GPS LEAFLET MAP OF THẢO CẦM VIÊN -->
+              <!-- REAL GPS LEAFLET MAP OF VƯỜN THÚ -->
               <div class="relative bg-slate-950 rounded-2xl overflow-hidden border-2 border-zoo-600/70 shadow-lg group">
                 <!-- Map Header Overlay -->
                 <div class="p-3 bg-gradient-to-r from-slate-950 via-zoo-950 to-slate-900 border-b border-zoo-800/70 flex flex-wrap items-center justify-between gap-2">
                   <div class="flex items-center space-x-2 text-white text-xs">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span class="font-extrabold text-zoo-200">Bản Đồ Địa Lý Thực Tế — Thảo Cầm Viên Sài Gòn</span>
+                    <span class="font-extrabold text-zoo-200">Bản Đồ Địa Lý Thực Tế — Vườn Thú</span>
                     <span class="text-slate-400 hidden sm:inline">•</span>
                     <span class="text-slate-300 text-[11px] hidden sm:inline">Nhấp vào bất kỳ điểm nào trên bản đồ để ghim GPS & nghe thuyết minh</span>
                   </div>
@@ -455,7 +455,7 @@
                     <span class="wave-bar w-1 bg-zoo-400 rounded-full h-full inline-block"></span>
                   </div>
                   <p id="hud-narrative-text" class="text-xs text-slate-200 leading-relaxed max-h-24 overflow-y-auto">
-                    Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn...
+                    Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Vườn Thú...
                   </p>
                 </div>
               </div>
@@ -495,7 +495,7 @@
 
                 <div class="flex justify-between text-[11px] text-slate-400 font-medium">
                   <span>10m (Chuồng lồng hẹp)</span>
-                  <span class="text-emerald-600 font-bold">25m (Chuẩn Thảo Cầm Viên)</span>
+                  <span class="text-emerald-600 font-bold">25m (Chuẩn Vườn Thú)</span>
                   <span>60m (Đảo hoang dã / Thảo nguyên lớn)</span>
                 </div>
               </div>
@@ -518,13 +518,13 @@
               <!-- Narration Style Switcher Tabs -->
               <div class="flex gap-2">
                 <button type="button" onclick="setNarrationTone('standard')" id="btn-tone-std" class="text-[11px] font-bold px-3 py-1.5 rounded-lg bg-zoo-600 text-white shadow-sm transition">
-                  🏛️ Phổ Thông (Du Lịch)
+                  Phổ Thông (Du Lịch)
                 </button>
                 <button type="button" onclick="setNarrationTone('kids')" id="btn-tone-kids" class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
-                  🎈 Trẻ Em (Vui Nhộn)
+                  Trẻ Em (Vui Nhộn)
                 </button>
                 <button type="button" onclick="setNarrationTone('science')" id="btn-tone-sci" class="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
-                  🔬 Khoa Học & Bảo Tồn
+                  Khoa Học & Bảo Tồn
                 </button>
               </div>
 
@@ -565,8 +565,7 @@
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">URL Ảnh Chụp Chuồng Thú (HD)</label>
                 <div class="relative">
-                  <input type="url" id="f-image" placeholder="https://images.unsplash.com/photo-..." class="w-full text-xs p-3 pl-9 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:outline-none transition" oninput="syncLivePreview()" />
-                  <span class="absolute left-3 top-3 text-slate-400 text-sm">📷</span>
+                  <input type="url" id="f-image" placeholder="https://images.unsplash.com/photo-..." class="w-full text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:outline-none transition" oninput="syncLivePreview()" />
                 </div>
               </div>
 
@@ -650,7 +649,7 @@
               <div>
                 <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Lời thuyết minh tiếng Việt:</span>
                 <p id="p-desc" class="text-xs text-slate-200 leading-relaxed bg-slate-800/90 p-3.5 rounded-xl border border-slate-700/80 mt-1.5 max-h-36 overflow-y-auto">
-                  Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn...
+                  Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Vườn Thú...
                 </p>
               </div>
 
@@ -672,7 +671,7 @@
                 </div>
 
                 <button type="button" onclick="toggleWebSpeechPreview()" class="w-full bg-zoo-600 hover:bg-zoo-700 active:scale-95 text-white font-bold text-xs py-2 rounded-lg transition flex items-center justify-center gap-1.5">
-                  <i class="fa-solid fa-play"></i><span>Nghe Thuyết Minh Thảo Cầm Viên</span>
+                  <i class="fa-solid fa-play"></i><span>Nghe Thuyết Minh Vườn Thú</span>
                 </button>
               </div>
             </div>
@@ -697,7 +696,7 @@
     </section>
 
     <!-- ======================================================================= -->
-    <!-- TAB 2: BẢN ĐỒ THẢO CẦM VIÊN (2 CHẾ ĐỘ: TRANH VẼ CHÍNH THỨC & VỆ TINH GPS) -->
+    <!-- TAB 2: BẢN ĐỒ VƯỜN THÚ (2 CHẾ ĐỘ: TRANH VẼ CHÍNH THỨC & VỆ TINH GPS) -->
     <!-- ======================================================================= -->
     <section id="pane-map" class="tab-pane hidden space-y-5">
       
@@ -705,8 +704,7 @@
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h2 class="font-extrabold text-slate-900 text-base flex items-center space-x-2">
-            <span class="text-xl">🗺️</span>
-            <span>Bản Đồ Địa Lý Thực Tế — Thảo Cầm Viên Sài Gòn</span>
+            <span>Bản Đồ Địa Lý Thực Tế — Vườn Thú</span>
           </h2>
           <p class="text-xs text-slate-500 mt-0.5">
             Tọa độ GPS thực tế tại <strong>Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1</strong> • Tích hợp bán kính Geofence và thuyết minh tự động đa ngôn ngữ.
@@ -727,7 +725,7 @@
           <button onclick="startAutoTour()" class="bg-zoo-600 hover:bg-zoo-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition">
             <i class="fa-solid fa-person-walking"></i><span>Tour Tự Động Dạo Vườn Thú</span>
           </button>
-          <button onclick="resetMainMapView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1 border border-slate-200 transition" title="Về tâm Thảo Cầm Viên">
+          <button onclick="resetMainMapView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1 border border-slate-200 transition" title="Về tâm Vườn Thú">
             <i class="fa-solid fa-crosshairs text-zoo-600"></i><span>Về Tâm Sở Thú</span>
           </button>
         </div>
@@ -753,11 +751,18 @@
           <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/60 pb-2">
               <span class="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
-                <span class="text-base">⛩️</span> <span>CỔNG CHÍNH (ĐIỂM XUẤT PHÁT DU KHÁCH):</span>
+                <span class="w-6 h-6 rounded bg-amber-600 text-white flex items-center justify-center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18"/>
+                    <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
+                    <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+                  </svg>
+                </span>
+                <span>CỔNG CHÍNH (ĐIỂM XUẤT PHÁT DU KHÁCH):</span>
                 <span class="text-[11px] font-semibold text-amber-800 ml-1">Số 2 Nguyễn Bỉnh Khiêm (Đối diện đại lộ Lê Duẩn)</span>
               </span>
               <button type="button" onclick="resetTouristToMainGate()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm flex items-center gap-1 transition">
-                <span>🚶</span><span>Đặt Người Đi Bộ Về Cổng Chính</span>
+                <span>Đặt Người Đi Bộ Về Cổng Chính</span>
               </button>
             </div>
 
@@ -834,7 +839,7 @@
 
           <!-- Audio Narrative Description Text / Subtitles -->
           <p id="m-desc" class="text-xs text-slate-700 leading-relaxed bg-zoo-50/70 p-3 rounded-xl border border-zoo-100 max-h-36 overflow-y-auto">
-            Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn...
+            Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Vườn Thú...
           </p>
 
           <button onclick="walkFromCurrentGateToAnimal(currentActiveExhibitId)" class="w-full bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow transition">
@@ -917,7 +922,7 @@
             <div class="mt-4 flex-1 flex flex-col justify-between overflow-hidden">
               <div>
                 <div class="text-center mb-2.5">
-                  <span class="text-[10px] font-extrabold text-zoo-400 tracking-wider">🌿 THẢO CẦM VIÊN AUDIO GUIDE</span>
+                  <span class="text-[10px] font-extrabold text-zoo-400 tracking-wider">HỆ THỐNG AUDIO GUIDE VƯỜN THÚ</span>
                 </div>
                 <div class="relative rounded-2xl overflow-hidden mb-3 h-36 bg-slate-800">
                   <img id="sim-img" src="https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700" alt="App Picture" class="w-full h-full object-cover" />
@@ -928,14 +933,14 @@
                     <h3 id="sim-name" class="font-extrabold text-base text-white">Voi Châu Á</h3>
                     <p id="sim-sciname" class="text-xs text-slate-400 italic">Elephas maximus</p>
                   </div>
-                  <span class="bg-zoo-900 text-zoo-300 border border-zoo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">🇻🇳 Tiếng Việt</span>
+                  <span class="bg-zoo-900 text-zoo-300 border border-zoo-700 text-[10px] px-2 py-0.5 rounded-full font-bold">Tiếng Việt</span>
                 </div>
                 <div class="bg-gradient-to-r from-zoo-950 to-emerald-950 border border-zoo-600/70 p-3 rounded-xl mb-3 shadow-md">
                   <div class="flex items-center space-x-1.5 text-zoo-400 text-xs font-bold mb-1">
                     <span class="w-2 h-2 rounded-full bg-zoo-400 animate-ping"></span>
-                    <span id="sim-alert-title">🎯 ĐÃ VÀO VÙNG GEOFENCE (12m)</span>
+                    <span id="sim-alert-title">ĐÃ VÀO VÙNG GEOFENCE (12m)</span>
                   </div>
-                  <p id="sim-desc" class="text-xs text-slate-200 leading-relaxed max-h-32 overflow-y-auto">Chào mừng quý khách đến với Thảo Cầm Viên...</p>
+                  <p id="sim-desc" class="text-xs text-slate-200 leading-relaxed max-h-32 overflow-y-auto">Chào mừng quý khách đến với Vườn Thú...</p>
                 </div>
               </div>
 
@@ -975,7 +980,7 @@
         <div id="printable-board" class="bg-gradient-to-br from-zoo-950 via-zoo-900 to-slate-950 text-white p-8 rounded-3xl border-4 border-zoo-500/80 shadow-2xl space-y-6">
           <div class="flex justify-between items-start border-b border-white/10 pb-4">
             <div>
-              <span class="text-xs font-extrabold tracking-widest text-zoo-300 uppercase">THẢO CẦM VIÊN SÀI GÒN • SAIGON ZOO & BOTANICAL GARDENS</span>
+              <span class="text-xs font-extrabold tracking-widest text-zoo-300 uppercase">HỆ THỐNG VƯỜN THÚ • ZOO & BOTANICAL GARDENS</span>
               <h2 id="sgn-name" class="text-3xl font-extrabold text-white mt-1">Voi Châu Á</h2>
               <p id="sgn-sciname" class="text-base text-zoo-200 italic font-serif">Elephas maximus</p>
             </div>
@@ -1002,12 +1007,12 @@
       <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
         <h3 class="font-extrabold text-slate-900 text-base">Phòng Thử Giọng Đọc AI Neural (TTS Studio)</h3>
         <select id="tts-lang-sel" class="w-full p-3 border border-slate-300 rounded-xl bg-white font-medium text-xs">
-          <option value="vi">🇻🇳 Tiếng Việt (vi-VN - Chuẩn du lịch Thảo Cầm Viên)</option>
+          <option value="vi">🇻🇳 Tiếng Việt (vi-VN - Chuẩn du lịch Vườn Thú)</option>
           <option value="en">🇬🇧 English (en-US - International Audio Guide)</option>
           <option value="ja">🇯🇵 日本語 (ja-JP - Tokyo Natural Voice)</option>
           <option value="ko">🇰🇷 한국어 (ko-KR - Seoul Natural Voice)</option>
         </select>
-        <textarea id="tts-demo-text" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-xs leading-relaxed">Chào mừng quý khách đến với Thảo Cầm Viên Sài Gòn, một trong những vườn thú lâu đời nhất thế giới với hơn 150 năm lịch sử bảo tồn động thực vật quý hiếm.</textarea>
+        <textarea id="tts-demo-text" rows="4" class="w-full p-3 border border-slate-300 rounded-xl text-xs leading-relaxed">Chào mừng quý khách đến với Vườn Thú, một trong những vườn thú lâu đời nhất thế giới với hơn 150 năm lịch sử bảo tồn động thực vật quý hiếm.</textarea>
         <button onclick="playTtsLabVoice()" class="w-full bg-zoo-600 hover:bg-zoo-700 text-white font-extrabold py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs">
           <i class="fa-solid fa-play"></i><span>Phát Giọng Đọc AI Ngay Bây Giờ</span>
         </button>
@@ -1018,7 +1023,7 @@
 
   <!-- Notification Toast -->
   <div id="toast" class="fixed bottom-6 right-6 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-bold flex items-center space-x-3 hidden z-50 border border-slate-700 backdrop-blur-md">
-    <span id="toast-icon" class="text-zoo-400 text-base">✅</span>
+    <span id="toast-icon" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
     <span id="toast-text">Thông báo</span>
   </div>
 
@@ -1050,7 +1055,7 @@
     let currentActiveExhibitId = 'zoo-1';
     let currentCustomSpotData = null;
 
-    // DỮ LIỆU BÀI THUYẾT MINH 5 NGÔN NGỮ CHUẨN XÁC CHO THẢO CẦM VIÊN
+    // DỮ LIỆU BÀI THUYẾT MINH 5 NGÔN NGỮ CHUẨN XÁC CHO VƯỜN THÚ
     const MULTILINGUAL_TOUR_DATA = {
       "zoo-1": {
         name: "Voi Châu Á",
@@ -1071,7 +1076,7 @@
           zh: "亚洲象",
           ja: "アジアゾウ"
         },
-        vi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc chu đáo với chế độ ăn giàu chất xơ gồm cỏ tươi, mía, chuối và bí đỏ. Hãy cùng bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
+        vi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Vườn Thú. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc chu đáo với chế độ ăn giàu chất xơ gồm cỏ tươi, mía, chuối và bí đỏ. Hãy cùng bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
         en: "Welcome to the Asian Elephant exhibit at Saigon Zoo and Botanical Gardens. The Asian Elephant is the largest land mammal in Asia, possessing an agile trunk with over 40,000 muscles. Here, our elephants enjoy a fiber-rich diet of fresh grass, sugarcane, bananas, and pumpkin. Let us join hands to protect this endangered species.",
         fr: "Bienvenue à l'enclos des éléphants d'Asie au Jardin Botanique et Zoologique de Saïgon. L'éléphant d'Asie est le plus grand mammifère terrestre du continent, doté d'une trompe agile comptant plus de 40 000 muscles. Les éléphants reçoivent une alimentation saine et des soins attentifs.",
         zh: "欢迎来到西贡动植物园的亚洲象展区。亚洲象是亚洲大陆上最大的陆生哺乳动物，拥有超过4万块肌肉的灵活象鼻。在这里，大象每天享用富含纤维的新鲜青草、甘蔗、香蕉和南瓜。让我们共同保护这一珍稀濒危物种。",
@@ -1146,7 +1151,7 @@
           zh: "黄颊长臂猿",
           ja: "キッペホオジロテナガザル"
         },
-        vi: "Tiếng hót lảnh lót vang vọng cả một góc Thảo Cầm Viên chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Thảo Cầm Viên là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
+        vi: "Tiếng hót lảnh lót vang vọng cả một góc Vườn Thú chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Vườn Thú là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
         en: "The echoing melodic songs belong to the Yellow-cheeked Crested Gibbon, an endangered primate endemic to the Indochinese peninsula. Their elongated arms enable rapid brachiation through the tree canopy. Saigon Zoo is one of the few places in the world that successfully breeds this species.",
         fr: "Les chants matinaux mélodieux proviennent du Gibbon à joues jaunes, primate emblématique d'Indochine. Ses longs bras lui permettent de se balancer avec une agilité prodigieuse. Le zoo de Saïgon est réputé pour ses réussites de reproduction de cette espèce rare.",
         zh: "在晨曦中响彻园区的动听啼鸣正是黄颊长臂猿的歌声。作为中南半岛特有的珍稀物种，它们修长的双臂能在树冠间极速摆荡。西贡动植物园是世界上少数成功繁育该物种的动物园之一。",
@@ -1196,7 +1201,7 @@
           zh: "湾鳄潭",
           ja: "イリエワニの池"
         },
-        vi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
+        vi: "Chào mừng quý khách đến với Đầm Cá Sấu Vườn Thú. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
         en: "Welcome to the Saltwater Crocodile Pool. The saltwater crocodile is Earth's largest living reptile, boasting a bone-crushing bite force of over 3,700 psi. Capable of remaining motionless beneath the surface like floating timber, they are masters of ambush predation.",
         fr: "Bienvenue au bassin des crocodiles marins. Plus grand reptile du globe, il déploie une force de morsure phénoménale de plus de 3 700 psi. Immobile sous l'eau telle une souche de bois, ce prédateur maîtrise l'art parfait de l'embuscade.",
         zh: "欢迎来到湾鳄展区。湾鳄是地球上现存体型最大的爬行动物，咬合力高达3700磅/平方英寸。它们能像浮木般在水面下潜伏数小时，展现出顶级的伪装伏击技巧。",
@@ -1271,7 +1276,7 @@
           zh: "雄王殿",
           ja: "フン王寺院"
         },
-        vi: "Chào mừng quý khách đến với Đền Thờ Các Vua Hùng bên trong khuôn viên Thảo Cầm Viên Sài Gòn. Được xây dựng từ năm 1926 với lối kiến trúc cung đình truyền thống tôn nghiêm, đây là nơi nhân dân và du khách thành kính tưởng nhớ công đức dựng nước của các bậc tiền nhân.",
+        vi: "Chào mừng quý khách đến với Đền Thờ Các Vua Hùng bên trong khuôn viên Vườn Thú. Được xây dựng từ năm 1926 với lối kiến trúc cung đình truyền thống tôn nghiêm, đây là nơi nhân dân và du khách thành kính tưởng nhớ công đức dựng nước của các bậc tiền nhân.",
         en: "Welcome to the Hung Kings' Temple inside Saigon Zoo grounds. Built in 1926 with classic Vietnamese royal architecture, this sacred monument serves as a revered cultural destination where visitors honor Vietnam's ancient founding ancestors.",
         fr: "Bienvenue au Temple des Rois Hung, édifié en 1926 au cœur du Jardin Botanique de Saïgon. Arborant une majestueuse architecture royale traditionnelle, ce lieu sacré rend hommage à la mémoire des rois fondateurs du Vietnam.",
         zh: "欢迎来到西贡动植物园内的雄王殿。该庙宇始建于1926年，采用庄严肃穆的越南传统宫廷建筑艺术风格，是后人缅怀越南开国祖先立国功勋的神圣文化圣地。",
@@ -1279,7 +1284,7 @@
       }
     };
 
-    // DANH SÁCH 8 LOÀI ĐỘNG VẬT TIÊU BIỂU TẠI THẢO CẦM VIÊN
+    // DANH SÁCH 8 LOÀI ĐỘNG VẬT TIÊU BIỂU TẠI VƯỜN THÚ
     const ZOO_ANIMALS = [
       {
         id: "zoo-1",
@@ -1292,7 +1297,7 @@
         radius_meters: 25,
         color: "#059669",
         imageUrl: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700",
-        descriptionVi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc theo chế độ dinh dưỡng giàu chất xơ với cỏ tươi, mía, chuối và bí đỏ. Hãy cùng chung tay bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
+        descriptionVi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Vườn Thú. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc theo chế độ dinh dưỡng giàu chất xơ với cỏ tươi, mía, chuối và bí đỏ. Hãy cùng chung tay bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
         audioLength: "01:25"
       },
       {
@@ -1334,7 +1339,7 @@
         radius_meters: 20,
         color: "#7c3aed",
         imageUrl: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?w=700",
-        descriptionVi: "Tiếng hót lảnh lót vang vọng cả một góc Thảo Cầm Viên chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Thảo Cầm Viên là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
+        descriptionVi: "Tiếng hót lảnh lót vang vọng cả một góc Vườn Thú chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Vườn Thú là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
         audioLength: "01:15"
       },
       {
@@ -1362,7 +1367,7 @@
         radius_meters: 25,
         color: "#2563eb",
         imageUrl: "https://images.unsplash.com/photo-1551085254-e96b210db58a?w=700",
-        descriptionVi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
+        descriptionVi: "Chào mừng quý khách đến với Đầm Cá Sấu Vườn Thú. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
         audioLength: "01:20"
       },
       {
@@ -1405,9 +1410,8 @@
     let isSpeaking = false;
     let autoTourInterval = null;
 
-    function showToast(msg, icon = '✅') {
+    function showToast(msg) {
       const toast = document.getElementById('toast');
-      document.getElementById('toast-icon').innerText = icon;
       document.getElementById('toast-text').innerText = msg;
       toast.classList.remove('hidden');
       setTimeout(() => toast.classList.add('hidden'), 3500);
@@ -1478,7 +1482,7 @@
       speakMultilingualTour(currentActiveExhibitId, lang);
     }
 
-    // CLICK CHỌN CHUỒNG THÚ TRÊN BẢN ĐỒ THẢO CẦM VIÊN
+    // CLICK CHỌN CHUỒNG THÚ TRÊN BẢN ĐỒ VƯỜN THÚ
     function clickExhibitOnMap(id) {
       currentActiveExhibitId = id;
       const data = MULTILINGUAL_TOUR_DATA[id];
@@ -1538,7 +1542,7 @@
         }
       }
 
-      // Convert percentage to real-world coordinates within Thảo Cầm Viên Sài Gòn
+      // Convert percentage to real-world coordinates within Vườn Thú
       const lon = parseFloat((106.7040 + (pctX / 100) * 0.0035).toFixed(6));
       const lat = parseFloat((10.7890 - (pctY / 100) * 0.0030).toFixed(6));
       const radius = parseInt(document.getElementById('f-radius').value) || 25;
@@ -1562,22 +1566,22 @@
 
       // Generate localized spot names and narrations
       currentCustomSpotData = {
-        name: `Điểm Thuyết Minh Thảo Cầm Viên [${lat.toFixed(4)}, ${lon.toFixed(4)}]`,
-        sciname: "Khuôn Viên Sinh Thái Thảo Cầm Viên",
-        zone: "Khu Vườn Cây Cổ Thụ & Cảnh Quan Thảo Cầm Viên",
+        name: `Điểm Thuyết Minh Vườn Thú [${lat.toFixed(4)}, ${lon.toFixed(4)}]`,
+        sciname: "Khuôn Viên Sinh Thái Vườn Thú",
+        zone: "Khu Vườn Cây Cổ Thụ & Cảnh Quan Vườn Thú",
         iucn: "Khuôn Viên Bảo Tồn",
         diet: "Hệ sinh thái tự nhiên",
         lon: lon,
         lat: lat,
         radius: radius,
         names: {
-          vi: `Điểm Khám Phá Thảo Cầm Viên`,
+          vi: `Điểm Khám Phá Vườn Thú`,
           en: `Saigon Zoo Discovery Point`,
           fr: `Point de Découverte du Zoo`,
           zh: `西贡动植物园探索点`,
           ja: `サイゴン動物園探索ポイント`
         },
-        vi: `Quý khách đang ở tọa độ ${lat}° vĩ Bắc, ${lon}° kinh Đông bên trong khuôn viên Thảo Cầm Viên Sài Gòn. Bán kính nhận diện geofence tự động là ${radius} mét. Không gian xanh mát cùng hệ sinh thái thực vật và động vật phong phú hơn 150 năm tuổi sẽ mang lại trải nghiệm tuyệt vời cho quý khách.`,
+        vi: `Quý khách đang ở tọa độ ${lat}° vĩ Bắc, ${lon}° kinh Đông bên trong khuôn viên Vườn Thú. Bán kính nhận diện geofence tự động là ${radius} mét. Không gian xanh mát cùng hệ sinh thái thực vật và động vật phong phú hơn 150 năm tuổi sẽ mang lại trải nghiệm tuyệt vời cho quý khách.`,
         en: `You are at coordinates ${lat}°N, ${lon}°E inside Saigon Zoo and Botanical Gardens. Automatic geofence radius is set to ${radius} meters. Enjoy the lush botanical heritage and diverse wildlife across this historic 150-year-old park.`,
         fr: `Vous êtes aux coordonnées ${lat}°N, ${lon}°E dans le Jardin Botanique et Zoologique de Saïgon. Le rayon geofence est de ${radius} mètres. Profitez de ce cadre naturel luxuriant et de sa biodiversité centenaire.`,
         zh: `您目前位于西贡动植物园内坐标 ${lat}°N, ${lon}°E 处。地理围栏自动识别半径为 ${radius} 米。请尽情探索拥有150多年悠久历史的古树群落与丰富动物生态！`,
@@ -1597,7 +1601,7 @@
     // PHÁT THUYẾT MINH ÂM THANH ĐA NGÔN NGỮ
     function speakMultilingualTour(id, lang) {
       if (!('speechSynthesis' in window)) {
-        showToast("Trình duyệt không hỗ trợ Web Speech API", "⚠️");
+        showToast("Trình duyệt không hỗ trợ Web Speech API");
         return;
       }
       window.speechSynthesis.cancel();
@@ -1666,7 +1670,7 @@
       const btnText = document.getElementById('hud-play-btn-text');
       if (wave) wave.classList.add('opacity-20');
       if (btnText) btnText.innerText = "Phát Lại Thuyết Minh";
-      showToast("Đã tạm dừng giọng đọc", "⏹");
+      showToast("Đã tạm dừng giọng đọc");
     }
 
     function selectHotspot(animalId) {
@@ -1701,7 +1705,7 @@
       if (mainTileLayer) map.removeLayer(mainTileLayer);
 
       const url = type === 'satellite' ? TILE_SAT : TILE_OSM;
-      const attr = type === 'satellite' ? '&copy; Esri, Maxar, Earthstar Geographics | Thảo Cầm Viên Sài Gòn' : '&copy; OpenStreetMap | Thảo Cầm Viên Sài Gòn';
+      const attr = type === 'satellite' ? '&copy; Esri, Maxar, Earthstar Geographics | Vườn Thú' : '&copy; OpenStreetMap | Vườn Thú';
       mainTileLayer = L.tileLayer(url, { attribution: attr, maxZoom: 19 }).addTo(map);
 
       const btnOsm = document.getElementById('btn-map-osm');
@@ -1709,7 +1713,7 @@
       if (type === 'satellite') {
         if (btnSat) btnSat.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-zoo-600 text-white shadow-sm flex items-center gap-1.5 transition";
         if (btnOsm) btnOsm.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition";
-        showToast("Đã chuyển sang Bản Đồ Vệ Tinh Không Gian", "🛰️");
+        showToast("Đã chuyển sang Bản Đồ Vệ Tinh Không Gian");
       } else {
         if (btnOsm) btnOsm.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-zoo-600 text-white shadow-sm flex items-center gap-1.5 transition";
         if (btnSat) btnSat.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition";
@@ -1739,7 +1743,7 @@
     function resetMainMapView() {
       if (map) {
         map.setView([10.7876, 106.7052], 17);
-        showToast("Đã trở về tâm Thảo Cầm Viên Sài Gòn", "🎯");
+        showToast("Đã trở về tâm Vườn Thú");
       }
     }
 
@@ -1805,7 +1809,7 @@
       if (touristWalkTimer) clearInterval(touristWalkTimer);
       initTouristMarkerOnMap();
       if (map) map.panTo(currentUserCoords, { animate: true });
-      showToast("Đã đặt vị trí người đi bộ tại Cổng Chính! Sẵn sàng xuất phát.", "⛩️");
+      showToast("Đã đặt vị trí người đi bộ tại Cổng Chính! Sẵn sàng xuất phát.");
     }
 
     function selectGateOnMap(gateId) {
@@ -1845,7 +1849,7 @@
       currentUserLabel = `Đi đến chuồng ${an.name}`;
       initTouristMarkerOnMap();
 
-      showToast(`Hình người đi thử đang di chuyển đến: ${an.name}...`, "🚶");
+      showToast(`Hình người đi thử đang di chuyển đến: ${an.name}...`);
 
       if (touristWalkTimer) clearInterval(touristWalkTimer);
 
@@ -1873,7 +1877,7 @@
           }
           if (map) map.panTo(currentUserCoords, { animate: true });
 
-          showToast(`ĐÃ ĐẾN NƠI: Hình người đã đến chuồng ${an.name}! Đang thuyết minh...`, "🎉");
+          showToast(`ĐÃ ĐẾN NƠI: Hình người đã đến chuồng ${an.name}! Đang thuyết minh...`);
           playSelectedRealMapAudio();
           if (onComplete) onComplete();
         } else {
@@ -1892,18 +1896,18 @@
       if (isRealTourRunning) {
         isRealTourRunning = false;
         if (touristWalkTimer) clearInterval(touristWalkTimer);
-        showToast("Đã dừng tour đi thử.", "⏹");
+        showToast("Đã dừng tour đi thử.");
         return;
       }
       isRealTourRunning = true;
       realMapTourIdx = 0;
-      showToast("Bắt đầu tour đi thử qua 8 điểm chuồng thú...", "🚶");
+      showToast("Bắt đầu tour đi thử qua 8 điểm chuồng thú...");
 
       function nextStop() {
         if (!isRealTourRunning) return;
         if (realMapTourIdx >= ZOO_ANIMALS.length) {
           isRealTourRunning = false;
-          showToast("Hoàn thành tour đi thử qua tất cả các điểm!", "🎉");
+          showToast("Hoàn thành tour đi thử qua tất cả các điểm!");
           return;
         }
         const an = ZOO_ANIMALS[realMapTourIdx];
@@ -1955,7 +1959,7 @@
       if (mapElem) {
         map = L.map('map', { zoomControl: true }).setView(zooCenter, 17);
         mainTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap | Thảo Cầm Viên Sài Gòn'
+          attribution: '&copy; OpenStreetMap | Vườn Thú'
         }).addTo(map);
         renderBigMapMarkers();
       }
@@ -2028,11 +2032,9 @@
         }).addTo(map);
         mapCircles.push(circle);
 
-        const emojiList = ['🐘', '🐅', '🦒', '🐒', '🦩', '🐊', '🦏', '🐻'];
-        const emoji = emojiList[idx] || '🐾';
         const icon = L.divIcon({
           className: 'zoo-marker-icon',
-          html: `<div style="background-color: ${an.color}; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 17px; border: 2.5px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.35); transform: translate(-50%, -50%); cursor: pointer;">${emoji}</div>`,
+          html: `<div style="background-color: ${an.color}; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 13px; border: 2.5px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.3); transform: translate(-50%, -50%); cursor: pointer;">${idx + 1}</div>`,
           iconSize: [0, 0]
         });
 
@@ -2050,8 +2052,12 @@
           className: 'custom-gate-marker',
           html: `
             <div style="position: relative; width: 44px; height: 44px; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, ${isSelected ? '#f59e0b' : '#d97706'} 0%, ${isSelected ? '#d97706' : '#92400e'} 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2.5px solid #ffffff; box-shadow: 0 4px 14px rgba(217,119,6,0.45); ${isSelected ? 'transform: scale(1.12); box-shadow: 0 0 0 4px rgba(245,158,11,0.5);' : ''}">
-                ⛩️
+              <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, ${isSelected ? '#f59e0b' : '#d97706'} 0%, ${isSelected ? '#d97706' : '#92400e'} 100%); color: #ffffff; display: flex; align-items: center; justify-content: center; border: 2.5px solid #ffffff; box-shadow: 0 4px 14px rgba(217,119,6,0.45); ${isSelected ? 'transform: scale(1.12); box-shadow: 0 0 0 4px rgba(245,158,11,0.5);' : ''}">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 21h18"/>
+                  <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
+                  <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+                </svg>
               </div>
               <div style="position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); white-space: nowrap; background: ${isSelected ? '#78350f' : 'rgba(120,53,15,0.95)'}; color: #ffffff; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 5px; border: 1px solid #fcd34d; box-shadow: 0 2px 6px rgba(0,0,0,0.3); pointer-events: none;">
                 ${gate.shortName}
@@ -2065,8 +2071,14 @@
         const gateMarker = L.marker([gate.coordinates[1], gate.coordinates[0]], { icon: gateIcon, zIndexOffset: isSelected ? 600 : 350 }).addTo(map);
         gateMarker.bindPopup(`
           <div style="font-family: inherit; width: 230px; padding: 4px;">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-              <span style="font-size:22px;">⛩️</span>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div style="width:28px;height:28px;border-radius:6px;background:#d97706;display:flex;align-items:center;justify-content:center;color:#ffffff;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 21h18"/>
+                  <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
+                  <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+                </svg>
+              </div>
               <div>
                 <h4 style="margin:0;font-size:13px;font-weight:800;color:#78350f;">${gate.name}</h4>
                 <p style="margin:1px 0 0;font-size:10px;color:#64748b;">${gate.address}</p>
@@ -2075,10 +2087,10 @@
             <p style="margin:0 0 8px;font-size:11px;color:#475569;line-height:1.4;">${gate.subtitle}</p>
             <div style="display:flex;flex-direction:column;gap:5px;">
               <button onclick="selectGateOnMap('${gate.id}')" style="width:100%;background:#d97706;color:#ffffff;border:none;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;">
-                🚶 Đặt Người Đi Bộ Tại Cổng Này
+                Đặt Người Đi Bộ Tại Cổng Này
               </button>
               <button onclick="selectGateOnMap('${gate.id}'); startAutoTourFromCurrentGate();" style="width:100%;background:#059669;color:#ffffff;border:none;padding:7px 10px;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;">
-                🚶 Đi Thử Từ Cổng Này (8 Điểm)
+                Đi Thử Từ Cổng Này (8 Điểm)
               </button>
             </div>
           </div>
@@ -2093,14 +2105,14 @@
     }
 
     function startAutoTour() {
-      showToast("Khởi động tour tham quan tự động Thảo Cầm Viên...", "🚶");
+      showToast("Khởi động tour tham quan tự động Vườn Thú...");
       let i = 0;
       if (autoTourInterval) { clearInterval(autoTourInterval); autoTourInterval = null; return; }
       autoTourInterval = setInterval(() => {
         if (i >= ZOO_ANIMALS.length) {
           clearInterval(autoTourInterval);
           autoTourInterval = null;
-          showToast("Hoàn thành tour dạo quanh Thảo Cầm Viên!", "🎉");
+          showToast("Hoàn thành tour dạo quanh Vườn Thú!");
           return;
         }
         selectHotspot(ZOO_ANIMALS[i].id);
@@ -2129,7 +2141,7 @@
       syncCoordsFromInputs();
       calculateStats();
       syncLivePreview();
-      showToast(`Đã nạp mẫu chuồng: ${item.name}`, "✨");
+      showToast(`Đã nạp mẫu chuồng: ${item.name}`);
     }
 
     function setNarrationTone(tone) {
@@ -2142,7 +2154,7 @@
       let text = "";
       if (tone === 'standard') {
         document.getElementById('btn-tone-std').classList.add('bg-zoo-600', 'text-white', 'shadow-sm');
-        text = `Chào mừng quý khách đến với khu vực chuồng ${name} tại Thảo Cầm Viên Sài Gòn. Đây là một trong những loài động vật quý hiếm được bảo tồn đặc biệt trong khuôn viên vườn thú hơn 150 năm tuổi.`;
+        text = `Chào mừng quý khách đến với khu vực chuồng ${name} tại Vườn Thú. Đây là một trong những loài động vật quý hiếm được bảo tồn đặc biệt trong khuôn viên vườn thú hơn 150 năm tuổi.`;
       } else if (tone === 'kids') {
         document.getElementById('btn-tone-kids').classList.add('bg-zoo-600', 'text-white', 'shadow-sm');
         text = `Xin chào các bạn nhỏ! Chúng mình đang đứng trước chuồng ${name} nè! Các bạn có biết bạn này thích ăn gì nhất không? Cùng lắng nghe câu chuyện thú vị nhé!`;
@@ -2233,20 +2245,20 @@
       selectHotspot(newAnimal.id);
 
       try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch (err) {}
-      showToast(`Đã lưu thành công loài "${newAnimal.name}" vào hệ thống!`, "🎉");
+      showToast(`Đã lưu thành công loài "${newAnimal.name}" vào hệ thống!`);
       switchTab('list');
     }
 
     function resetFormToBlank() {
       document.getElementById('form-zoo-animal').reset();
       calculateStats(); syncLivePreview();
-      showToast("Đã xóa trắng biểu mẫu", "🧹");
+      showToast("Đã xóa trắng biểu mẫu");
     }
 
     function getCurrentGeoLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (pos) => { setFormCoords(pos.coords.longitude, pos.coords.latitude); showToast("Đã lấy thành công GPS thiết bị!", "📍"); },
+          (pos) => { setFormCoords(pos.coords.longitude, pos.coords.latitude); showToast("Đã lấy thành công GPS thiết bị!"); },
           () => showToast("Không thể lấy GPS, vui lòng nhấp chọn trên bản đồ", "⚠️")
         );
       }
@@ -2324,10 +2336,9 @@
           <td class="px-5 py-3.5 font-medium text-slate-700">${an.zone}</td>
           <td class="px-5 py-3.5 font-mono text-[11px] text-slate-600 font-semibold">${an.coordinates[0]}, ${an.coordinates[1]}</td>
           <td class="px-5 py-3.5"><span class="bg-indigo-50 text-indigo-700 font-mono font-bold px-2 py-0.5 rounded text-[11px]">${an.radius_meters}m</span></td>
-          <td class="px-5 py-3.5"><span class="bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded-full text-[10px]">${an.conservationStatus}</span></td>
-          <td class="px-5 py-3.5 font-mono font-bold text-zoo-700">⏱ ${an.audioLength}</td>
+          <td class="px-5 py-3.5 font-mono font-bold text-zoo-700">${an.audioLength}</td>
           <td class="px-5 py-3.5 text-right">
-            <button onclick="speakText('${an.descriptionVi.replace(/'/g, "\\'")}')" class="bg-zoo-50 text-zoo-700 hover:bg-zoo-100 px-2.5 py-1 rounded-lg text-xs font-bold transition">🔊 Nghe</button>
+            <button onclick="speakText('${an.descriptionVi.replace(/'/g, "\\'")}')" class="bg-zoo-50 text-zoo-700 hover:bg-zoo-100 px-2.5 py-1 rounded-lg text-xs font-bold transition">Nghe Thuyết Minh</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -2358,7 +2369,7 @@
           document.getElementById('sim-desc').innerText = an.descriptionVi;
           document.getElementById('sim-alert-title').innerText = `🎯 ĐÃ VÀO VÙNG GEOFENCE (12m)`;
           speakText(an.descriptionVi);
-          showToast(`GPS: Bạn vừa bước vào khu vực "${an.name}"`, "📍");
+          showToast(`GPS: Bạn vừa bước vào khu vực "${an.name}"`);
         };
         box.appendChild(btn);
       });

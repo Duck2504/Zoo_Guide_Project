@@ -39,8 +39,7 @@ export const ZOO_MAIN_GATE = {
   address: 'Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1',
   lat: 10.7868,
   lon: 106.7040,
-  color: '#d97706',
-  icon: '⛩️'
+  color: '#d97706'
 };
 
 export const ZOO_GATES = [ZOO_MAIN_GATE];
@@ -344,13 +343,16 @@ export default function RealZooMap({
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
             border: 2.5px solid #ffffff;
             box-shadow: 0 4px 14px rgba(217,119,6,0.45);
             transition: transform 0.2s;
             ${isSelectedGate ? 'transform: scale(1.12); box-shadow: 0 0 0 4px rgba(245,158,11,0.5);' : ''}
           ">
-            ⛩️
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 21h18"/>
+              <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
+              <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+            </svg>
           </div>
           <div style="
             position: absolute;
@@ -385,8 +387,14 @@ export default function RealZooMap({
 
       const popupHtml = `
         <div style="font-family: inherit; width: 230px; padding: 4px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-            <span style="font-size:22px;">⛩️</span>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <div style="width:30px;height:30px;border-radius:8px;background:#d97706;display:flex;align-items:center;justify-content:center;color:#ffffff;flex-shrink:0;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18"/>
+                <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
+                <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+              </svg>
+            </div>
             <div>
               <h4 style="margin:0;font-size:13px;font-weight:800;color:#78350f;">${gate.name}</h4>
               <p style="margin:1px 0 0;font-size:10px;color:#64748b;">${gate.address}</p>
@@ -957,42 +965,7 @@ export default function RealZooMap({
           </div>
         )}
 
-        {/* Quick Travel To Specific Requested Animal ("Đi Thử Đến Điểm Yêu Cầu") */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', flexWrap: 'wrap', backgroundColor: '#f0fdf4', padding: '8px 12px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
-          <span style={{ fontSize: '11px', color: '#047857', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <span>🚶</span> <strong>Đi thử đến điểm yêu cầu:</strong>
-          </span>
-          {animals.map((an, idx) => (
-            <button
-              key={an.id}
-              type="button"
-              onClick={() => {
-                if (onWalkToAnimal) onWalkToAnimal(an);
-              }}
-              title={`Hình người đi thử ngay đến chuồng ${an.name}`}
-              style={{
-                backgroundColor: selectedAnimal?.id === an.id ? '#059669' : '#ffffff',
-                color: selectedAnimal?.id === an.id ? '#ffffff' : '#047857',
-                border: '1px solid #86efac',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                transition: 'all 0.15s'
-              }}
-            >
-              <span>🚶</span>
-              <span>{idx + 1}. {an.name}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* KHỐI ĐIỀU KHIỂN: XUẤT PHÁT TỪ CỔNG CHÍNH (Người đi bộ từ Cổng Chính vào các địa điểm) */}
+        {/* KHỐI ĐIỀU KHIỂN DUY NHẤT: XUẤT PHÁT TỪ CỔNG CHÍNH ĐẾN CÁC ĐỊA ĐIỂM */}
         <div style={{
           backgroundColor: '#fffbeb',
           border: '1.5px solid #fcd34d',
@@ -1004,7 +977,13 @@ export default function RealZooMap({
           {/* Hàng 1: Thông tin Cổng Chính & Nút đặt lại vị trí */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px', borderBottom: '1px solid #fef3c7', paddingBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontSize: '20px' }}>⛩️</span>
+              <div style={{ width: '26px', height: '26px', borderRadius: '6px', backgroundColor: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 21h18"/>
+                  <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
+                  <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
+                </svg>
+              </div>
               <div>
                 <span style={{ fontSize: '13px', fontWeight: '800', color: '#92400e' }}>
                   CỔNG CHÍNH (ĐIỂM XUẤT PHÁT CỦA DU KHÁCH)
@@ -1035,7 +1014,6 @@ export default function RealZooMap({
                 transition: 'all 0.15s'
               }}
             >
-              <span>🚶</span>
               <span>Đặt Người Đi Bộ Về Cổng Chính</span>
             </button>
           </div>
@@ -1067,7 +1045,6 @@ export default function RealZooMap({
                 transition: 'all 0.15s'
               }}
             >
-              <span>🚶</span>
               <span>Đi Thử Từ Cổng Chính Vào 8 Điểm (Lần Lượt)</span>
             </button>
 
@@ -1091,19 +1068,17 @@ export default function RealZooMap({
                   backgroundColor: selectedAnimal?.id === an.id ? '#047857' : '#ffffff',
                   color: selectedAnimal?.id === an.id ? '#ffffff' : '#1e293b',
                   border: '1px solid #cbd5e1',
-                  padding: '4px 9px',
+                  padding: '4px 10px',
                   borderRadius: '6px',
                   fontSize: '11px',
                   fontWeight: 'bold',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '3px',
                   boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
                   transition: 'all 0.15s'
                 }}
               >
-                <span>🚶</span>
                 <span>{idx + 1}. {an.name}</span>
               </button>
             ))}
