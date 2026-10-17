@@ -30,42 +30,20 @@ export function isPointInsideZoo(lat, lon) {
   return inside;
 }
 
-// Danh sách các Cổng Vào Vườn Thú Thực Tế
-export const ZOO_GATES = [
-  {
-    id: 'gate-1',
-    name: 'Cổng 1 (Nguyễn Bỉnh Khiêm)',
-    shortName: 'Cổng 1 (Chính)',
-    subtitle: 'Cổng chính vườn thú - Đối diện đại lộ Lê Duẩn',
-    address: 'Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1',
-    lat: 10.7868,
-    lon: 106.7040,
-    color: '#d97706',
-    icon: '⛩️'
-  },
-  {
-    id: 'gate-2',
-    name: 'Cổng 2 (Nguyễn Thị Minh Khai)',
-    shortName: 'Cổng 2 (Minh Khai)',
-    subtitle: 'Cổng phụ - Gần ngã ba Nguyễn Bỉnh Khiêm & Cầu Thị Nghè',
-    address: 'Số 1 Nguyễn Thị Minh Khai, P. Bến Nghé, Quận 1',
-    lat: 10.7882,
-    lon: 106.7039,
-    color: '#b45309',
-    icon: '⛩️'
-  },
-  {
-    id: 'gate-3',
-    name: 'Cổng 3 (Nguyễn Hữu Cảnh - Đền Hùng)',
-    shortName: 'Cổng 3 (Nguyễn Hữu Cảnh)',
-    subtitle: 'Cổng phụ / Bãi xe - Phía Đền Hùng & Bảo Tàng',
-    address: 'Góc Nguyễn Bỉnh Khiêm & Nguyễn Hữu Cảnh',
-    lat: 10.7861,
-    lon: 106.7052,
-    color: '#92400e',
-    icon: '⛩️'
-  }
-];
+// Cổng Chính Duy Nhất Của Vườn Thú (Số 2 Nguyễn Bỉnh Khiêm)
+export const ZOO_MAIN_GATE = {
+  id: 'gate-main',
+  name: 'Cổng Chính (Nguyễn Bỉnh Khiêm)',
+  shortName: 'Cổng Chính',
+  subtitle: 'Cổng chính vườn thú - Đối diện đại lộ Lê Duẩn',
+  address: 'Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1',
+  lat: 10.7868,
+  lon: 106.7040,
+  color: '#d97706',
+  icon: '⛩️'
+};
+
+export const ZOO_GATES = [ZOO_MAIN_GATE];
 
 export default function RealZooMap({
   animals,
@@ -1014,7 +992,7 @@ export default function RealZooMap({
           ))}
         </div>
 
-        {/* KHỐI ĐIỀU KHIỂN: XUẤT PHÁT TỪ TỪNG CỔNG VÀO (Người đi bộ từng cổng vào các địa điểm) */}
+        {/* KHỐI ĐIỀU KHIỂN: XUẤT PHÁT TỪ CỔNG CHÍNH (Người đi bộ từ Cổng Chính vào các địa điểm) */}
         <div style={{
           backgroundColor: '#fffbeb',
           border: '1.5px solid #fcd34d',
@@ -1023,56 +1001,52 @@ export default function RealZooMap({
           marginBottom: '10px',
           boxShadow: '0 2px 8px rgba(217, 119, 6, 0.08)'
         }}>
-          {/* Hàng 1: Chọn Cổng Xuất Phát */}
+          {/* Hàng 1: Thông tin Cổng Chính & Nút đặt lại vị trí */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px', borderBottom: '1px solid #fef3c7', paddingBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '18px' }}>⛩️</span>
-              <span style={{ fontSize: '12px', fontWeight: '800', color: '#92400e' }}>
-                XUẤT PHÁT TỪ TỪNG CỔNG VÀO:
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>⛩️</span>
+              <div>
+                <span style={{ fontSize: '13px', fontWeight: '800', color: '#92400e' }}>
+                  CỔNG CHÍNH (ĐIỂM XUẤT PHÁT CỦA DU KHÁCH)
+                </span>
+                <span style={{ fontSize: '11px', color: '#b45309', marginLeft: '6px' }}>
+                  • Số 2 Nguyễn Bỉnh Khiêm (Đối diện đại lộ Lê Duẩn)
+                </span>
+              </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              {ZOO_GATES.map((gate) => {
-                const isSelected = selectedGate?.id === gate.id;
-                return (
-                  <button
-                    key={gate.id}
-                    type="button"
-                    onClick={() => {
-                      if (onSelectGate) onSelectGate(gate);
-                    }}
-                    style={{
-                      backgroundColor: isSelected ? '#d97706' : '#ffffff',
-                      color: isSelected ? '#ffffff' : '#92400e',
-                      border: isSelected ? '1.5px solid #b45309' : '1px solid #fcd34d',
-                      padding: '5px 12px',
-                      borderRadius: '8px',
-                      fontSize: '11px',
-                      fontWeight: '800',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      boxShadow: isSelected ? '0 2px 6px rgba(217,119,6,0.35)' : 'none',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    <span>⛩️</span>
-                    <span>{gate.shortName}</span>
-                    {isSelected && <span style={{ fontSize: '10px', background: '#ffffff', color: '#d97706', padding: '1px 5px', borderRadius: '4px', fontWeight: '900' }}>Vị trí hiện tại</span>}
-                  </button>
-                );
-              })}
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (onSelectGate) onSelectGate(ZOO_MAIN_GATE);
+              }}
+              style={{
+                backgroundColor: '#d97706',
+                color: '#ffffff',
+                border: 'none',
+                padding: '5px 12px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: '800',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                boxShadow: '0 2px 6px rgba(217,119,6,0.3)',
+                transition: 'all 0.15s'
+              }}
+            >
+              <span>🚶</span>
+              <span>Đặt Người Đi Bộ Về Cổng Chính</span>
+            </button>
           </div>
 
-          {/* Hàng 2: Hành động đi bộ từ Cổng đã chọn */}
+          {/* Hàng 2: Hành động đi bộ từ Cổng Chính */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={() => {
-                if (onStartTourFromGate && selectedGate) {
-                  onStartTourFromGate(selectedGate);
+                if (onStartTourFromGate) {
+                  onStartTourFromGate(ZOO_MAIN_GATE);
                 } else if (onStartTour) {
                   onStartTour();
                 }
@@ -1094,11 +1068,11 @@ export default function RealZooMap({
               }}
             >
               <span>🚶</span>
-              <span>Đi Thử Từ {selectedGate?.shortName || 'Cổng'} Vào 8 Điểm (Lần Lượt)</span>
+              <span>Đi Thử Từ Cổng Chính Vào 8 Điểm (Lần Lượt)</span>
             </button>
 
             <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '800' }}>
-              Đi từ {selectedGate?.shortName || 'cổng'} đến:
+              Đi từ Cổng Chính đến:
             </span>
 
             {animals.map((an, idx) => (
@@ -1106,13 +1080,13 @@ export default function RealZooMap({
                 key={an.id}
                 type="button"
                 onClick={() => {
-                  if (onWalkFromGateToAnimal && selectedGate) {
-                    onWalkFromGateToAnimal(selectedGate, an);
+                  if (onWalkFromGateToAnimal) {
+                    onWalkFromGateToAnimal(ZOO_MAIN_GATE, an);
                   } else if (onWalkToAnimal) {
                     onWalkToAnimal(an);
                   }
                 }}
-                title={`Người đi bộ từ ${selectedGate?.shortName || 'Cổng'} đến ${an.name}`}
+                title={`Người đi bộ từ Cổng Chính đến chuồng ${an.name}`}
                 style={{
                   backgroundColor: selectedAnimal?.id === an.id ? '#047857' : '#ffffff',
                   color: selectedAnimal?.id === an.id ? '#ffffff' : '#1e293b',
@@ -1154,11 +1128,10 @@ export default function RealZooMap({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Chọn nhanh điểm xuất phát:</span>
           {[
-            { label: 'Cổng Nguyễn Bỉnh Khiêm', lat: 10.7868, lon: 106.7040 },
-            { label: 'Cổng Nguyễn Thị Minh Khai', lat: 10.7882, lon: 106.7039 },
-            { label: 'Cầu Thị Nghè (Góc Vườn Thú)', lat: 10.7886, lon: 106.7065 },
-            { label: 'Đền Thờ Vua Hùng', lat: 10.7863, lon: 106.7046 },
-            { label: 'Hồ Sen & Đảo Linh Trưởng', lat: 10.7875, lon: 106.7055 }
+            { label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)', lat: 10.7868, lon: 106.7040 },
+            { label: 'Đền Thờ Vua Hùng & Bảo Tàng', lat: 10.7863, lon: 106.7046 },
+            { label: 'Hồ Sen & Đảo Linh Trưởng', lat: 10.7875, lon: 106.7055 },
+            { label: 'Cầu Thị Nghè (Góc Vườn Thú)', lat: 10.7886, lon: 106.7065 }
           ].map((pt, idx) => (
             <button
               key={idx}
@@ -1267,7 +1240,7 @@ export default function RealZooMap({
           }}
         >
           <span style={{ fontSize: '16px' }}>🚶</span>
-          <span>Đi Từ {selectedGate?.shortName || 'Cổng'} Đến {selectedAnimal.name}</span>
+          <span>Đi Từ Cổng Chính Đến {selectedAnimal.name}</span>
         </button>
 
         {/* Action: Hình người đi thử đến chuồng này */}

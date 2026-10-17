@@ -749,30 +749,23 @@
             </button>
           </div>
 
-          <!-- KHỐI ĐIỀU KHIỂN: XUẤT PHÁT TỪ TỪNG CỔNG VÀO (Người đi bộ từng cổng vào các địa điểm) -->
+          <!-- KHỐI ĐIỀU KHIỂN: XUẤT PHÁT TỪ CỔNG CHÍNH (Người đi bộ từ Cổng Chính vào các địa điểm) -->
           <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-3 space-y-2">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/60 pb-2">
               <span class="text-xs font-extrabold text-amber-900 flex items-center gap-1.5">
-                <span class="text-base">⛩️</span> <span>CỔNG VÀO XUẤT PHÁT:</span>
+                <span class="text-base">⛩️</span> <span>CỔNG CHÍNH (ĐIỂM XUẤT PHÁT DU KHÁCH):</span>
+                <span class="text-[11px] font-semibold text-amber-800 ml-1">Số 2 Nguyễn Bỉnh Khiêm (Đối diện đại lộ Lê Duẩn)</span>
               </span>
-              <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="selectGateOnMap('gate-1')" id="btn-gate-1" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 text-white shadow-sm flex items-center gap-1 transition">
-                  <span>⛩️</span><span>Cổng 1 (Nguyễn Bỉnh Khiêm)</span>
-                </button>
-                <button type="button" onclick="selectGateOnMap('gate-2')" id="btn-gate-2" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-amber-900 border border-amber-300 hover:bg-amber-100 flex items-center gap-1 transition">
-                  <span>⛩️</span><span>Cổng 2 (Minh Khai)</span>
-                </button>
-                <button type="button" onclick="selectGateOnMap('gate-3')" id="btn-gate-3" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-amber-900 border border-amber-300 hover:bg-amber-100 flex items-center gap-1 transition">
-                  <span>⛩️</span><span>Cổng 3 (Nguyễn Hữu Cảnh)</span>
-                </button>
-              </div>
+              <button type="button" onclick="resetTouristToMainGate()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm flex items-center gap-1 transition">
+                <span>🚶</span><span>Đặt Người Đi Bộ Về Cổng Chính</span>
+              </button>
             </div>
 
             <div class="flex flex-wrap items-center gap-1.5 pt-1">
-              <button onclick="startAutoTourFromCurrentGate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow transition">
-                <i class="fa-solid fa-person-walking"></i><span id="lbl-tour-gate">Đi Thử Từ Cổng 1 Vào 8 Điểm</span>
+              <button onclick="startAutoTourFromCurrentGate()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow transition">
+                <i class="fa-solid fa-person-walking"></i><span id="lbl-tour-gate">Đi Thử Từ Cổng Chính Vào 8 Điểm</span>
               </button>
-              <span class="text-[11px] font-bold text-amber-800 ml-1">Đi từ cổng đến:</span>
+              <span class="text-[11px] font-bold text-amber-800 ml-1">Đi từ Cổng Chính đến:</span>
               <button onclick="walkFromCurrentGateToAnimal('zoo-1')" class="px-2 py-1 bg-white text-emerald-800 border border-emerald-300 rounded text-xs font-bold hover:bg-emerald-100 transition shadow-sm">1. Voi</button>
               <button onclick="walkFromCurrentGateToAnimal('zoo-2')" class="px-2 py-1 bg-white text-red-800 border border-red-300 rounded text-xs font-bold hover:bg-red-100 transition shadow-sm">2. Hổ</button>
               <button onclick="walkFromCurrentGateToAnimal('zoo-3')" class="px-2 py-1 bg-white text-amber-800 border border-amber-300 rounded text-xs font-bold hover:bg-amber-100 transition shadow-sm">3. Hươu</button>
@@ -845,7 +838,7 @@
           </p>
 
           <button onclick="walkFromCurrentGateToAnimal(currentActiveExhibitId)" class="w-full bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs py-2.5 rounded-xl flex items-center justify-center gap-2 shadow transition">
-            <i class="fa-solid fa-person-walking text-sm"></i><span id="btn-walk-from-gate-text">Đi Từ Cổng 1 Đến Chuồng Này</span>
+            <i class="fa-solid fa-person-walking text-sm"></i><span id="btn-walk-from-gate-text">Đi Từ Cổng Chính Đến Chuồng Này</span>
           </button>
 
           <button onclick="walkToAnimalOnMap(currentActiveExhibitId)" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition">
@@ -1750,38 +1743,20 @@
       }
     }
 
-    const ZOO_GATES = [
-      {
-        id: 'gate-1',
-        name: 'Cổng 1 (Nguyễn Bỉnh Khiêm)',
-        shortName: 'Cổng 1 (Chính)',
-        subtitle: 'Cổng chính vườn thú - Đối diện đại lộ Lê Duẩn',
-        address: 'Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1',
-        coordinates: [106.7040, 10.7868],
-        color: '#d97706'
-      },
-      {
-        id: 'gate-2',
-        name: 'Cổng 2 (Nguyễn Thị Minh Khai)',
-        shortName: 'Cổng 2 (Minh Khai)',
-        subtitle: 'Cổng phụ - Gần Cầu Thị Nghè',
-        address: 'Số 1 Nguyễn Thị Minh Khai, P. Bến Nghé, Quận 1',
-        coordinates: [106.7039, 10.7882],
-        color: '#b45309'
-      },
-      {
-        id: 'gate-3',
-        name: 'Cổng 3 (Nguyễn Hữu Cảnh - Đền Hùng)',
-        shortName: 'Cổng 3 (Nguyễn Hữu Cảnh)',
-        subtitle: 'Cổng phụ / Bãi xe - Phía Đền Hùng & Bảo Tàng',
-        address: 'Góc Nguyễn Bỉnh Khiêm & Nguyễn Hữu Cảnh',
-        coordinates: [106.7052, 10.7861],
-        color: '#92400e'
-      }
-    ];
+    const ZOO_MAIN_GATE = {
+      id: 'gate-main',
+      name: 'Cổng Chính (Nguyễn Bỉnh Khiêm)',
+      shortName: 'Cổng Chính',
+      subtitle: 'Cổng chính vườn thú - Đối diện đại lộ Lê Duẩn',
+      address: 'Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1',
+      coordinates: [106.7040, 10.7868],
+      color: '#d97706'
+    };
 
-    let currentSelectedGate = ZOO_GATES[0];
-    let currentUserLabel = 'Tôi (Cổng 1 - Nguyễn Bỉnh Khiêm)';
+    const ZOO_GATES = [ZOO_MAIN_GATE];
+
+    let currentSelectedGate = ZOO_MAIN_GATE;
+    let currentUserLabel = 'Tôi (Tại Cổng Chính)';
     let touristUserMarker = null;
     let touristWalkTimer = null;
     let currentUserCoords = [10.7868, 106.7040]; // Cổng chính xuất phát
@@ -1823,39 +1798,24 @@
       }
     }
 
-    function selectGateOnMap(gateId) {
-      const g = ZOO_GATES.find(x => x.id === gateId);
-      if (!g) return;
-      currentSelectedGate = g;
-      currentUserCoords = [g.coordinates[1], g.coordinates[0]];
-      currentUserLabel = `Tôi (Tại ${g.shortName})`;
-
-      ['gate-1', 'gate-2', 'gate-3'].forEach(id => {
-        const btn = document.getElementById(`btn-${id}`);
-        if (btn) {
-          if (id === gateId) {
-            btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-600 text-white shadow-sm flex items-center gap-1 transition";
-          } else {
-            btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-amber-900 border border-amber-300 hover:bg-amber-100 flex items-center gap-1 transition";
-          }
-        }
-      });
-
-      const lblTour = document.getElementById('lbl-tour-gate');
-      if (lblTour) lblTour.innerText = `Đi Thử Từ ${g.shortName} Vào 8 Điểm`;
-
-      const btnWalkSide = document.getElementById('btn-walk-from-gate-text');
-      if (btnWalkSide) btnWalkSide.innerText = `Đi Từ ${g.shortName} Đến Chuồng Này`;
-
+    function resetTouristToMainGate() {
+      currentSelectedGate = ZOO_MAIN_GATE;
+      currentUserCoords = [ZOO_MAIN_GATE.coordinates[1], ZOO_MAIN_GATE.coordinates[0]];
+      currentUserLabel = 'Tôi (Tại Cổng Chính)';
+      if (touristWalkTimer) clearInterval(touristWalkTimer);
       initTouristMarkerOnMap();
       if (map) map.panTo(currentUserCoords, { animate: true });
-      showToast(`Đã đặt người đi bộ tại: ${g.name}! Sẵn sàng xuất phát.`, "⛩️");
+      showToast("Đã đặt vị trí người đi bộ tại Cổng Chính! Sẵn sàng xuất phát.", "⛩️");
+    }
+
+    function selectGateOnMap(gateId) {
+      resetTouristToMainGate();
     }
 
     function walkFromCurrentGateToAnimal(animalId) {
-      if (!currentSelectedGate) currentSelectedGate = ZOO_GATES[0];
-      currentUserCoords = [currentSelectedGate.coordinates[1], currentSelectedGate.coordinates[0]];
-      currentUserLabel = `Đi từ ${currentSelectedGate.shortName}`;
+      currentSelectedGate = ZOO_MAIN_GATE;
+      currentUserCoords = [ZOO_MAIN_GATE.coordinates[1], ZOO_MAIN_GATE.coordinates[0]];
+      currentUserLabel = 'Đi từ Cổng Chính';
       if (touristUserMarker) {
         touristUserMarker.setLatLng(currentUserCoords);
         touristUserMarker.setIcon(getTouristPersonIcon());
@@ -1864,9 +1824,9 @@
     }
 
     function startAutoTourFromCurrentGate() {
-      if (!currentSelectedGate) currentSelectedGate = ZOO_GATES[0];
-      currentUserCoords = [currentSelectedGate.coordinates[1], currentSelectedGate.coordinates[0]];
-      currentUserLabel = `Xuất phát từ ${currentSelectedGate.shortName}`;
+      currentSelectedGate = ZOO_MAIN_GATE;
+      currentUserCoords = [ZOO_MAIN_GATE.coordinates[1], ZOO_MAIN_GATE.coordinates[0]];
+      currentUserLabel = 'Xuất phát từ Cổng Chính';
       if (touristUserMarker) {
         touristUserMarker.setLatLng(currentUserCoords);
         touristUserMarker.setIcon(getTouristPersonIcon());

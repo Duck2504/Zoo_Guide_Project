@@ -156,10 +156,9 @@ export default function App() {
   // Vị trí người dùng & Presets trong vườn thú (100% nằm trọn bên trong ranh giới)
   const LOCATION_PRESETS = [
     { label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)', mapLeft: '32%', mapTop: '82%', lon: 106.7040, lat: 10.7868 },
-    { label: 'Cổng Nguyễn Thị Minh Khai', mapLeft: '15%', mapTop: '50%', lon: 106.7039, lat: 10.7882 },
-    { label: 'Khu Vực Cầu Thị Nghè (Góc Vườn Thú)', mapLeft: '80%', mapTop: '25%', lon: 106.7065, lat: 10.7886 },
     { label: 'Đền Thờ Vua Hùng & Bảo Tàng Lịch Sử', mapLeft: '38%', mapTop: '88%', lon: 106.7046, lat: 10.7863 },
-    { label: 'Hồ Sen & Đảo Linh Trưởng Trung Tâm', mapLeft: '50%', mapTop: '55%', lon: 106.7055, lat: 10.7875 }
+    { label: 'Hồ Sen & Đảo Linh Trưởng Trung Tâm', mapLeft: '50%', mapTop: '55%', lon: 106.7055, lat: 10.7875 },
+    { label: 'Khu Vực Cầu Thị Nghè (Góc Vườn Thú)', mapLeft: '80%', mapTop: '25%', lon: 106.7065, lat: 10.7886 }
   ];
 
   const [userLocation, setUserLocation] = useState({
@@ -353,9 +352,10 @@ export default function App() {
     showToast("Đã dừng chỉ đường.", "info");
   };
 
-  // Đặt hình người đi bộ tại một cổng vào
-  const placeTouristAtGate = (gate) => {
-    setSelectedGate(gate);
+  // Đặt hình người đi bộ tại Cổng Chính
+  const placeTouristAtGate = (gate = ZOO_GATES[0]) => {
+    const targetGate = gate || ZOO_GATES[0];
+    setSelectedGate(targetGate);
     cancelNavigation();
     if (tourTimerRef.current) clearInterval(tourTimerRef.current);
     if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
@@ -364,17 +364,18 @@ export default function App() {
     setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
 
     setUserLocation({
-      lat: gate.lat,
-      lon: gate.lon,
-      label: `Tôi (Tại ${gate.name})`,
+      lat: targetGate.lat,
+      lon: targetGate.lon,
+      label: `Tôi (Tại ${targetGate.name})`,
       isRealGPS: false
     });
-    showToast(`Đã đặt người đi bộ tại: ${gate.name}! Sẵn sàng xuất phát.`, "success");
+    showToast(`Đã đặt người đi bộ tại: ${targetGate.name}! Sẵn sàng xuất phát.`, "success");
   };
 
-  // Người đi bộ xuất phát từ một cổng đi vào một địa điểm cụ thể
-  const walkFromGateToAnimal = (gate, targetAnimal) => {
-    setSelectedGate(gate);
+  // Người đi bộ xuất phát từ Cổng Chính đi vào một địa điểm cụ thể
+  const walkFromGateToAnimal = (gate = ZOO_GATES[0], targetAnimal) => {
+    const targetGate = gate || ZOO_GATES[0];
+    setSelectedGate(targetGate);
     cancelNavigation();
     if (tourTimerRef.current) clearInterval(tourTimerRef.current);
     if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
@@ -391,10 +392,10 @@ export default function App() {
       phase: 'driving'
     });
 
-    showToast(`Người đi bộ xuất phát từ ${gate.shortName} -> đang di chuyển đến: ${targetAnimal.name}...`, "info");
+    showToast(`Người đi bộ xuất phát từ ${targetGate.shortName} -> đang di chuyển đến: ${targetAnimal.name}...`, "info");
 
-    const startLat = gate.lat;
-    const startLon = gate.lon;
+    const startLat = targetGate.lat;
+    const startLon = targetGate.lon;
     const targetLat = targetAnimal.coordinates.lat;
     const targetLon = targetAnimal.coordinates.lon;
 
@@ -438,16 +439,17 @@ export default function App() {
     }, 60);
   };
 
-  // Bắt đầu tour đi bộ từ một cổng vào lần lượt 8 địa điểm
-  const startTourFromGate = (gate) => {
-    setSelectedGate(gate);
+  // Bắt đầu tour đi bộ từ Cổng Chính vào lần lượt 8 địa điểm
+  const startTourFromGate = (gate = ZOO_GATES[0]) => {
+    const targetGate = gate || ZOO_GATES[0];
+    setSelectedGate(targetGate);
     setUserLocation({
-      lat: gate.lat,
-      lon: gate.lon,
-      label: `Xuất phát từ ${gate.name}`,
+      lat: targetGate.lat,
+      lon: targetGate.lon,
+      label: `Xuất phát từ ${targetGate.name}`,
       isRealGPS: false
     });
-    showToast(`Bắt đầu hành trình đi bộ từ ${gate.name} lần lượt qua 8 địa điểm...`, "success");
+    showToast(`Bắt đầu hành trình đi bộ từ ${targetGate.name} lần lượt qua 8 địa điểm...`, "success");
     setTimeout(() => {
       startAutoTour();
     }, 200);
