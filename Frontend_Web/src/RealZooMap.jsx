@@ -271,51 +271,86 @@ export default function RealZooMap({
     });
   }, [animals, selectedAnimal, navigationTarget, tourState]);
 
-  // 4. Clean GPS Location Dot / Vehicle Indicator
+  // 4. GPS Location Marker - Hình Người Đi Thử / Du Khách (Human Pedestrian Walking Avatar)
   useEffect(() => {
     if (!mapRef.current) return;
 
     const isTouring = tourState?.isActive;
     const userHtml = `
-      <div style="position: relative; width: 38px; height: 38px; transform: translate(-50%, -50%);">
-        <div class="tour-pulse-ring" style="
-          position: absolute;
-          inset: -8px;
-          border-radius: 50%;
-          background: ${isTouring ? 'rgba(5,150,105,0.4)' : 'rgba(37,99,235,0.4)'};
-          animation: tour-ping 1.8s infinite;
-        "></div>
+      <div style="position: relative; width: 44px; height: 58px; display: flex; flex-direction: column; align-items: center; user-select: none;">
+        <!-- Status Label Badge Above Head -->
         <div style="
+          position: absolute;
+          top: -24px;
+          white-space: nowrap;
+          background: ${isTouring ? '#064e3b' : '#1e3a8a'};
+          color: #ffffff;
+          font-size: 11px;
+          font-weight: 800;
+          padding: 3px 9px;
+          border-radius: 12px;
+          border: 1.5px solid #ffffff;
+          box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          z-index: 10;
+        ">
+          <span style="
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: ${isTouring ? '#34d399' : '#60a5fa'};
+            ${isTouring ? 'animation: tour-ping 1.2s infinite;' : ''}
+          "></span>
+          <span>${isTouring ? 'Tôi (Đang đi thử...)' : 'Vị Trí Của Tôi'}</span>
+        </div>
+
+        <!-- Radar Pulse on Ground beneath Feet -->
+        <div class="foot-pulse" style="
+          position: absolute;
+          bottom: -2px;
           width: 32px;
-          height: 32px;
+          height: 14px;
           border-radius: 50%;
-          background: ${isTouring ? '#059669' : '#2563eb'};
-          color: white;
+          background: ${isTouring ? 'rgba(16,185,129,0.5)' : 'rgba(37,99,235,0.4)'};
+          pointer-events: none;
+        "></div>
+
+        <!-- Person Walking Avatar Circle -->
+        <div class="${isTouring ? 'person-walking' : ''}" style="
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: ${isTouring ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)' : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'};
+          border: 2.5px solid #ffffff;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.35);
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 3px solid #ffffff;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+          z-index: 5;
         ">
-          <div style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff;"></div>
+          <!-- SVG Human Pedestrian Figure (Hình Người Đi Bộ) -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" style="overflow: visible;">
+            <!-- Head -->
+            <circle cx="12" cy="4" r="2.8"/>
+            <!-- Walking Body with Arms & Striding Legs -->
+            <path d="M13.5 8.5c-.4-.3-.9-.5-1.5-.5s-1.1.2-1.5.5L7.2 11.2c-.4.3-.5.8-.3 1.2.3.4.8.5 1.2.3L11 11V15l-3.2 4.2c-.3.4-.2 1 .2 1.3.4.3 1 .2 1.3-.2L13 15.5V21c0 .6.4 1 1 1s1-.4 1-1v-6.5l-2-2.3V10.2l2.3 1.5c.4.3 1 .1 1.3-.3.3-.4.1-1-.3-1.3l-2.8-1.6z"/>
+          </svg>
         </div>
+
+        <!-- Downward Pointer Arrow Pin to Ground GPS Point -->
         <div style="
-          position: absolute;
-          top: -22px;
-          left: 50%;
-          transform: translateX(-50%);
-          white-space: nowrap;
-          background: ${isTouring ? '#064e3b' : '#1e3a8a'};
-          color: white;
-          font-size: 11px;
-          font-weight: 700;
-          padding: 2px 8px;
-          border-radius: 8px;
-          border: 1px solid rgba(255,255,255,0.3);
-          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-        ">
-          ${isTouring ? 'Điểm Tham Quan' : 'Vị Trí Của Bạn'}
-        </div>
+          width: 0;
+          height: 0;
+          border-left: 6px solid transparent;
+          border-right: 6px solid transparent;
+          border-top: 8px solid ${isTouring ? '#047857' : '#1d4ed8'};
+          margin-top: -3px;
+          filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25));
+          z-index: 6;
+        "></div>
       </div>
     `;
 
@@ -326,8 +361,8 @@ export default function RealZooMap({
         icon: L.divIcon({
           className: 'custom-user-marker',
           html: userHtml,
-          iconSize: [38, 38],
-          iconAnchor: [0, 0]
+          iconSize: [44, 58],
+          iconAnchor: [22, 58]
         }),
         zIndexOffset: 1000
       }).addTo(mapRef.current);
@@ -336,8 +371,8 @@ export default function RealZooMap({
       userMarkerRef.current.setIcon(L.divIcon({
         className: 'custom-user-marker',
         html: userHtml,
-        iconSize: [38, 38],
-        iconAnchor: [0, 0]
+        iconSize: [44, 58],
+        iconAnchor: [22, 58]
       }));
     }
 
@@ -390,6 +425,23 @@ export default function RealZooMap({
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1.45fr 0.55fr', gap: '20px', alignItems: 'start' }}>
+      <style>{`
+        @keyframes personWalkBob {
+          0% { transform: translateY(0) rotate(-3deg); }
+          50% { transform: translateY(-4px) rotate(3deg); }
+          100% { transform: translateY(0) rotate(-3deg); }
+        }
+        .person-walking {
+          animation: personWalkBob 0.45s ease-in-out infinite alternate;
+        }
+        @keyframes footPulseEffect {
+          0% { transform: scale(0.6); opacity: 0.9; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        .foot-pulse {
+          animation: footPulseEffect 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+      `}</style>
       
       {/* Left Column: Map & Tour Control Center */}
       <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -698,7 +750,7 @@ export default function RealZooMap({
             </div>
 
             <p style={{ margin: 0, fontSize: '11px', color: '#93c5fd', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '8px' }}>
-              Khi bấm <strong>"Bắt Đầu Đi Thử"</strong>, xe tham quan sẽ xuất phát từ vị trí hiện tại của bạn, di chuyển tuần tự qua 8 phân khu chuồng động vật và tự động phát thuyết minh tiếng Việt tại mỗi điểm.
+              Khi bấm <strong>"Bắt Đầu Đi Thử"</strong>, hình người du khách của bạn sẽ xuất phát từ vị trí hiện tại, di chuyển tuần tự qua 8 phân khu chuồng động vật và tự động phát thuyết minh tiếng Việt tại mỗi điểm.
             </p>
           </div>
         )}

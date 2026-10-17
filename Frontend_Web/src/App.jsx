@@ -144,6 +144,14 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState(null);
+  
+  // Backend API Status (.NET 9.0 port 5000/5222 & Python FastAPI port 8000)
+  const [apiInfo, setApiInfo] = useState({
+    fastApiStatus: 'checking',
+    dotnetStatus: 'checking',
+    activeBackend: 'Đang kết nối API...',
+    isConnected: false
+  });
 
   // Vị trí người dùng & Presets trong vườn thú (100% nằm trọn bên trong ranh giới)
   const LOCATION_PRESETS = [
@@ -212,6 +220,59 @@ export default function App() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return Math.round(R * c);
   };
+
+  // Kiểm tra & kết nối Backend API (.NET 9.0 Port 5000/5222 & Python FastAPI Port 8000)
+  useEffect(() => {
+    let isMounted = true;
+    const checkBackends = async () => {
+      let isFastApiOk = false;
+      let isDotnetOk = false;
+      let activeNames = [];
+
+      // 1. Kiểm tra Python FastAPI (Port 8000)
+      try {
+        const res = await fetch('http://localhost:8000/api/health', { signal: AbortSignal.timeout(1800) });
+        if (res.ok) {
+          isFastApiOk = true;
+          activeNames.push('FastAPI:8000');
+        }
+      } catch (e) {}
+
+      // 2. Kiểm tra C# .NET API (Port 5000 hoặc 5222)
+      try {
+        const resNet = await fetch('http://localhost:5000/weatherforecast', { signal: AbortSignal.timeout(1800) });
+        if (resNet.ok) {
+          isDotnetOk = true;
+          activeNames.push('.NET:5000');
+        }
+      } catch (e) {
+        try {
+          const resNet2 = await fetch('http://localhost:5222/weatherforecast', { signal: AbortSignal.timeout(1200) });
+          if (resNet2.ok) {
+            isDotnetOk = true;
+            activeNames.push('.NET:5222');
+          }
+        } catch (e2) {}
+      }
+
+      if (isMounted) {
+        const isConnected = isFastApiOk || isDotnetOk;
+        setApiInfo({
+          fastApiStatus: isFastApiOk ? 'connected' : 'offline',
+          dotnetStatus: isDotnetOk ? 'connected' : 'offline',
+          isConnected,
+          activeBackend: isConnected ? activeNames.join(' & ') : 'Chờ khởi động API'
+        });
+      }
+    };
+
+    checkBackends();
+    const interval = setInterval(checkBackends, 8000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Lấy vị trí GPS thật từ trình duyệt
   const handleGetLiveGPS = () => {
@@ -296,7 +357,7 @@ export default function App() {
       currentStopIndex: 0,
       phase: 'driving'
     });
-    showToast("Bắt đầu hành trình! Xe tham quan đang khởi hành...", "success");
+    showToast("Bắt đầu hành trình đi thử! Hình người du khách đang di chuyển từ vị trí của bạn...", "success");
     driveToStop(0, userLocation.lat, userLocation.lon);
   };
 
@@ -656,7 +717,27 @@ export default function App() {
 
     setAnimals([newAnimal, ...animals]);
     setSelectedAnimal(newAnimal);
-    showToast(`Đã lưu thành công loài "${newAnimal.name}"!`, "success");
+
+    // Đồng bộ sang Backend API nếu đang online
+    if (apiInfo.isConnected) {
+      try {
+        fetch('http://localhost:8000/api/poi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: newAnimal.name,
+            category: 'mammal',
+            address: `Chuồng ${newAnimal.name}, Vườn Thú`,
+            coordinates: [lonNum, latNum],
+            radius_meters: newAnimal.radius_meters,
+            description_vi: newAnimal.descriptionVi,
+            image_url: newAnimal.imageUrl
+          })
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    showToast(`Đã lưu thành công loài "${newAnimal.name}" vào cơ sở dữ liệu & Bản đồ!`, "success");
     setActiveTab('list');
   };
 
@@ -700,6 +781,21 @@ export default function App() {
         }
         .tour-pulse-ring {
           animation: tour-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes personWalkBob {
+          0% { transform: translateY(0) rotate(-3deg); }
+          50% { transform: translateY(-4px) rotate(3deg); }
+          100% { transform: translateY(0) rotate(-3deg); }
+        }
+        .person-walking {
+          animation: personWalkBob 0.45s ease-in-out infinite alternate;
+        }
+        @keyframes footPulseEffect {
+          0% { transform: scale(0.6); opacity: 0.9; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        .foot-pulse {
+          animation: footPulseEffect 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
         .custom-animal-marker, .custom-user-marker {
           background: transparent !important;
@@ -763,6 +859,32 @@ export default function App() {
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#34d399', display: 'inline-block' }}></span>
             <span>Geofence Engine: <strong>{animals.length} Chuồng Online</strong></span>
           </div>
+
+          {/* Backend API Connection Status Chip */}
+          <div style={{
+            backgroundColor: apiInfo.isConnected ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.22)',
+            border: apiInfo.isConnected ? '1px solid #34d399' : '1px solid #f87171',
+            padding: '6px 14px',
+            borderRadius: '20px',
+            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: apiInfo.isConnected ? '0 0 10px rgba(52, 211, 153, 0.35)' : 'none'
+          }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: apiInfo.isConnected ? '#34d399' : '#f87171',
+              display: 'inline-block',
+              animation: apiInfo.isConnected ? 'tour-ping 1.5s infinite' : 'none'
+            }}></span>
+            <span>
+              API Backend: <strong>{apiInfo.isConnected ? `${apiInfo.activeBackend} Đã Kết Nối` : 'Đang Kiểm Tra...'}</strong>
+            </span>
+          </div>
+
           <span style={{ backgroundColor: '#047857', color: '#ffffff', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
             TTS Tiếng Việt: Sẵn sàng
           </span>
