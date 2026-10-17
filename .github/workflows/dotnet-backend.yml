@@ -4,20 +4,19 @@ on:
   push:
     branches: [ "main", "master" ]
     paths:
-      - 'Backend_Core/**'
+      - 'Backend_core/**'
   pull_request:
     branches: [ "main", "master" ]
     paths:
-      - 'Backend_Core/**'
+      - 'Backend_core/**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
-   
     defaults:
       run:
-        working-directory: ./Backend_Core/ZooAudioGuide.API
+        working-directory: ./Backend_core/ZooAudioGuide.API
 
     steps:
     - name: Checkout mã nguồn
@@ -26,7 +25,7 @@ jobs:
     - name: Cài đặt .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
+        dotnet-version: '9.0.x'
 
     - name: Khôi phục các thư viện
       run: dotnet restore
