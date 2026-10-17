@@ -52,7 +52,8 @@ export default function RealZooMap({
   isSpeaking,
   calculateDistance,
   onGetLiveGPS,
-  isLocating
+  isLocating,
+  onWalkToAnimal
 }) {
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
@@ -247,7 +248,7 @@ export default function RealZooMap({
         }
       });
 
-      // Clean Popup Content
+      // Clean Popup Content với Nút Đi Thử
       const popupHtml = `
         <div style="font-family: inherit; width: 220px; padding: 4px;">
           <div style="margin-bottom:6px;">
@@ -255,10 +256,33 @@ export default function RealZooMap({
             <p style="margin:2px 0 0;font-size:11px;color:#64748b;font-style:italic;">${animal.scientificName}</p>
           </div>
           <img src="${animal.imageUrl}" alt="${animal.name}" style="width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
-          <div style="font-size:11px;color:#334155;margin-bottom:4px;line-height:1.5;">
+          <div style="font-size:11px;color:#334155;margin-bottom:6px;line-height:1.5;">
             <div><strong>Phân khu:</strong> ${animal.zone}</div>
             <div><strong>Bán kính Geofence:</strong> ${animal.radius_meters} mét</div>
           </div>
+          <button
+            type="button"
+            onclick="window.__walkToAnimal && window.__walkToAnimal('${animal.id}')"
+            style="
+              width: 100%;
+              background: #059669;
+              color: #ffffff;
+              border: none;
+              padding: 8px 12px;
+              border-radius: 8px;
+              font-size: 11px;
+              font-weight: 800;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 6px;
+              box-shadow: 0 3px 8px rgba(5,150,105,0.35);
+            "
+          >
+            <span>🚶</span>
+            <span>Hình Người Đi Thử Đến Đây</span>
+          </button>
         </div>
       `;
       marker.bindPopup(popupHtml);
@@ -269,7 +293,15 @@ export default function RealZooMap({
 
       animalsLayerRef.current.addLayer(marker);
     });
-  }, [animals, selectedAnimal, navigationTarget, tourState]);
+
+    // Expose global handler for popup button clicks
+    window.__walkToAnimal = (animalId) => {
+      const an = animals.find(a => a.id === animalId);
+      if (an && onWalkToAnimal) {
+        onWalkToAnimal(an);
+      }
+    };
+  }, [animals, selectedAnimal, navigationTarget, tourState, onWalkToAnimal]);
 
   // 4. GPS Location Marker - Hình Người Đi Thử / Du Khách (Human Pedestrian Walking Avatar)
   useEffect(() => {
@@ -440,6 +472,10 @@ export default function RealZooMap({
         }
         .foot-pulse {
           animation: footPulseEffect 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .custom-user-marker, .custom-animal-marker, .leaflet-div-icon {
+          background: transparent !important;
+          border: none !important;
         }
       `}</style>
       
@@ -741,10 +777,14 @@ export default function RealZooMap({
                     fontWeight: '800',
                     cursor: 'pointer',
                     boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
                     transition: 'all 0.15s'
                   }}
                 >
-                  Bắt Đầu Đi Thử
+                  <span style={{ fontSize: '16px' }}>🚶</span>
+                  <span>Bắt Đầu Đi Thử (Lần Lượt 8 Điểm)</span>
                 </button>
               </div>
             </div>
@@ -754,6 +794,41 @@ export default function RealZooMap({
             </p>
           </div>
         )}
+
+        {/* Quick Travel To Specific Requested Animal ("Đi Thử Đến Điểm Yêu Cầu") */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', flexWrap: 'wrap', backgroundColor: '#f0fdf4', padding: '8px 12px', borderRadius: '10px', border: '1px solid #bbf7d0' }}>
+          <span style={{ fontSize: '11px', color: '#047857', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span>🚶</span> <strong>Đi thử đến điểm yêu cầu:</strong>
+          </span>
+          {animals.map((an, idx) => (
+            <button
+              key={an.id}
+              type="button"
+              onClick={() => {
+                if (onWalkToAnimal) onWalkToAnimal(an);
+              }}
+              title={`Hình người đi thử ngay đến chuồng ${an.name}`}
+              style={{
+                backgroundColor: selectedAnimal?.id === an.id ? '#059669' : '#ffffff',
+                color: selectedAnimal?.id === an.id ? '#ffffff' : '#047857',
+                border: '1px solid #86efac',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                transition: 'all 0.15s'
+              }}
+            >
+              <span>🚶</span>
+              <span>{idx + 1}. {an.name}</span>
+            </button>
+          ))}
+        </div>
 
         {/* Real Leaflet Map Container */}
         <div
@@ -855,6 +930,35 @@ export default function RealZooMap({
           <div><strong>Chế độ ăn:</strong> {selectedAnimal.diet}</div>
           <div><strong>Khoảng cách:</strong> <strong style={{ color: '#2563eb' }}>{calculateDistance(userLocation.lat, userLocation.lon, selectedAnimal.coordinates.lat, selectedAnimal.coordinates.lon)}m</strong></div>
         </div>
+
+        {/* Action: Hình người đi thử đến chuồng này */}
+        <button
+          type="button"
+          onClick={() => {
+            if (onWalkToAnimal) onWalkToAnimal(selectedAnimal);
+          }}
+          style={{
+            width: '100%',
+            backgroundColor: '#059669',
+            color: '#ffffff',
+            padding: '12px 14px',
+            borderRadius: '10px',
+            border: 'none',
+            fontWeight: '800',
+            fontSize: '13px',
+            cursor: 'pointer',
+            marginBottom: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)',
+            transition: 'all 0.15s'
+          }}
+        >
+          <span style={{ fontSize: '18px' }}>🚶</span>
+          <span>Hình Người Đi Thử Đến {selectedAnimal.name}</span>
+        </button>
 
         {/* Action: Dẫn đường */}
         <button

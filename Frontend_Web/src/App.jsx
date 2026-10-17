@@ -352,6 +352,71 @@ export default function App() {
     showToast("Đã dừng chỉ đường.", "info");
   };
 
+  // 0. Cho hình người đi thử đến một điểm cụ thể theo yêu cầu
+  const walkToAnimal = (targetAnimal) => {
+    cancelNavigation();
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    setSelectedAnimal(targetAnimal);
+    setNavigationTarget(targetAnimal);
+
+    setTourState({
+      isActive: true,
+      isPaused: false,
+      currentStopIndex: animals.findIndex(a => a.id === targetAnimal.id),
+      phase: 'driving'
+    });
+
+    showToast(`Hình người đi thử đang di chuyển đến: ${targetAnimal.name}...`, "info");
+
+    const startLat = userLocation.lat;
+    const startLon = userLocation.lon;
+    const targetLat = targetAnimal.coordinates.lat;
+    const targetLon = targetAnimal.coordinates.lon;
+
+    let step = 0;
+    const totalSteps = 26;
+
+    tourTimerRef.current = setInterval(() => {
+      step++;
+      const p = step / totalSteps;
+      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+      if (p >= 1) {
+        clearInterval(tourTimerRef.current);
+        tourTimerRef.current = null;
+
+        setUserLocation(prev => ({
+          ...prev,
+          lat: targetLat,
+          lon: targetLon,
+          label: `Tại chuồng ${targetAnimal.name}`
+        }));
+
+        setTourState(prev => ({ ...prev, phase: 'narrating' }));
+        showToast(`ĐÃ ĐẾN NƠI: Hình người đã đến chuồng ${targetAnimal.name}! Bắt đầu thuyết minh.`, "success");
+
+        const speechContent = `Quý khách đã đến điểm tham quan ${targetAnimal.name}. ` + targetAnimal.descriptionVi;
+        speakWithCallback(speechContent, tourLang, () => {
+          showToast(`Đã hoàn tất thuyết minh tại chuồng ${targetAnimal.name}!`, "info");
+          setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
+        });
+      } else {
+        const curLat = parseFloat((startLat + (targetLat - startLat) * ease).toFixed(6));
+        const curLon = parseFloat((startLon + (targetLon - startLon) * ease).toFixed(6));
+        setUserLocation(prev => ({
+          ...prev,
+          lat: curLat,
+          lon: curLon,
+          label: `Đang đi đến chuồng ${targetAnimal.name}...`
+        }));
+      }
+    }, 60);
+  };
+
   // 1. Bắt đầu tour thuyết minh tự động qua các địa điểm
   const startAutoTour = () => {
     if (animals.length === 0) {
@@ -1448,6 +1513,7 @@ export default function App() {
             onStopTour={stopTour}
             onStartNavigation={startNavigation}
             onCancelNavigation={cancelNavigation}
+            onWalkToAnimal={walkToAnimal}
             showToast={showToast}
             tourLang={tourLang}
             setTourLang={setTourLang}

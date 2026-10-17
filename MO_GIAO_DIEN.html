@@ -68,6 +68,19 @@
       75%, 100% { transform: scale(2.2); opacity: 0; }
     }
 
+    @keyframes personWalkBob {
+      0% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-4px) rotate(3deg); }
+      100% { transform: translateY(0) rotate(-3deg); }
+    }
+    .person-walking {
+      animation: personWalkBob 0.45s ease-in-out infinite alternate;
+    }
+    .custom-tourist-avatar, .leaflet-div-icon {
+      background: transparent !important;
+      border: none !important;
+    }
+
     /* Hotspot Badge Animation on Illustrated Map */
     .map-hotspot {
       position: absolute;
@@ -130,11 +143,11 @@
               HỆ THỐNG THUYẾT MINH SỞ THÚ TỰ ĐỘNG
             </h1>
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-zoo-500/20 text-zoo-300 border border-zoo-500/40">
-              THẢO CẦM VIÊN SÀI GÒN
+              GPS WGS-84 ONLINE
             </span>
           </div>
           <p class="text-xs text-zoo-200/90 flex items-center gap-1.5 mt-0.5">
-            <span>Giảng viên hướng dẫn: <strong class="text-white">TS. Nguyễn Quốc Huy</strong></span>
+            <span>Hệ thống định vị & thuyết minh tự động đa ngôn ngữ</span>
           </p>
         </div>
       </div>
@@ -385,97 +398,28 @@
                 </div>
               </div>
 
-              <!-- Interactive Illustrated Map of Thảo Cầm Viên with Geofence circle & Click to Narrate -->
+              <!-- REAL GPS LEAFLET MAP OF THẢO CẦM VIÊN -->
               <div class="relative bg-slate-950 rounded-2xl overflow-hidden border-2 border-zoo-600/70 shadow-lg group">
-                <!-- Map Top Hint -->
-                <div class="absolute top-2 left-2 z-20 bg-black/75 backdrop-blur-md px-3 py-1 rounded-lg border border-white/10 text-white text-[11px] flex items-center gap-1.5 shadow pointer-events-none">
-                  <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                  <span class="font-bold">Bản Đồ Thảo Cầm Viên Sài Gòn Gốc</span>
-                  <span class="text-slate-400">|</span>
-                  <span class="text-zoo-300">Nhấp vào bất kỳ điểm nào để nghe thuyết minh & đặt Geofence</span>
-                </div>
-
-                <!-- Interactive Illustrated Map Image Container -->
-                <div id="interactive-tcv-container" class="relative w-full cursor-crosshair select-none" onclick="handleIllustratedMapClick(event)">
-                  <img id="tcv-picker-img" src="ban-do-tcv.jpg" onerror="this.src='http://localhost:8000/audio/files/ban-do-tcv.jpg'" alt="Bản Đồ Thảo Cầm Viên Sài Gòn" class="w-full h-auto block select-none pointer-events-none" />
-
-                  <!-- Active Geofence Circle Overlay on Map -->
-                  <div id="active-geofence-ring" class="absolute pointer-events-none transition-all duration-200 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-400 bg-emerald-500/25 shadow-lg flex items-center justify-center z-10" style="left: 57.5%; top: 36.5%; width: 70px; height: 70px;">
-                    <div class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></div>
+                <!-- Map Header Overlay -->
+                <div class="p-3 bg-gradient-to-r from-slate-950 via-zoo-950 to-slate-900 border-b border-zoo-800/70 flex flex-wrap items-center justify-between gap-2">
+                  <div class="flex items-center space-x-2 text-white text-xs">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span class="font-extrabold text-zoo-200">Bản Đồ Địa Lý Thực Tế — Thảo Cầm Viên Sài Gòn</span>
+                    <span class="text-slate-400 hidden sm:inline">•</span>
+                    <span class="text-slate-300 text-[11px] hidden sm:inline">Nhấp vào bất kỳ điểm nào trên bản đồ để ghim GPS & nghe thuyết minh</span>
                   </div>
-
-                  <!-- Active GPS Pin Marker -->
-                  <div id="active-gps-pin" class="absolute pointer-events-none transition-all duration-200 -translate-x-1/2 -translate-y-full z-20 flex flex-col items-center" style="left: 57.5%; top: 36.5%;">
-                    <div class="bg-red-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-lg border border-white flex items-center gap-1 whitespace-nowrap">
-                      <span>📍</span><span id="pin-label-text">Voi Châu Á</span>
-                    </div>
-                    <div class="w-2 h-2 bg-red-600 rotate-45 -mt-1 border-r border-b border-white"></div>
-                  </div>
-
-                  <!-- HOTSPOTS (Clickable Exhibit Animals on Map) -->
-                  <!-- 1. Voi Châu Á -->
-                  <div class="map-hotspot z-15" style="left: 57.5%; top: 36.5%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-1')">
-                    <span class="hotspot-pulse-ring bg-emerald-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🐘</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Voi Châu Á</div>
-                  </div>
-
-                  <!-- 2. Hổ Đông Dương -->
-                  <div class="map-hotspot z-15" style="left: 82.5%; top: 76.5%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-2')">
-                    <span class="hotspot-pulse-ring bg-red-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🐅</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Hổ Đông Dương</div>
-                  </div>
-
-                  <!-- 3. Hươu Cao Cổ & Ngựa Vằn -->
-                  <div class="map-hotspot z-15" style="left: 23%; top: 77%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-3')">
-                    <span class="hotspot-pulse-ring bg-amber-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-500 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🦒</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Hươu & Ngựa Vằn</div>
-                  </div>
-
-                  <!-- 4. Vượn Má Vàng & Linh Trưởng -->
-                  <div class="map-hotspot z-15" style="left: 86.5%; top: 84%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-4')">
-                    <span class="hotspot-pulse-ring bg-purple-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-purple-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🐒</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Đảo Vượn</div>
-                  </div>
-
-                  <!-- 5. Chim Hồng Hạc & Thủy Điểu -->
-                  <div class="map-hotspot z-15" style="left: 44%; top: 61%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-5')">
-                    <span class="hotspot-pulse-ring bg-pink-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-pink-500 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🦩</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Hồ Hồng Hạc</div>
-                  </div>
-
-                  <!-- 6. Đầm Cá Sấu -->
-                  <div class="map-hotspot z-15" style="left: 88%; top: 70%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-6')">
-                    <span class="hotspot-pulse-ring bg-blue-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🐊</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Đầm Cá Sấu</div>
-                  </div>
-
-                  <!-- 7. Tê Giác Một Sừng -->
-                  <div class="map-hotspot z-15" style="left: 20.5%; top: 69%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-7')">
-                    <span class="hotspot-pulse-ring bg-teal-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-teal-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🦏</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Tê Giác</div>
-                  </div>
-
-                  <!-- 8. Gấu Ngựa Đông Dương -->
-                  <div class="map-hotspot z-15" style="left: 78%; top: 75%;" onclick="event.stopPropagation(); clickExhibitOnMap('zoo-8')">
-                    <span class="hotspot-pulse-ring bg-slate-500"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-700 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🐻</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Gấu Ngựa</div>
-                  </div>
-
-                  <!-- Landmark: Đền Hùng -->
-                  <div class="map-hotspot z-15" style="left: 45.5%; top: 80%;" onclick="event.stopPropagation(); clickExhibitOnMap('temple')">
-                    <span class="hotspot-pulse-ring bg-amber-400"></span>
-                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-amber-700 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl hover:scale-125 transition">🏛️</div>
-                    <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow pointer-events-none">Đền Hùng</div>
+                  <div class="flex items-center space-x-1.5">
+                    <button type="button" onclick="setPickerMapTile('osm')" id="btn-picker-osm" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zoo-600 text-white transition flex items-center gap-1 shadow-sm">
+                      <i class="fa-solid fa-map"></i><span>Đường Phố (OSM)</span>
+                    </button>
+                    <button type="button" onclick="setPickerMapTile('satellite')" id="btn-picker-sat" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1">
+                      <i class="fa-solid fa-satellite"></i><span>Vệ Tinh (Satellite)</span>
+                    </button>
                   </div>
                 </div>
+
+                <!-- Leaflet Real Geographic Map Container -->
+                <div id="picker-map" style="height: 380px; width: 100%; z-index: 10;" class="relative"></div>
               </div>
 
               <!-- LIVE MULTILINGUAL AUDIO PLAYER & HUD FOR CLICKED SPOT -->
@@ -755,187 +699,74 @@
     <!-- ======================================================================= -->
     <!-- TAB 2: BẢN ĐỒ THẢO CẦM VIÊN (2 CHẾ ĐỘ: TRANH VẼ CHÍNH THỨC & VỆ TINH GPS) -->
     <!-- ======================================================================= -->
-    <section id="pane-map" class="tab-pane hidden space-y-6">
+    <section id="pane-map" class="tab-pane hidden space-y-5">
       
-      <!-- Map Mode Switcher Bar -->
+      <!-- Real Map Header Bar -->
       <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h2 class="font-extrabold text-slate-900 text-base flex items-center space-x-2">
             <span class="text-xl">🗺️</span>
-            <span>Bản Đồ Thảo Cầm Viên Sài Gòn — Lựa Chọn Chế Độ Xem</span>
+            <span>Bản Đồ Địa Lý Thực Tế — Thảo Cầm Viên Sài Gòn</span>
           </h2>
           <p class="text-xs text-slate-500 mt-0.5">
-            Dễ dàng chuyển đổi giữa <strong>Bản đồ tranh vẽ du lịch gốc</strong> và <strong>Bản đồ định vị GPS Geofence thực tế</strong>.
+            Tọa độ GPS thực tế tại <strong>Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1</strong> • Tích hợp bán kính Geofence và thuyết minh tự động đa ngôn ngữ.
           </p>
         </div>
 
-        <!-- Mode Segmented Control -->
-        <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
-          <button id="btn-mode-illustrated" onclick="setMapMode('illustrated')" class="px-4 py-2 rounded-lg text-xs font-extrabold bg-zoo-600 text-white shadow-sm flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-palette"></i><span>Bản Đồ Tranh Vẽ Gốc (ban-do-tcv.jpg)</span>
-          </button>
-          <button id="btn-mode-satellite" onclick="setMapMode('satellite')" class="px-4 py-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-satellite"></i><span>Bản Đồ Vệ Tinh GPS (Leaflet)</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- VIEW 1: BẢN ĐỒ TRANH VẼ CHÍNH THỨC (ban-do-tcv.jpg) WITH INTERACTIVE HOTSPOTS -->
-      <div id="view-map-illustrated" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-4">
-        
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-slate-600 gap-2 pb-2 border-b border-slate-100">
-          <span class="flex items-center gap-1.5 font-bold text-zoo-800">
-            <i class="fa-solid fa-circle-info text-zoo-600"></i>
-            <span>Bản đồ tranh vẽ chuẩn từ Ban Quản Lý Thảo Cầm Viên. Bấm vào bất kỳ icon loài thú nào để nghe thuyết minh:</span>
-          </span>
-          <div class="flex items-center space-x-2">
-            <button onclick="startAutoTour()" class="bg-zoo-600 hover:bg-zoo-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm transition">
-              <i class="fa-solid fa-person-walking"></i><span>Tour Tự Động Dạo Vườn Thú</span>
+        <!-- Controls: Layer Switcher & Tour -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
+            <button id="btn-map-osm" onclick="setMainMapTile('osm')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-zoo-600 text-white shadow-sm flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-map"></i><span>Đường Phố (OSM)</span>
+            </button>
+            <button id="btn-map-sat" onclick="setMainMapTile('satellite')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-satellite"></i><span>Vệ Tinh (Satellite)</span>
             </button>
           </div>
+
+          <button onclick="startAutoTour()" class="bg-zoo-600 hover:bg-zoo-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-person-walking"></i><span>Tour Tự Động Dạo Vườn Thú</span>
+          </button>
+          <button onclick="resetMainMapView()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl flex items-center gap-1 border border-slate-200 transition" title="Về tâm Thảo Cầm Viên">
+            <i class="fa-solid fa-crosshairs text-zoo-600"></i><span>Về Tâm Sở Thú</span>
+          </button>
         </div>
-
-        <!-- Illustrated Map Container with Hotspots -->
-        <div class="relative w-full rounded-2xl overflow-hidden border-2 border-zoo-600/60 shadow-xl bg-slate-950 group">
-          <img id="tcv-main-map-img" src="ban-do-tcv.jpg" onerror="this.src='http://localhost:8000/audio/files/ban-do-tcv.jpg'" alt="Bản Đồ Thảo Cầm Viên Sài Gòn" class="w-full h-auto object-cover block select-none" />
-
-          <!-- INTERACTIVE HOTSPOTS PINNED ON THE REAL MAP -->
-          
-          <!-- 1. Voi Châu Á (Elephant) -->
-          <div class="map-hotspot" style="left: 57.5%; top: 36.5%;" onclick="selectHotspot('zoo-1')">
-            <span class="hotspot-pulse-ring bg-emerald-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-emerald-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🐘
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Voi Châu Á
-            </div>
-          </div>
-
-          <!-- 2. Hổ Đông Dương (Tiger) -->
-          <div class="map-hotspot" style="left: 82.5%; top: 76.5%;" onclick="selectHotspot('zoo-2')">
-            <span class="hotspot-pulse-ring bg-red-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-red-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🐅
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Hổ Đông Dương
-            </div>
-          </div>
-
-          <!-- 3. Hươu Cao Cổ & Ngựa Vằn -->
-          <div class="map-hotspot" style="left: 23%; top: 77%;" onclick="selectHotspot('zoo-3')">
-            <span class="hotspot-pulse-ring bg-amber-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-amber-500 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🦒
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Hươu & Ngựa Vằn
-            </div>
-          </div>
-
-          <!-- 4. Vượn Má Vàng (Gibbon) -->
-          <div class="map-hotspot" style="left: 86.5%; top: 84%;" onclick="selectHotspot('zoo-4')">
-            <span class="hotspot-pulse-ring bg-purple-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-purple-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🐒
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Đảo Vượn
-            </div>
-          </div>
-
-          <!-- 5. Hồng Hạc & Thủy Điểu (Flamingos) -->
-          <div class="map-hotspot" style="left: 44%; top: 61%;" onclick="selectHotspot('zoo-5')">
-            <span class="hotspot-pulse-ring bg-pink-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-pink-500 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🦩
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Hồ Hồng Hạc
-            </div>
-          </div>
-
-          <!-- 6. Đầm Cá Sấu (Crocodile Pool) -->
-          <div class="map-hotspot" style="left: 88%; top: 70%;" onclick="selectHotspot('zoo-6')">
-            <span class="hotspot-pulse-ring bg-blue-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-blue-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🐊
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Đầm Cá Sấu
-            </div>
-          </div>
-
-          <!-- 7. Tê Giác Một Sừng (Rhino) -->
-          <div class="map-hotspot" style="left: 20.5%; top: 69%;" onclick="selectHotspot('zoo-7')">
-            <span class="hotspot-pulse-ring bg-teal-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-teal-600 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🦏
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Tê Giác
-            </div>
-          </div>
-
-          <!-- 8. Gấu Ngựa Đông Dương (Bear) -->
-          <div class="map-hotspot" style="left: 78%; top: 75%;" onclick="selectHotspot('zoo-8')">
-            <span class="hotspot-pulse-ring bg-slate-500"></span>
-            <div class="relative w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-700 text-white font-extrabold text-sm sm:text-base flex items-center justify-center border-2 border-white shadow-xl">
-              🐻
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Gấu Ngựa
-            </div>
-          </div>
-
-          <!-- Landmark: Đền Hùng (Hung Kings' Temple) -->
-          <div class="map-hotspot" style="left: 45.5%; top: 80%;" onclick="showToast('Khu Di tích Đền Hùng - Thảo Cầm Viên Sài Gòn', '🏛️'); speakText('Chào mừng quý khách đến với Đền Thờ Các Vua Hùng bên trong khuôn viên Thảo Cầm Viên Sài Gòn, nơi tưởng niệm công đức tổ tiên với kiến trúc truyền thống tôn nghiêm.');">
-            <span class="hotspot-pulse-ring bg-amber-400"></span>
-            <div class="relative w-9 h-9 rounded-full bg-amber-700 text-white font-extrabold text-sm flex items-center justify-center border-2 border-white shadow-xl">
-              🏛️
-            </div>
-            <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-amber-950 text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded shadow pointer-events-none">
-              Đền Hùng
-            </div>
-          </div>
-
-          <!-- Landmark: Sân Khấu (Stage) bên Sông Thị Nghè -->
-          <div class="map-hotspot" style="left: 39%; top: 41%;" onclick="showToast('Sân Khấu Biểu Diễn Thảo Cầm Viên (Sông Thị Nghè)', '🎭');">
-            <div class="relative w-8 h-8 rounded-full bg-indigo-600 text-white font-extrabold text-xs flex items-center justify-center border border-white shadow-md">
-              🎭
-            </div>
-            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded pointer-events-none">
-              Sân Khấu
-            </div>
-          </div>
-
-          <!-- Landmark: Đu Quay Mặt Trời (Ferris Wheel) -->
-          <div class="map-hotspot" style="left: 88.5%; top: 34%;" onclick="showToast('Khu Trò Chơi Vòng Xoay Mặt Trời Khổng Lồ', '🎡');">
-            <div class="relative w-8 h-8 rounded-full bg-rose-600 text-white font-extrabold text-xs flex items-center justify-center border border-white shadow-md">
-              🎡
-            </div>
-            <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/75 text-white text-[9px] font-bold px-1.5 py-0.5 rounded pointer-events-none">
-              Đu Quay
-            </div>
-          </div>
-
-        </div>
-
       </div>
 
-      <!-- VIEW 2: BẢN ĐỒ VỆ TINH GPS (LEAFLET REAL-TIME MAP) -->
-      <div id="view-map-satellite" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Real Map Layout: Map 8 cols + Detail Card 4 cols -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left: Leaflet Real Map -->
+        <!-- Left: Leaflet Real Map -->
         <div class="lg:col-span-8 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-          <div class="flex justify-between items-center">
-            <h3 class="font-bold text-slate-800 text-sm">Bản Đồ Định Vị GPS Vệ Tinh (Leaflet Real Map)</h3>
-            <span class="text-xs text-slate-400 font-mono">Tâm Thảo Cầm Viên: 10.7876°N, 106.7052°E</span>
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center text-xs text-slate-500 pb-2 border-b border-slate-100 gap-2">
+            <span class="font-bold text-zoo-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-person-walking text-emerald-600 text-sm"></i>
+              <span>Nhấp chuồng thú hoặc chọn điểm yêu cầu để hình người đi thử đến và thuyết minh:</span>
+            </span>
+            <button onclick="startRealMapAutoTour()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow transition">
+              <i class="fa-solid fa-person-walking"></i><span>Bắt Đầu Đi Thử (Lần Lượt 8 Điểm)</span>
+            </button>
           </div>
-          <div id="map" style="height: 520px; width: 100%;"></div>
+
+          <div id="map" style="height: 560px; width: 100%; border-radius: 1rem;" class="shadow-inner border border-slate-200"></div>
+
+          <!-- Quick animal list buttons under map ("Đi thử đến điểm yêu cầu") -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-2 bg-emerald-50/50 p-2.5 rounded-xl border border-emerald-100">
+            <span class="text-xs font-bold text-emerald-800 mr-1 flex items-center gap-1"><i class="fa-solid fa-person-walking"></i> Đi thử đến điểm yêu cầu:</span>
+            <button onclick="walkToAnimalOnMap('zoo-1')" class="px-2.5 py-1 bg-white text-emerald-800 border border-emerald-300 rounded-lg text-xs font-bold hover:bg-emerald-100 transition shadow-sm">1. Voi Châu Á</button>
+            <button onclick="walkToAnimalOnMap('zoo-2')" class="px-2.5 py-1 bg-white text-red-800 border border-red-300 rounded-lg text-xs font-bold hover:bg-red-100 transition shadow-sm">2. Hổ Đông Dương</button>
+            <button onclick="walkToAnimalOnMap('zoo-3')" class="px-2.5 py-1 bg-white text-amber-800 border border-amber-300 rounded-lg text-xs font-bold hover:bg-amber-100 transition shadow-sm">3. Hươu & Ngựa Vằn</button>
+            <button onclick="walkToAnimalOnMap('zoo-4')" class="px-2.5 py-1 bg-white text-purple-800 border border-purple-300 rounded-lg text-xs font-bold hover:bg-purple-100 transition shadow-sm">4. Đảo Vượn</button>
+            <button onclick="walkToAnimalOnMap('zoo-5')" class="px-2.5 py-1 bg-white text-pink-800 border border-pink-300 rounded-lg text-xs font-bold hover:bg-pink-100 transition shadow-sm">5. Hồ Hồng Hạc</button>
+            <button onclick="walkToAnimalOnMap('zoo-6')" class="px-2.5 py-1 bg-white text-blue-800 border border-blue-300 rounded-lg text-xs font-bold hover:bg-blue-100 transition shadow-sm">6. Đầm Cá Sấu</button>
+            <button onclick="walkToAnimalOnMap('zoo-7')" class="px-2.5 py-1 bg-white text-teal-800 border border-teal-300 rounded-lg text-xs font-bold hover:bg-teal-100 transition shadow-sm">7. Tê Giác</button>
+            <button onclick="walkToAnimalOnMap('zoo-8')" class="px-2.5 py-1 bg-white text-slate-800 border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-200 transition shadow-sm">8. Gấu Ngựa</button>
+          </div>
         </div>
 
-        <!-- Selected Map Info Column -->
-        <div class="lg:col-span-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3.5 sticky top-36">
+        <!-- Right: Selected Animal & Audio Player Card -->
+        <div class="lg:col-span-4 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 sticky top-36">
           <div class="flex justify-between items-center">
             <span id="m-zone" class="bg-zoo-100 text-zoo-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Khu Móng Guốc</span>
             <span id="m-radius" class="bg-blue-100 text-blue-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">Geofence: 25m</span>
@@ -946,14 +777,44 @@
             <p id="m-sciname" class="text-xs text-slate-500 italic">Elephas maximus</p>
           </div>
 
-          <img id="m-img" src="https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700" alt="Selected Animal" class="w-full h-40 object-cover rounded-xl shadow-sm" />
+          <div class="relative overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+            <img id="m-img" src="https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700" alt="Selected Animal" class="w-full h-44 object-cover" />
+            <span id="m-iucn-badge" class="absolute bottom-2 left-2 bg-black/75 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur-sm">EN - Nguy Cấp</span>
+          </div>
 
-          <p id="m-desc" class="text-xs text-slate-700 leading-relaxed bg-zoo-50/70 p-3 rounded-xl border border-zoo-100 max-h-32 overflow-y-auto">
+          <!-- Language Selector -->
+          <div class="space-y-1.5">
+            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Ngôn ngữ thuyết minh:</label>
+            <div class="grid grid-cols-5 gap-1" id="real-map-lang-switcher">
+              <button onclick="setRealMapTourLanguage('vi')" id="rm-lang-vi" class="py-1.5 text-xs font-bold rounded-lg bg-zoo-600 text-white shadow-sm flex flex-col items-center">
+                <span>🇻🇳</span><span class="text-[9px]">VI</span>
+              </button>
+              <button onclick="setRealMapTourLanguage('en')" id="rm-lang-en" class="py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex flex-col items-center">
+                <span>🇬🇧</span><span class="text-[9px]">EN</span>
+              </button>
+              <button onclick="setRealMapTourLanguage('fr')" id="rm-lang-fr" class="py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex flex-col items-center">
+                <span>🇫🇷</span><span class="text-[9px]">FR</span>
+              </button>
+              <button onclick="setRealMapTourLanguage('zh')" id="rm-lang-zh" class="py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex flex-col items-center">
+                <span>🇨🇳</span><span class="text-[9px]">ZH</span>
+              </button>
+              <button onclick="setRealMapTourLanguage('ja')" id="rm-lang-ja" class="py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex flex-col items-center">
+                <span>🇯🇵</span><span class="text-[9px]">JA</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Audio Narrative Description Text / Subtitles -->
+          <p id="m-desc" class="text-xs text-slate-700 leading-relaxed bg-zoo-50/70 p-3 rounded-xl border border-zoo-100 max-h-36 overflow-y-auto">
             Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn...
           </p>
 
-          <button onclick="playSelectedMapAudio()" class="w-full bg-zoo-600 hover:bg-zoo-700 active:scale-95 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow transition">
-            <i class="fa-solid fa-volume-high"></i><span>Phát Thuyết Minh (Tiếng Việt)</span>
+          <button onclick="walkToAnimalOnMap(currentActiveExhibitId)" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition">
+            <i class="fa-solid fa-person-walking text-sm"></i><span>Hình Người Đi Thử Đến Chuồng Này</span>
+          </button>
+
+          <button onclick="playSelectedRealMapAudio()" id="btn-play-real-map" class="w-full bg-zoo-600 hover:bg-zoo-700 active:scale-95 text-white font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow transition">
+            <i class="fa-solid fa-volume-high"></i><span id="btn-play-real-map-text">Phát Thuyết Minh Âm Thanh</span>
           </button>
         </div>
       </div>
@@ -1790,6 +1651,212 @@
       }
     }
 
+    // ============================================================
+    // REAL GEOGRAPHIC MAP LAYER SWITCHING & REAL MAP AUDIO
+    // ============================================================
+    const TILE_OSM = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const TILE_SAT = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+    let mainTileLayer = null;
+    let pickerTileLayer = null;
+    let currentMainTileType = 'osm';
+    let currentPickerTileType = 'osm';
+    let realMapTourLang = 'vi';
+
+    function setMainMapTile(type) {
+      if (!map) return;
+      currentMainTileType = type;
+      if (mainTileLayer) map.removeLayer(mainTileLayer);
+
+      const url = type === 'satellite' ? TILE_SAT : TILE_OSM;
+      const attr = type === 'satellite' ? '&copy; Esri, Maxar, Earthstar Geographics | Thảo Cầm Viên Sài Gòn' : '&copy; OpenStreetMap | Thảo Cầm Viên Sài Gòn';
+      mainTileLayer = L.tileLayer(url, { attribution: attr, maxZoom: 19 }).addTo(map);
+
+      const btnOsm = document.getElementById('btn-map-osm');
+      const btnSat = document.getElementById('btn-map-sat');
+      if (type === 'satellite') {
+        if (btnSat) btnSat.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-zoo-600 text-white shadow-sm flex items-center gap-1.5 transition";
+        if (btnOsm) btnOsm.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition";
+        showToast("Đã chuyển sang Bản Đồ Vệ Tinh Không Gian", "🛰️");
+      } else {
+        if (btnOsm) btnOsm.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-zoo-600 text-white shadow-sm flex items-center gap-1.5 transition";
+        if (btnSat) btnSat.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition";
+        showToast("Đã chuyển sang Bản Đồ Đường Phố Thực Địa (OSM)", "🗺️");
+      }
+    }
+
+    function setPickerMapTile(type) {
+      if (!pickerMap) return;
+      currentPickerTileType = type;
+      if (pickerTileLayer) pickerMap.removeLayer(pickerTileLayer);
+
+      const url = type === 'satellite' ? TILE_SAT : TILE_OSM;
+      pickerTileLayer = L.tileLayer(url, { maxZoom: 19 }).addTo(pickerMap);
+
+      const btnOsm = document.getElementById('btn-picker-osm');
+      const btnSat = document.getElementById('btn-picker-sat');
+      if (type === 'satellite') {
+        if (btnSat) btnSat.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zoo-600 text-white transition flex items-center gap-1 shadow-sm";
+        if (btnOsm) btnOsm.className = "px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1";
+      } else {
+        if (btnOsm) btnOsm.className = "px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zoo-600 text-white transition flex items-center gap-1 shadow-sm";
+        if (btnSat) btnSat.className = "px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1";
+      }
+    }
+
+    function resetMainMapView() {
+      if (map) {
+        map.setView([10.7876, 106.7052], 17);
+        showToast("Đã trở về tâm Thảo Cầm Viên Sài Gòn", "🎯");
+      }
+    }
+
+    let touristUserMarker = null;
+    let touristWalkTimer = null;
+    let currentUserCoords = [10.7868, 106.7040]; // Cổng chính xuất phát
+
+    function getTouristPersonIcon() {
+      return L.divIcon({
+        className: 'custom-tourist-avatar',
+        html: `
+          <div style="position: relative; width: 44px; height: 58px; display: flex; flex-direction: column; align-items: center; user-select: none;">
+            <div style="position: absolute; top: -24px; white-space: nowrap; background: #064e3b; color: #ffffff; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 12px; border: 1.5px solid #ffffff; box-shadow: 0 3px 8px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 5px; z-index: 10;">
+              <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #34d399; animation: radar-ping 1.2s infinite;"></span>
+              <span>Người Đi Thử</span>
+            </div>
+            <div class="radar-pulse" style="position: absolute; bottom: -2px; width: 32px; height: 14px; border-radius: 50%; background: rgba(16,185,129,0.5); pointer-events: none;"></div>
+            <div class="person-walking" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #047857 100%); border: 2.5px solid #ffffff; box-shadow: 0 4px 14px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 5;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffffff" style="overflow: visible;">
+                <circle cx="12" cy="4" r="2.8"/>
+                <path d="M13.5 8.5c-.4-.3-.9-.5-1.5-.5s-1.1.2-1.5.5L7.2 11.2c-.4.3-.5.8-.3 1.2.3.4.8.5 1.2.3L11 11V15l-3.2 4.2c-.3.4-.2 1 .2 1.3.4.3 1 .2 1.3-.2L13 15.5V21c0 .6.4 1 1 1s1-.4 1-1v-6.5l-2-2.3V10.2l2.3 1.5c.4.3 1 .1 1.3-.3.3-.4.1-1-.3-1.3l-2.8-1.6z"/>
+              </svg>
+            </div>
+            <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #047857; margin-top: -3px; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25)); z-index: 6;"></div>
+          </div>
+        `,
+        iconSize: [44, 58],
+        iconAnchor: [22, 58]
+      });
+    }
+
+    function initTouristMarkerOnMap() {
+      if (!map) return;
+      if (!touristUserMarker) {
+        touristUserMarker = L.marker(currentUserCoords, {
+          icon: getTouristPersonIcon(),
+          zIndexOffset: 1000
+        }).addTo(map);
+      }
+    }
+
+    function focusAnimalOnMap(animalId) {
+      walkToAnimalOnMap(animalId);
+    }
+
+    function walkToAnimalOnMap(animalId, onComplete) {
+      const an = ZOO_ANIMALS.find(x => x.id === animalId);
+      if (!an) return;
+      selectHotspot(animalId);
+      initTouristMarkerOnMap();
+
+      showToast(`Hình người đi thử đang di chuyển đến: ${an.name}...`, "🚶");
+
+      if (touristWalkTimer) clearInterval(touristWalkTimer);
+
+      const startLat = currentUserCoords[0];
+      const startLon = currentUserCoords[1];
+      const targetLat = an.coordinates[1];
+      const targetLon = an.coordinates[0];
+
+      let step = 0;
+      const totalSteps = 24;
+
+      touristWalkTimer = setInterval(() => {
+        step++;
+        const p = step / totalSteps;
+        const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+        if (p >= 1) {
+          clearInterval(touristWalkTimer);
+          touristWalkTimer = null;
+          currentUserCoords = [targetLat, targetLon];
+          if (touristUserMarker) touristUserMarker.setLatLng(currentUserCoords);
+          if (map) map.panTo(currentUserCoords, { animate: true });
+
+          showToast(`ĐÃ ĐẾN NƠI: Hình người đã đến chuồng ${an.name}! Đang thuyết minh...`, "🎉");
+          playSelectedRealMapAudio();
+          if (onComplete) onComplete();
+        } else {
+          const curLat = parseFloat((startLat + (targetLat - startLat) * ease).toFixed(6));
+          const curLon = parseFloat((startLon + (targetLon - startLon) * ease).toFixed(6));
+          currentUserCoords = [curLat, curLon];
+          if (touristUserMarker) touristUserMarker.setLatLng(currentUserCoords);
+          if (map) map.panTo(currentUserCoords, { animate: false });
+        }
+      }, 60);
+    }
+
+    let realMapTourIdx = 0;
+    let isRealTourRunning = false;
+    function startRealMapAutoTour() {
+      if (isRealTourRunning) {
+        isRealTourRunning = false;
+        if (touristWalkTimer) clearInterval(touristWalkTimer);
+        showToast("Đã dừng tour đi thử.", "⏹");
+        return;
+      }
+      isRealTourRunning = true;
+      realMapTourIdx = 0;
+      showToast("Bắt đầu tour đi thử qua 8 điểm chuồng thú...", "🚶");
+
+      function nextStop() {
+        if (!isRealTourRunning) return;
+        if (realMapTourIdx >= ZOO_ANIMALS.length) {
+          isRealTourRunning = false;
+          showToast("Hoàn thành tour đi thử qua tất cả các điểm!", "🎉");
+          return;
+        }
+        const an = ZOO_ANIMALS[realMapTourIdx];
+        walkToAnimalOnMap(an.id, () => {
+          realMapTourIdx++;
+          setTimeout(nextStop, 5500);
+        });
+      }
+      nextStop();
+    }
+
+    function setRealMapTourLanguage(lang) {
+      realMapTourLang = lang;
+      playBeep('click');
+      ['vi', 'en', 'fr', 'zh', 'ja'].forEach(l => {
+        const btn = document.getElementById(`rm-lang-${l}`);
+        if (btn) {
+          if (l === lang) {
+            btn.className = "py-1.5 text-xs font-bold rounded-lg bg-zoo-600 text-white shadow-sm flex flex-col items-center";
+          } else {
+            btn.className = "py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 flex flex-col items-center";
+          }
+        }
+      });
+      showToast(`Ngôn ngữ thuyết minh: ${LANG_NAMES[lang]}`, LANG_FLAGS[lang]);
+      // Update text in card
+      const tour = MULTILINGUAL_TOUR_DATA[currentActiveExhibitId] || MULTILINGUAL_TOUR_DATA['zoo-1'];
+      if (tour) {
+        const descEl = document.getElementById('m-desc');
+        if (descEl && tour[lang]) descEl.innerText = tour[lang];
+      }
+      playSelectedRealMapAudio();
+    }
+
+    function playSelectedRealMapAudio() {
+      const tour = MULTILINGUAL_TOUR_DATA[currentActiveExhibitId] || MULTILINGUAL_TOUR_DATA['zoo-1'];
+      if (tour && tour[realMapTourLang]) {
+        speakText(tour[realMapTourLang], realMapTourLang);
+      } else if (currentAnimal) {
+        speakText(currentAnimal.descriptionVi, 'vi');
+      }
+    }
+
     // Initialize Leaflet
     function initMaps() {
       const zooCenter = [10.7876, 106.7052];
@@ -1797,7 +1864,7 @@
       const mapElem = document.getElementById('map');
       if (mapElem) {
         map = L.map('map', { zoomControl: true }).setView(zooCenter, 17);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        mainTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; OpenStreetMap | Thảo Cầm Viên Sài Gòn'
         }).addTo(map);
         renderBigMapMarkers();
@@ -1806,7 +1873,7 @@
       const pickerElem = document.getElementById('picker-map');
       if (pickerElem) {
         pickerMap = L.map('picker-map', { zoomControl: false }).setView(zooCenter, 17);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(pickerMap);
+        pickerTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(pickerMap);
         const initLatLng = [ZOO_ANIMALS[0].coordinates[1], ZOO_ANIMALS[0].coordinates[0]];
         pickerMarker = L.marker(initLatLng, { draggable: true }).addTo(pickerMap);
         pickerCircle = L.circle(initLatLng, { color: '#059669', fillColor: '#059669', fillOpacity: 0.2, radius: 25 }).addTo(pickerMap);
@@ -1871,9 +1938,11 @@
         }).addTo(map);
         mapCircles.push(circle);
 
+        const emojiList = ['🐘', '🐅', '🦒', '🐒', '🦩', '🐊', '🦏', '🐻'];
+        const emoji = emojiList[idx] || '🐾';
         const icon = L.divIcon({
           className: 'zoo-marker-icon',
-          html: `<div style="background-color: ${an.color}; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px; border: 2.5px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transform: translate(-50%, -50%); cursor: pointer;">${idx + 1}</div>`,
+          html: `<div style="background-color: ${an.color}; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 17px; border: 2.5px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.35); transform: translate(-50%, -50%); cursor: pointer;">${emoji}</div>`,
           iconSize: [0, 0]
         });
 
