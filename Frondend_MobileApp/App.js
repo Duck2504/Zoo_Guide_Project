@@ -12,18 +12,18 @@ import {
   Alert
 } from 'react-native';
 
-// Danh sách các phân khu chuồng động vật tại Thảo Cầm Viên Sài Gòn
+// Danh sách các phân khu chuồng động vật tại Vườn Thú (100% tọa độ nằm bên trong ranh giới)
 const ZOO_ANIMALS = [
   {
     id: "zoo-1",
     name: "Voi Châu Á",
     scientificName: "Elephas maximus",
     zone: "Khu Động Vật Thảo Tự Nhiên & Móng Guốc",
-    coords: { lon: 106.7056, lat: 10.7872 },
+    coords: { lon: 106.7055, lat: 10.7873 },
     radius: 25,
     image: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700",
     description: {
-      vi: "Chào mừng quý khách đến với khu chuồng Voi Châu Á. Voi Châu Á là loài thú cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Đàn voi tại Thảo Cầm Viên được chăm sóc bằng chế độ dinh dưỡng giàu chất xơ từ mía, chuối và cỏ ngọt.",
+      vi: "Chào mừng quý khách đến với khu chuồng Voi Châu Á. Voi Châu Á là loài thú cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Đàn voi tại vườn thú được chăm sóc bằng chế độ dinh dưỡng giàu chất xơ từ mía, chuối và cỏ ngọt.",
       en: "Welcome to the Asian Elephant enclosure. The Asian Elephant is the largest land mammal on the continent, possessing an agile trunk with over 40,000 muscles.",
       ja: "アジアゾウの飼育エリアへようこそ。アジアゾウは大陸最大の陸上哺乳類で、4万以上の筋肉を持つ器用な鼻が特徴です。"
     }
@@ -33,7 +33,7 @@ const ZOO_ANIMALS = [
     name: "Hổ Đông Dương",
     scientificName: "Panthera tigris corbetti",
     zone: "Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)",
-    coords: { lon: 106.7061, lat: 10.7885 },
+    coords: { lon: 106.7057, lat: 10.7883 },
     radius: 20,
     image: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=700",
     description: {
@@ -47,7 +47,7 @@ const ZOO_ANIMALS = [
     name: "Hươu Cao Cổ & Ngựa Vằn",
     scientificName: "Giraffa camelopardalis & Equus quagga",
     zone: "Khu Thảo Nguyên & Xavan Châu Phi",
-    coords: { lon: 106.7045, lat: 10.7868 },
+    coords: { lon: 106.7047, lat: 10.7869 },
     radius: 30,
     image: "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=700",
     description: {
@@ -61,7 +61,7 @@ const ZOO_ANIMALS = [
     name: "Vượn Má Vàng & Linh Trưởng",
     scientificName: "Nomascus gabriellae",
     zone: "Đảo Linh Trưởng Rừng Mưa Nhiệt Đới",
-    coords: { lon: 106.7049, lat: 10.7880 },
+    coords: { lon: 106.7048, lat: 10.7877 },
     radius: 20,
     image: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?w=700",
     description: {
@@ -75,7 +75,7 @@ const ZOO_ANIMALS = [
     name: "Vườn Chim & Hồng Hạc",
     scientificName: "Phoenicopterus ruber",
     zone: "Vườn Chim & Đầm Lầy Thủy Điểu",
-    coords: { lon: 106.7068, lat: 10.7878 },
+    coords: { lon: 106.7062, lat: 10.7875 },
     radius: 25,
     image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700",
     description: {
@@ -89,11 +89,11 @@ const ZOO_ANIMALS = [
     name: "Đầm Cá Sấu Nước Lợ",
     scientificName: "Crocodylus porosus",
     zone: "Khu Bò Sát Cổ Đại",
-    coords: { lon: 106.7072, lat: 10.7865 },
+    coords: { lon: 106.7062, lat: 10.7868 },
     radius: 25,
     image: "https://images.unsplash.com/photo-1551085254-e96b210db58a?w=700",
     description: {
-      vi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát lớn nhất hành tinh với lực cắn khủng khiếp và khả năng ngụy trang như khúc gỗ dưới nước.",
+      vi: "Chào mừng quý khách đến với Đầm Cá Sấu vườn thú. Cá sấu nước lợ là loài bò sát lớn nhất hành tinh với lực cắn khủng khiếp và khả năng ngụy trang như khúc gỗ dưới nước.",
       en: "Welcome to the Saltwater Crocodile enclosure. As the largest living reptile on Earth, they possess formidable bite force and stealth.",
       ja: "地球上で最大の爬虫類、イリエワニの池へようこそ。水中に潜み獲物を待ち伏せる強力なハンターです。"
     }
@@ -103,7 +103,7 @@ const ZOO_ANIMALS = [
     name: "Tê Giác Một Sừng",
     scientificName: "Rhinoceros unicornis",
     zone: "Khu Động Vật Thảo Tự Nhiên & Móng Guốc",
-    coords: { lon: 106.7051, lat: 10.7865 },
+    coords: { lon: 106.7052, lat: 10.7866 },
     radius: 30,
     image: "https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?w=700",
     description: {
@@ -117,7 +117,7 @@ const ZOO_ANIMALS = [
     name: "Gấu Ngựa Đông Dương",
     scientificName: "Ursus thibetanus",
     zone: "Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)",
-    coords: { lon: 106.7065, lat: 10.7888 },
+    coords: { lon: 106.7052, lat: 10.7883 },
     radius: 20,
     image: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=700",
     description: {

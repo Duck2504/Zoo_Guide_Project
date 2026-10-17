@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import RealZooMap, { ZOO_BOUNDARY_POLYGON, isPointInsideZoo } from './RealZooMap.jsx';
+import RealPickerMap from './RealPickerMap.jsx';
 
-// 8 Loài động vật mẫu đại diện Thảo Cầm Viên Sài Gòn
+// 8 Loài động vật mẫu đại diện vườn thú (Tất cả tọa độ nằm 100% bên trong ranh giới khuôn viên Vườn Thú)
 const INITIAL_ZOO_ANIMALS = [
   {
     id: "zoo-1",
@@ -9,14 +11,13 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Khu Động Vật Thảo Tự Nhiên & Móng Guốc",
     conservationStatus: "EN - Nguy cấp (Sách Đỏ IUCN)",
     diet: "Ăn thực vật (Cỏ tươi, mía, bí đỏ, chuối)",
-    coordinates: { lon: 106.7056, lat: 10.7872 },
+    coordinates: { lon: 106.7055, lat: 10.7873 },
     radius_meters: 25,
     color: "#059669",
-    icon: "🐘",
     mapLeft: "57.5%",
     mapTop: "36.5%",
     imageUrl: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700",
-    descriptionVi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc theo chế độ dinh dưỡng giàu chất xơ với cỏ tươi, mía, chuối và bí đỏ. Hãy cùng chung tay bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
+    descriptionVi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại vườn thú. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc theo chế độ dinh dưỡng giàu chất xơ với cỏ tươi, mía, chuối và bí đỏ. Hãy cùng chung tay bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
     audioLength: "01:25"
   },
   {
@@ -26,10 +27,9 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)",
     conservationStatus: "CR - Cực kỳ nguy cấp",
     diet: "Ăn thịt tươi (Bò, sườn heo, gà)",
-    coordinates: { lon: 106.7061, lat: 10.7885 },
+    coordinates: { lon: 106.7057, lat: 10.7883 },
     radius_meters: 20,
     color: "#dc2626",
-    icon: "🐅",
     mapLeft: "82.5%",
     mapTop: "76.5%",
     imageUrl: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=700",
@@ -43,10 +43,9 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Khu Thảo Nguyên & Xavan Châu Phi",
     conservationStatus: "VU - Sắp nguy cấp",
     diet: "Ăn thực vật (Lá keo cao, cỏ khô)",
-    coordinates: { lon: 106.7045, lat: 10.7868 },
+    coordinates: { lon: 106.7047, lat: 10.7869 },
     radius_meters: 30,
     color: "#f59e0b",
-    icon: "🦒",
     mapLeft: "23%",
     mapTop: "77%",
     imageUrl: "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=700",
@@ -60,14 +59,13 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Đảo Linh Trưởng Rừng Mưa Nhiệt Đới",
     conservationStatus: "EN - Nguy cấp đặc hữu",
     diet: "Ăn tạp (Trái cây rừng, lá non, côn trùng)",
-    coordinates: { lon: 106.7049, lat: 10.7880 },
+    coordinates: { lon: 106.7048, lat: 10.7877 },
     radius_meters: 20,
     color: "#7c3aed",
-    icon: "🐒",
     mapLeft: "86.5%",
     mapTop: "84%",
     imageUrl: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?w=700",
-    descriptionVi: "Tiếng hót lảnh lót vang vọng cả một góc Thảo Cầm Viên chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Thảo Cầm Viên là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
+    descriptionVi: "Tiếng hót lảnh lót vang vọng cả một góc vườn thú chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Vườn thú là một trong số ít nơi nhân giống thành công loài này.",
     audioLength: "01:15"
   },
   {
@@ -77,10 +75,9 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Vườn Chim & Đầm Lầy Thủy Điểu",
     conservationStatus: "LC - Ít lo ngại",
     diet: "Thủy sinh & Giáp xác giàu Carotenoid",
-    coordinates: { lon: 106.7068, lat: 10.7878 },
+    coordinates: { lon: 106.7062, lat: 10.7875 },
     radius_meters: 25,
     color: "#ec4899",
-    icon: "🦩",
     mapLeft: "44%",
     mapTop: "61%",
     imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700",
@@ -94,14 +91,13 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Khu Bò Sát & Lưỡng Cư Cổ Đại",
     conservationStatus: "LC - Được bảo vệ nghiêm ngặt",
     diet: "Thịt tươi sống & cá lớn",
-    coordinates: { lon: 106.7072, lat: 10.7865 },
+    coordinates: { lon: 106.7062, lat: 10.7868 },
     radius_meters: 25,
     color: "#2563eb",
-    icon: "🐊",
     mapLeft: "88%",
     mapTop: "70%",
     imageUrl: "https://images.unsplash.com/photo-1551085254-e96b210db58a?w=700",
-    descriptionVi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
+    descriptionVi: "Chào mừng quý khách đến với Đầm Cá Sấu vườn thú. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
     audioLength: "01:20"
   },
   {
@@ -111,10 +107,9 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Khu Động Vật Thảo Tự Nhiên & Móng Guốc",
     conservationStatus: "VU - Sắp nguy cấp",
     diet: "Cỏ voi, cành cây non, rễ cây",
-    coordinates: { lon: 106.7051, lat: 10.7865 },
+    coordinates: { lon: 106.7052, lat: 10.7866 },
     radius_meters: 30,
     color: "#0d9488",
-    icon: "🦏",
     mapLeft: "20.5%",
     mapTop: "69%",
     imageUrl: "https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?w=700",
@@ -128,10 +123,9 @@ const INITIAL_ZOO_ANIMALS = [
     zone: "Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)",
     conservationStatus: "VU - Sắp nguy cấp",
     diet: "Ăn tạp (Mật ong, cá, quả mọng, trứng)",
-    coordinates: { lon: 106.7065, lat: 10.7888 },
+    coordinates: { lon: 106.7052, lat: 10.7883 },
     radius_meters: 20,
     color: "#475569",
-    icon: "🐻",
     mapLeft: "78%",
     mapTop: "75%",
     imageUrl: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=700",
@@ -141,7 +135,7 @@ const INITIAL_ZOO_ANIMALS = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('create');
+  const [activeTab, setActiveTab] = useState('map'); // Default to map for tour guide experience
   const [mapMode, setMapMode] = useState('illustrated'); // 'illustrated' | 'radar'
   const [tourLang, setTourLang] = useState('vi'); // 'vi' | 'en' | 'fr' | 'zh' | 'ja'
   const [activePin, setActivePin] = useState({ left: '57.5%', top: '36.5%', label: 'Voi Châu Á' });
@@ -151,6 +145,40 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState(null);
 
+  // Vị trí người dùng & Presets trong vườn thú (100% nằm trọn bên trong ranh giới)
+  const LOCATION_PRESETS = [
+    { label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)', mapLeft: '32%', mapTop: '82%', lon: 106.7040, lat: 10.7868 },
+    { label: 'Cổng Nguyễn Thị Minh Khai', mapLeft: '15%', mapTop: '50%', lon: 106.7039, lat: 10.7882 },
+    { label: 'Khu Vực Cầu Thị Nghè (Góc Vườn Thú)', mapLeft: '80%', mapTop: '25%', lon: 106.7065, lat: 10.7886 },
+    { label: 'Đền Thờ Vua Hùng & Bảo Tàng Lịch Sử', mapLeft: '38%', mapTop: '88%', lon: 106.7046, lat: 10.7863 },
+    { label: 'Hồ Sen & Đảo Linh Trưởng Trung Tâm', mapLeft: '50%', mapTop: '55%', lon: 106.7055, lat: 10.7875 }
+  ];
+
+  const [userLocation, setUserLocation] = useState({
+    lon: 106.7040,
+    lat: 10.7868,
+    mapLeft: '32%',
+    mapTop: '82%',
+    label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)',
+    isRealGPS: false
+  });
+  const [isLocating, setIsLocating] = useState(false);
+
+  // Trạng thái Chỉ đường (Navigation)
+  const [navigationTarget, setNavigationTarget] = useState(null);
+  const [isWalking, setIsWalking] = useState(false);
+  const walkingTimerRef = useRef(null);
+
+  // Trạng thái Tour Thuyết Minh Tự Động (Xe đi lần lượt các điểm)
+  const [tourState, setTourState] = useState({
+    isActive: false,
+    isPaused: false,
+    currentStopIndex: 0,
+    phase: 'idle' // 'idle' | 'driving' | 'arrived' | 'narrating' | 'completed'
+  });
+  const tourTimerRef = useRef(null);
+  const tourSpeechTimerRef = useRef(null);
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
@@ -158,8 +186,8 @@ export default function App() {
     zone: 'Khu Động Vật Thảo Tự Nhiên & Móng Guốc',
     conservationStatus: 'EN - Nguy cấp (Sách Đỏ IUCN)',
     diet: 'Ăn thực vật (Cỏ tươi, trái cây)',
-    lon: '106.7056',
-    lat: '10.7872',
+    lon: '106.7055',
+    lat: '10.7873',
     radius: 25,
     imageUrl: 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700',
     descriptionVi: '',
@@ -170,6 +198,354 @@ export default function App() {
     setNotification({ msg, type });
     setTimeout(() => setNotification(null), 3500);
   };
+
+  // Tính khoảng cách theo công thức Haversine (mét)
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371e3;
+    const phi1 = (lat1 * Math.PI) / 180;
+    const phi2 = (lat2 * Math.PI) / 180;
+    const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+    const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+    const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+              Math.cos(phi1) * Math.cos(phi2) *
+              Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return Math.round(R * c);
+  };
+
+  // Lấy vị trí GPS thật từ trình duyệt
+  const handleGetLiveGPS = () => {
+    if (!navigator.geolocation) {
+      showToast("Trình duyệt không hỗ trợ Geolocation!", "error");
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocating(false);
+        const { latitude, longitude, accuracy } = pos.coords;
+        // Ánh xạ vào tỷ lệ % bản đồ vườn thú:
+        // kinh độ 106.7035 -> 106.7075 (~0.0040)
+        // vĩ độ 10.7855 -> 10.7895 (~0.0040)
+        const pctX = Math.max(8, Math.min(92, ((longitude - 106.7035) / 0.0040) * 100));
+        const pctY = Math.max(8, Math.min(92, ((10.7895 - latitude) / 0.0040) * 100));
+        setUserLocation({
+          lon: longitude,
+          lat: latitude,
+          mapLeft: `${pctX.toFixed(1)}%`,
+          mapTop: `${pctY.toFixed(1)}%`,
+          label: `GPS Trực Tiếp (±${Math.round(accuracy)}m)`,
+          isRealGPS: true
+        });
+        showToast("Đã định vị thành công tọa độ thực tế của bạn!", "success");
+      },
+      (err) => {
+        setIsLocating(false);
+        showToast("Không thể lấy GPS (đang dùng vị trí Cổng chính)", "info");
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
+  // Khởi động chỉ đường đến con thú
+  const startNavigation = (animal) => {
+    setNavigationTarget(animal);
+    setSelectedAnimal(animal);
+    setActiveTab('map');
+    const dist = calculateDistance(
+      userLocation.lat,
+      userLocation.lon,
+      animal.coordinates.lat,
+      animal.coordinates.lon
+    );
+    showToast(`Bắt đầu chỉ đường đến: ${animal.name} (${dist}m)`, 'info');
+    handleSpeech(`Đang kích hoạt lộ trình dẫn đường đến chuồng ${animal.name}. Khoảng cách ước tính ${dist} mét. Vui lòng di chuyển theo lộ trình chỉ dẫn trên bản đồ.`, tourLang);
+  };
+
+  // Hủy dẫn đường
+  const cancelNavigation = () => {
+    if (walkingTimerRef.current) {
+      clearInterval(walkingTimerRef.current);
+      walkingTimerRef.current = null;
+    }
+    setIsWalking(false);
+    setNavigationTarget(null);
+    showToast("Đã dừng chỉ đường.", "info");
+  };
+
+  // 1. Bắt đầu tour thuyết minh tự động qua các địa điểm
+  const startAutoTour = () => {
+    if (animals.length === 0) {
+      showToast("Danh sách không có chuồng thú nào để tham quan!", "error");
+      return;
+    }
+    cancelNavigation();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    setTourState({
+      isActive: true,
+      isPaused: false,
+      currentStopIndex: 0,
+      phase: 'driving'
+    });
+    showToast("Bắt đầu hành trình! Xe tham quan đang khởi hành...", "success");
+    driveToStop(0, userLocation.lat, userLocation.lon);
+  };
+
+  // 2. Xe di chuyển mượt mà trên bản đồ thực tế tới từng điểm dừng
+  const driveToStop = (stopIndex, fromLat, fromLon) => {
+    if (stopIndex >= animals.length) {
+      finishAutoTour();
+      return;
+    }
+
+    const targetAnimal = animals[stopIndex];
+    setSelectedAnimal(targetAnimal);
+    setNavigationTarget(targetAnimal);
+
+    setTourState(prev => ({
+      ...prev,
+      currentStopIndex: stopIndex,
+      phase: 'driving'
+    }));
+
+    const startLat = fromLat;
+    const startLon = fromLon;
+    const targetLat = targetAnimal.coordinates.lat;
+    const targetLon = targetAnimal.coordinates.lon;
+
+    let step = 0;
+    const totalSteps = 28; // ~1.8s di chuyển mượt mà
+
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+
+    tourTimerRef.current = setInterval(() => {
+      step++;
+      const p = step / totalSteps;
+      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+      if (p >= 1) {
+        clearInterval(tourTimerRef.current);
+        tourTimerRef.current = null;
+
+        setUserLocation(prev => ({
+          ...prev,
+          lat: targetLat,
+          lon: targetLon,
+          label: `Tại chuồng ${targetAnimal.name}`
+        }));
+
+        arriveAndNarrateStop(stopIndex, targetAnimal);
+      } else {
+        const curLat = parseFloat((startLat + (targetLat - startLat) * ease).toFixed(6));
+        const curLon = parseFloat((startLon + (targetLon - startLon) * ease).toFixed(6));
+        setUserLocation(prev => ({
+          ...prev,
+          lat: curLat,
+          lon: curLon,
+          label: `Đang đến chuồng ${targetAnimal.name}...`
+        }));
+      }
+    }, 65);
+  };
+
+  // 3. Đến nơi: dừng xe và tự động phát bài thuyết minh tiếng Việt
+  const arriveAndNarrateStop = (stopIndex, targetAnimal) => {
+    setTourState(prev => ({
+      ...prev,
+      phase: 'narrating'
+    }));
+
+    showToast(`ĐÃ ĐẾN NƠI: Điểm ${stopIndex + 1}/${animals.length} - ${targetAnimal.name}! Bắt đầu thuyết minh.`, "success");
+
+    const intro = `Quý khách đã đến điểm tham quan số ${stopIndex + 1}: ${targetAnimal.name}. `;
+    const speechContent = intro + targetAnimal.descriptionVi;
+
+    speakWithCallback(speechContent, tourLang, () => {
+      showToast(`Đã thuyết minh xong ${targetAnimal.name}! Chuẩn bị sang điểm tiếp theo...`, "info");
+      tourSpeechTimerRef.current = setTimeout(() => {
+        const nextIndex = stopIndex + 1;
+        if (nextIndex < animals.length) {
+          driveToStop(nextIndex, targetAnimal.coordinates.lat, targetAnimal.coordinates.lon);
+        } else {
+          finishAutoTour();
+        }
+      }, 1800);
+    });
+  };
+
+  // 4. Phát âm thanh kèm callback khi hoàn tất bài đọc
+  const speakWithCallback = (text, lang = tourLang, onEnd) => {
+    if (!('speechSynthesis' in window)) {
+      if (onEnd) tourSpeechTimerRef.current = setTimeout(onEnd, 4000);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const langMap = {
+      vi: 'vi-VN',
+      en: 'en-US',
+      fr: 'fr-FR',
+      zh: 'zh-CN',
+      ja: 'ja-JP'
+    };
+    utterance.lang = langMap[lang] || 'vi-VN';
+    utterance.rate = 1.0;
+
+    let called = false;
+    const done = () => {
+      if (!called) {
+        called = true;
+        setIsSpeaking(false);
+        if (onEnd) onEnd();
+      }
+    };
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = done;
+    utterance.onerror = done;
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // 5. Tạm dừng tour
+  const pauseTour = () => {
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause();
+    }
+    setTourState(prev => ({ ...prev, isPaused: true }));
+    showToast("Đã tạm dừng tour.", "info");
+  };
+
+  // 6. Tiếp tục tour
+  const resumeTour = () => {
+    setTourState(prev => ({ ...prev, isPaused: false }));
+    if ('speechSynthesis' in window && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    } else if (tourState.phase === 'driving') {
+      driveToStop(tourState.currentStopIndex, userLocation.lat, userLocation.lon);
+    } else if (tourState.phase === 'narrating') {
+      const cur = animals[tourState.currentStopIndex];
+      arriveAndNarrateStop(tourState.currentStopIndex, cur);
+    }
+    showToast("Tiếp tục hành trình tour.", "info");
+  };
+
+  // 7. Bỏ qua điểm hiện tại sang điểm kế tiếp
+  const skipToNextTourStop = () => {
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    const nextIndex = tourState.currentStopIndex + 1;
+    if (nextIndex < animals.length) {
+      driveToStop(nextIndex, userLocation.lat, userLocation.lon);
+    } else {
+      finishAutoTour();
+    }
+  };
+
+  // 8. Dừng tour hoàn toàn
+  const stopTour = () => {
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    setTourState({
+      isActive: false,
+      isPaused: false,
+      currentStopIndex: 0,
+      phase: 'idle'
+    });
+    setNavigationTarget(null);
+    showToast("Đã dừng tour tham quan.", "info");
+  };
+
+  // 9. Hoàn thành toàn bộ tour
+  const finishAutoTour = () => {
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    setTourState({
+      isActive: false,
+      isPaused: false,
+      currentStopIndex: animals.length - 1,
+      phase: 'completed'
+    });
+    setNavigationTarget(null);
+    showToast("Chúc mừng! Đã hoàn thành toàn bộ chuyến tham quan vườn thú!", "success");
+    handleSpeech("Chúc mừng quý khách đã hoàn thành toàn bộ hành trình tham quan và thuyết minh tự động tại vườn thú! Chúc quý khách một ngày thật nhiều niềm vui!", tourLang);
+  };
+
+  // Mô phỏng bước đi dọc theo lộ trình
+  const simulateWalk = () => {
+    if (!navigationTarget) return;
+    if (isWalking) {
+      if (walkingTimerRef.current) {
+        clearInterval(walkingTimerRef.current);
+        walkingTimerRef.current = null;
+      }
+      setIsWalking(false);
+      showToast("Đã tạm dừng mô phỏng bước đi.", "info");
+      return;
+    }
+
+    setIsWalking(true);
+    const startX = parseFloat(userLocation.mapLeft);
+    const startY = parseFloat(userLocation.mapTop);
+    const targetX = parseFloat(navigationTarget.mapLeft);
+    const targetY = parseFloat(navigationTarget.mapTop);
+    const startLat = userLocation.lat;
+    const startLon = userLocation.lon;
+    const targetLat = navigationTarget.coordinates.lat;
+    const targetLon = navigationTarget.coordinates.lon;
+
+    let step = 0;
+    const totalSteps = 40;
+
+    walkingTimerRef.current = setInterval(() => {
+      step++;
+      const progress = step / totalSteps;
+      if (progress >= 1) {
+        clearInterval(walkingTimerRef.current);
+        walkingTimerRef.current = null;
+        setIsWalking(false);
+        setUserLocation(prev => ({
+          ...prev,
+          mapLeft: `${targetX}%`,
+          mapTop: `${targetY}%`,
+          lat: targetLat,
+          lon: targetLon,
+          label: `Tại chuồng ${navigationTarget.name}`
+        }));
+        showToast(`ĐÃ ĐẾN NƠI: Bạn đã bước vào bán kính chuồng ${navigationTarget.name}! Tự động phát thuyết minh.`, "success");
+        handleSpeech(`Chào mừng bạn đã đến khu vực chuồng ${navigationTarget.name}. ${navigationTarget.descriptionVi}`, tourLang);
+      } else {
+        const curX = startX + (targetX - startX) * progress;
+        const curY = startY + (targetY - startY) * progress;
+        const curLat = startLat + (targetLat - startLat) * progress;
+        const curLon = startLon + (targetLon - startLon) * progress;
+        setUserLocation(prev => ({
+          ...prev,
+          mapLeft: `${curX.toFixed(2)}%`,
+          mapTop: `${curY.toFixed(2)}%`,
+          lat: curLat,
+          lon: curLon
+        }));
+      }
+    }, 70);
+  };
+
+  const currentNavDistance = navigationTarget ? calculateDistance(
+    userLocation.lat,
+    userLocation.lon,
+    navigationTarget.coordinates.lat,
+    navigationTarget.coordinates.lon
+  ) : 0;
+  const currentWalkMinutes = Math.max(1, Math.round(currentNavDistance / 65));
 
   const handleSpeech = (text, lang = tourLang) => {
     if (!('speechSynthesis' in window)) {
@@ -222,7 +598,7 @@ export default function App() {
     const name = formData.name || "loài động vật";
     let text = "";
     if (style === 'standard') {
-      text = `Chào mừng quý khách đến với khu vực chuồng ${name} tại Thảo Cầm Viên Sài Gòn. Đây là một trong những loài động vật quý hiếm được bảo tồn đặc biệt trong khuôn viên vườn thú hơn 150 năm tuổi.`;
+      text = `Chào mừng quý khách đến với khu vực chuồng ${name} tại vườn thú. Đây là một trong những loài động vật quý hiếm được bảo tồn đặc biệt trong khuôn viên vườn thú hơn 150 năm tuổi.`;
     } else if (style === 'kids') {
       text = `Xin chào các bạn nhỏ! Chúng mình đang đứng trước chuồng ${name} nè! Các bạn có biết loài bạn nhỏ này thích ăn gì nhất không? Hãy cùng chú ý lắng nghe và khám phá những điều kỳ thú nhé!`;
     } else if (style === 'science') {
@@ -242,6 +618,11 @@ export default function App() {
     const latNum = parseFloat(formData.lat);
     if (isNaN(lonNum) || isNaN(latNum)) {
       showToast("Tọa độ GPS không hợp lệ!", "error");
+      return;
+    }
+
+    if (!isPointInsideZoo(latNum, lonNum)) {
+      showToast("CẢNH BÁO: Tọa độ động vật phải nằm trọn vẹn trong ranh giới Vườn Thú!", "error");
       return;
     }
 
@@ -283,6 +664,44 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: 'Segoe UI, system-ui, sans-serif', backgroundColor: '#f8fafc', minHeight: '100vh', color: '#0f172a' }}>
+      <style>{`
+        @keyframes routeDash {
+          0% { stroke-dashoffset: 0; }
+          100% { stroke-dashoffset: -32; }
+        }
+        .animated-route-dash {
+          animation: routeDash 1.2s linear infinite;
+        }
+        @keyframes pulsePing {
+          0% { transform: scale(0.95); opacity: 0.9; }
+          70% { transform: scale(2.2); opacity: 0; }
+          100% { transform: scale(0.95); opacity: 0; }
+        }
+        .user-pulse-ring {
+          animation: pulsePing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes spinPulse {
+          to { transform: rotate(360deg); }
+        }
+        .spin-loader {
+          animation: spinPulse 1s linear infinite;
+        }
+        @keyframes tour-ping {
+          0% { transform: scale(0.95); opacity: 0.9; }
+          70% { transform: scale(2.0); opacity: 0; }
+          100% { transform: scale(0.95); opacity: 0; }
+        }
+        .tour-pulse-ring {
+          animation: tour-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .custom-animal-marker, .custom-user-marker {
+          background: transparent !important;
+          border: none !important;
+        }
+        .leaflet-container {
+          font-family: inherit !important;
+        }
+      `}</style>
       
       {/* Toast Alert */}
       {notification && (
@@ -302,7 +721,7 @@ export default function App() {
           alignItems: 'center',
           gap: '8px'
         }}>
-          <span>{notification.type === 'error' ? '⚠️' : '✅'}</span>
+          
           <span>{notification.msg}</span>
         </div>
       )}
@@ -318,33 +737,10 @@ export default function App() {
         borderBottom: '3px solid #059669',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{
-            backgroundColor: '#10b981',
-            width: '44px',
-            height: '44px',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '24px',
-            boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
-          }}>
-            🦁
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', letterSpacing: '-0.3px' }}>
-                HỆ THỐNG THUYẾT MINH SỞ THÚ TỰ ĐỘNG
-              </h1>
-              <span style={{ backgroundColor: '#047857', color: '#a7f3d0', fontSize: '11px', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>
-                THẢO CẦM VIÊN SÀI GÒN
-              </span>
-            </div>
-            <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#a7f3d0' }}>
-              Giảng viên hướng dẫn: TS. Nguyễn Quốc Huy • Quản Trị Viên: Động Vật, GPS Geofence & AI Audio
-            </p>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', letterSpacing: '-0.3px' }}>
+            HỆ THỐNG THUYẾT MINH SỞ THÚ TỰ ĐỘNG
+          </h1>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -361,7 +757,7 @@ export default function App() {
             <span>Geofence Engine: <strong>{animals.length} Chuồng Online</strong></span>
           </div>
           <span style={{ backgroundColor: '#047857', color: '#ffffff', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-            🇻🇳 TTS Tiếng Việt: Sẵn sàng
+            TTS Tiếng Việt: Sẵn sàng
           </span>
         </div>
       </header>
@@ -375,10 +771,10 @@ export default function App() {
         gap: '6px'
       }}>
         {[
-          { key: 'create', icon: '📝', label: 'Thêm Động Vật / Tọa Độ / Bài Thuyết Minh' },
-          { key: 'map', icon: '🗺️', label: 'Bản Đồ Geofence Thảo Cầm Viên' },
-          { key: 'list', icon: '📋', label: `Quản Lý Danh Sách (${animals.length} Chuồng)` },
-          { key: 'mobile', icon: '📱', label: 'App Du Khách Mobile (Giả Lập)' }
+          { key: 'map', label: navigationTarget ? `Dẫn Đường: ${navigationTarget.name}` : 'Bản Đồ & Dẫn Đường GPS' },
+          { key: 'create', label: 'Thêm Động Vật / Tọa Độ / Thuyết Minh' },
+          { key: 'list', label: `Quản Lý Danh Sách (${animals.length} Chuồng)` },
+          { key: 'mobile', label: 'App Du Khách Mobile (Giả Lập)' }
         ].map(tab => {
           const isActive = activeTab === tab.key;
           return (
@@ -388,8 +784,7 @@ export default function App() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '14px 18px',
+                padding: '14px 20px',
                 border: 'none',
                 backgroundColor: 'transparent',
                 borderBottom: isActive ? '3px solid #059669' : '3px solid transparent',
@@ -400,7 +795,6 @@ export default function App() {
                 transition: 'all 0.15s ease'
               }}
             >
-              <span>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           );
@@ -426,10 +820,10 @@ export default function App() {
             }}>
               <div>
                 <h3 style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 'bold' }}>
-                  🌿 Thêm Chuồng Động Vật, Tọa Độ GPS & Bài Thuyết Minh Tiếng Việt
+                  Thêm Chuồng Động Vật, Tọa Độ GPS & Bài Thuyết Minh Tiếng Việt
                 </h3>
                 <p style={{ margin: 0, fontSize: '12px', color: '#a7f3d0' }}>
-                  Biểu mẫu nhập liệu hoàn chỉnh theo chuẩn đồ án: Thiết lập loài, ghim tọa độ GPS Thảo Cầm Viên, bán kính Geofence và lời dẫn du lịch.
+                  Biểu mẫu nhập liệu hoàn chỉnh theo chuẩn đồ án: Thiết lập loài, ghim tọa độ GPS vườn thú, bán kính Geofence và lời dẫn du lịch.
                 </p>
               </div>
 
@@ -448,7 +842,7 @@ export default function App() {
                     cursor: 'pointer'
                   }}
                 >
-                  🐘 Mẫu Voi Châu Á
+                  Mẫu Voi Châu Á
                 </button>
                 <button
                   type="button"
@@ -464,7 +858,7 @@ export default function App() {
                     cursor: 'pointer'
                   }}
                 >
-                  🐅 Mẫu Hổ Đông Dương
+                  Mẫu Hổ Đông Dương
                 </button>
                 <button
                   type="button"
@@ -480,7 +874,7 @@ export default function App() {
                     cursor: 'pointer'
                   }}
                 >
-                  🦒 Mẫu Hươu Cao Cổ
+                  Mẫu Hươu Cao Cổ
                 </button>
               </div>
             </div>
@@ -577,23 +971,23 @@ export default function App() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ backgroundColor: '#059669', color: '#ffffff', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold' }}>2</span>
                         <div>
-                          <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>Tọa Độ GPS & Bán Kính Geofence Kích Hoạt Tự Động (Bản Đồ Thảo Cầm Viên)</h4>
+                          <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>Tọa Độ GPS & Bán Kính Geofence Kích Hoạt Tự Động (Bản Đồ vườn thú)</h4>
                           <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#64748b' }}>Nhấp vào chuồng thú hoặc điểm bất kỳ trên bản đồ để ghim GPS & thuyết minh tức thì đa ngôn ngữ.</p>
                         </div>
                       </div>
-                      <span style={{ fontSize: '11px', color: '#64748b' }}>Thảo Cầm Viên: [10.7876, 106.7052]</span>
+                      <span style={{ fontSize: '11px', color: '#64748b' }}>vườn thú: [10.7876, 106.7052]</span>
                     </div>
 
                     {/* Multilingual Selector Bar */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '10px', marginBottom: '10px', flexWrap: 'wrap', gap: '6px' }}>
-                      <span style={{ color: '#fbbf24', fontSize: '11px', fontWeight: 'bold' }}>🌐 Ngôn ngữ thuyết minh:</span>
+                      <span style={{ color: '#fbbf24', fontSize: '11px', fontWeight: 'bold' }}>Ngôn ngữ thuyết minh:</span>
                       <div style={{ display: 'flex', gap: '6px' }}>
                         {[
-                          { id: 'vi', label: '🇻🇳 Tiếng Việt' },
-                          { id: 'en', label: '🇬🇧 English' },
-                          { id: 'fr', label: '🇫🇷 Français' },
-                          { id: 'zh', label: '🇨🇳 中文' },
-                          { id: 'ja', label: '🇯🇵 日本語' }
+                          { id: 'vi', label: 'Tiếng Việt' },
+                          { id: 'en', label: 'English' },
+                          { id: 'fr', label: 'Français' },
+                          { id: 'zh', label: '中文' },
+                          { id: 'ja', label: '日本語' }
                         ].map(l => (
                           <button
                             key={l.id}
@@ -616,131 +1010,8 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Interactive Illustrated Map Box */}
-                    <div
-                      onClick={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const pctX = ((e.clientX - rect.left) / rect.width) * 100;
-                        const pctY = ((e.clientY - rect.top) / rect.height) * 100;
-                        const lon = (106.7040 + (pctX / 100) * 0.0035).toFixed(6);
-                        const lat = (10.7890 - (pctY / 100) * 0.0030).toFixed(6);
-                        
-                        const matched = animals.find(an => {
-                          const anX = parseFloat(an.mapLeft);
-                          const anY = parseFloat(an.mapTop);
-                          return Math.hypot(pctX - anX, pctY - anY) <= 5.0;
-                        });
-
-                        if (matched) {
-                          handleApplyPreset(matched);
-                          setActivePin({ left: matched.mapLeft, top: matched.mapTop, label: matched.name });
-                          handleSpeech(matched.descriptionVi, tourLang);
-                        } else {
-                          setActivePin({ left: `${pctX.toFixed(2)}%`, top: `${pctY.toFixed(2)}%`, label: `Tọa độ [${parseFloat(lat).toFixed(4)}, ${parseFloat(lon).toFixed(4)}]` });
-                          setFormData(prev => ({
-                            ...prev,
-                            lon: lon.toString(),
-                            lat: lat.toString(),
-                            name: `Điểm Khám Phá Thảo Cầm Viên [${parseFloat(lat).toFixed(4)}, ${parseFloat(lon).toFixed(4)}]`,
-                            descriptionVi: `Quý khách đang ở tọa độ ${lat}° vĩ Bắc, ${lon}° kinh Đông bên trong khuôn viên Thảo Cầm Viên Sài Gòn. Bán kính định vị Geofence là ${prev.radius} mét. Chúc quý khách có trải nghiệm tham quan tuyệt vời!`
-                          }));
-                          handleSpeech(`Quý khách đang ở tọa độ ${lat}° vĩ Bắc, ${lon}° kinh Đông bên trong Thảo Cầm Viên Sài Gòn. Bán kính định vị geofence là ${formData.radius} mét.`, tourLang);
-                        }
-                      }}
-                      style={{
-                        position: 'relative',
-                        width: '100%',
-                        borderRadius: '12px',
-                        overflow: 'hidden',
-                        border: '2px solid #059669',
-                        backgroundColor: '#022c22',
-                        cursor: 'crosshair',
-                        marginBottom: '14px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-                      }}
-                    >
-                      <img
-                        src="ban-do-tcv.jpg"
-                        onError={(e) => { e.target.src = 'http://localhost:8000/audio/files/ban-do-tcv.jpg'; }}
-                        alt="Bản đồ Thảo Cầm Viên Sài Gòn"
-                        style={{ width: '100%', height: 'auto', display: 'block', userSelect: 'none', pointerEvents: 'none' }}
-                      />
-
-                      {/* Active Geofence Circle on Map */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: activePin.left,
-                          top: activePin.top,
-                          width: `${Math.max(34, Math.round(formData.radius * 2.8))}px`,
-                          height: `${Math.max(34, Math.round(formData.radius * 2.8))}px`,
-                          transform: 'translate(-50%, -50%)',
-                          borderRadius: '50%',
-                          border: '2px solid #34d399',
-                          backgroundColor: 'rgba(16, 185, 129, 0.25)',
-                          pointerEvents: 'none',
-                          transition: 'all 0.2s ease-out'
-                        }}
-                      />
-
-                      {/* Active GPS Pin Marker */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: activePin.left,
-                          top: activePin.top,
-                          transform: 'translate(-50%, -100%)',
-                          pointerEvents: 'none',
-                          zIndex: 25,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <div style={{ backgroundColor: '#dc2626', color: '#ffffff', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '12px', border: '1px solid #ffffff', boxShadow: '0 2px 6px rgba(0,0,0,0.4)', whiteSpace: 'nowrap' }}>
-                          📍 {activePin.label}
-                        </div>
-                        <div style={{ width: '6px', height: '6px', backgroundColor: '#dc2626', transform: 'rotate(45deg)', marginTop: '-3px' }} />
-                      </div>
-
-                      {/* Hotspots */}
-                      {animals.map((an) => (
-                        <div
-                          key={an.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleApplyPreset(an);
-                            setActivePin({ left: an.mapLeft, top: an.mapTop, label: an.name });
-                            handleSpeech(an.descriptionVi, tourLang);
-                          }}
-                          style={{
-                            position: 'absolute',
-                            left: an.mapLeft,
-                            top: an.mapTop,
-                            transform: 'translate(-50%, -50%)',
-                            cursor: 'pointer',
-                            zIndex: 20
-                          }}
-                        >
-                          <div style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            backgroundColor: an.color || '#059669',
-                            color: '#ffffff',
-                            fontSize: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '2px solid #ffffff',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-                            transition: 'transform 0.15s'
-                          }}>
-                            {an.icon || '📍'}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                    {/* Bản Đồ Định Vị GPS Thực Tế Để Chọn Tọa Độ */}
+                    <RealPickerMap formData={formData} setFormData={setFormData} animals={animals} />
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '12px' }}>
                       <div>
@@ -773,7 +1044,7 @@ export default function App() {
                     <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                         <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#1e293b' }}>
-                          🎯 Bán Kính Geofence:
+                          Bán Kính Geofence:
                         </span>
                         <span style={{ backgroundColor: '#059669', color: '#ffffff', fontWeight: 'bold', padding: '3px 10px', borderRadius: '12px', fontSize: '12px' }}>
                           {formData.radius} mét
@@ -790,7 +1061,7 @@ export default function App() {
                       />
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
                         <span>10m (Lồng hẹp)</span>
-                        <span>25m (Chuẩn Thảo Cầm Viên)</span>
+                        <span>25m (Chuẩn vườn thú)</span>
                         <span>60m (Khu thảo nguyên)</span>
                       </div>
                     </div>
@@ -811,20 +1082,20 @@ export default function App() {
                     {/* Quick tone selector */}
                     <div style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
                       <button type="button" onClick={() => setNarrationStyle('standard')} style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        🏛️ Du Lịch Phổ Thông
+                        Du Lịch Phổ Thông
                       </button>
                       <button type="button" onClick={() => setNarrationStyle('kids')} style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        🎈 Trẻ Em Vui Nhộn
+                        Trẻ Em Vui Nhộn
                       </button>
                       <button type="button" onClick={() => setNarrationStyle('science')} style={{ padding: '4px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', backgroundColor: '#f1f5f9', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        🔬 Khoa Học & Bảo Tồn
+                        Khoa Học & Bảo Tồn
                       </button>
                     </div>
 
                     <textarea
                       required
                       rows="5"
-                      placeholder="Nhập nội dung bài thuyết minh chuẩn văn phong du lịch sinh thái Thảo Cầm Viên..."
+                      placeholder="Nhập nội dung bài thuyết minh chuẩn văn phong du lịch sinh thái vườn thú..."
                       value={formData.descriptionVi}
                       onChange={(e) => setFormData({ ...formData, descriptionVi: e.target.value })}
                       style={{ width: '100%', boxSizing: 'border-box', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', lineHeight: '1.6', outline: 'none' }}
@@ -845,7 +1116,7 @@ export default function App() {
                           cursor: 'pointer'
                         }}
                       >
-                        {isSpeaking ? '⏹ Dừng Đọc' : '🔊 Nghe Thử Giọng Đọc Tiếng Việt Ngay'}
+                        {isSpeaking ? 'Dừng Đọc' : 'Nghe Thử Giọng Đọc Tiếng Việt'}
                       </button>
                       <span style={{ fontSize: '11px', color: '#64748b' }}>Phát qua Web Speech API (vi-VN)</span>
                     </div>
@@ -882,7 +1153,7 @@ export default function App() {
                         cursor: 'pointer'
                       }}
                     >
-                      💾 Lưu Động Vật & Bài Thuyết Minh Mới
+                      Lưu Động Vật & Bài Thuyết Minh Mới
                     </button>
                     <button
                       type="button"
@@ -980,7 +1251,7 @@ export default function App() {
                         marginTop: '10px'
                       }}
                     >
-                      {isSpeaking ? '⏹ Dừng Giọng Đọc' : '▶ Nghe Thuyết Minh Thảo Cầm Viên'}
+                      {isSpeaking ? '⏹ Dừng Giọng Đọc' : '▶ Nghe Thuyết Minh vườn thú'}
                     </button>
                   </div>
                 </div>
@@ -989,186 +1260,30 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 2: BẢN ĐỒ GEOFENCE */}
+        {/* TAB 2: BẢN ĐỒ THỰC TẾ & DẪN ĐƯỜNG TOUR GPS */}
         {activeTab === 'map' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 0.6fr', gap: '20px' }}>
-            <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>
-                    🗺️ Bản Đồ Thảo Cầm Viên Sài Gòn — Điểm Tham Quan & Geofence
-                  </h3>
-                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>
-                    Tâm vườn thú: Số 2 Nguyễn Bỉnh Khiêm, Quận 1. Chuyển đổi linh hoạt giữa Bản đồ tranh vẽ gốc và Bản đồ Radar GPS.
-                  </p>
-                </div>
-
-                {/* Mode Selector Buttons */}
-                <div style={{ display: 'flex', gap: '6px', backgroundColor: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setMapMode('illustrated')}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      border: 'none',
-                      cursor: 'pointer',
-                      backgroundColor: mapMode === 'illustrated' ? '#059669' : 'transparent',
-                      color: mapMode === 'illustrated' ? '#ffffff' : '#475569',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    🎨 Bản Đồ Tranh Vẽ Gốc
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMapMode('radar')}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      border: 'none',
-                      cursor: 'pointer',
-                      backgroundColor: mapMode === 'radar' ? '#059669' : 'transparent',
-                      color: mapMode === 'radar' ? '#ffffff' : '#475569',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    📡 Bản Đồ Radar GPS
-                  </button>
-                </div>
-              </div>
-
-              {/* Mode 1: Illustrated Map from official ban-do-tcv.jpg */}
-              {mapMode === 'illustrated' && (
-                <div style={{ position: 'relative', width: '100%', borderRadius: '14px', overflow: 'hidden', border: '2px solid #059669', backgroundColor: '#022c22', boxShadow: '0 4px 15px rgba(0,0,0,0.15)' }}>
-                  <img
-                    src="ban-do-tcv.jpg"
-                    onError={(e) => { e.target.src = 'http://localhost:8000/audio/files/ban-do-tcv.jpg'; }}
-                    alt="Bản đồ Thảo Cầm Viên Sài Gòn"
-                    style={{ width: '100%', height: 'auto', display: 'block', userSelect: 'none' }}
-                  />
-                  {animals.map((an) => {
-                    const isCur = selectedAnimal.id === an.id;
-                    const left = an.mapLeft || '50%';
-                    const top = an.mapTop || '50%';
-                    return (
-                      <div
-                        key={an.id}
-                        onClick={() => { setSelectedAnimal(an); handleSpeech(an.descriptionVi); }}
-                        style={{
-                          position: 'absolute',
-                          left: left,
-                          top: top,
-                          transform: 'translate(-50%, -50%)',
-                          cursor: 'pointer',
-                          zIndex: isCur ? 30 : 20,
-                          textAlign: 'center'
-                        }}
-                      >
-                        <div style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '50%',
-                          backgroundColor: isCur ? '#059669' : (an.color || '#3b82f6'),
-                          color: '#ffffff',
-                          fontSize: '18px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: '2px solid #ffffff',
-                          boxShadow: isCur ? '0 0 16px rgba(16,185,129,0.95)' : '0 2px 6px rgba(0,0,0,0.4)',
-                          transform: isCur ? 'scale(1.25)' : 'scale(1)',
-                          transition: 'all 0.2s ease-in-out'
-                        }}>
-                          {an.icon || '📍'}
-                        </div>
-                        <div style={{
-                          position: 'absolute',
-                          top: '38px',
-                          left: '50%',
-                          transform: 'translateX(-50%)',
-                          whiteSpace: 'nowrap',
-                          backgroundColor: isCur ? '#064e3b' : 'rgba(15,23,42,0.85)',
-                          color: '#ffffff',
-                          fontSize: '10px',
-                          fontWeight: 'bold',
-                          padding: '2px 6px',
-                          borderRadius: '4px',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                          pointerEvents: 'none'
-                        }}>
-                          {an.name}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Mode 2: Radar SVG Map */}
-              {mapMode === 'radar' && (
-                <div style={{ position: 'relative', width: '100%', height: '500px', backgroundColor: '#e2f1e8', borderRadius: '14px', overflow: 'hidden', border: '2px solid #a7f3d0' }}>
-                  <svg width="100%" height="100%" viewBox="0 0 800 500">
-                    <path d="M 50 80 Q 200 30 400 70 T 750 90 L 780 430 Q 500 470 200 440 Z" fill="#d1fae5" opacity="0.6" />
-                    <path d="M 0 40 Q 300 20 800 30" fill="none" stroke="#93c5fd" strokeWidth="22" opacity="0.8" />
-                    <text x="350" y="32" fill="#1e40af" fontSize="11" fontWeight="bold">KÊNH NHIÊU LỘC - THỊ NGHÈ</text>
-                    <path d="M 80 250 Q 250 200 400 250 T 720 230" fill="none" stroke="#fed7aa" strokeWidth="20" strokeLinecap="round" />
-                    <path d="M 380 70 L 400 440" fill="none" stroke="#fed7aa" strokeWidth="16" strokeLinecap="round" />
-
-                    {animals.map((an, idx) => {
-                      const px = 100 + ((an.coordinates.lon - 106.7040) / 0.0040) * 600;
-                      const py = 430 - ((an.coordinates.lat - 10.7860) / 0.0035) * 360;
-                      const rPix = an.radius_meters * 1.5;
-                      const isCur = selectedAnimal.id === an.id;
-
-                      return (
-                        <g key={an.id} onClick={() => { setSelectedAnimal(an); handleSpeech(an.descriptionVi); }} style={{ cursor: 'pointer' }}>
-                          <circle cx={px} cy={py} r={rPix} fill={isCur ? "rgba(16, 185, 129, 0.35)" : "rgba(59, 130, 246, 0.18)"} stroke={isCur ? "#059669" : "#3b82f6"} strokeWidth="2" strokeDasharray={isCur ? "4,4" : "none"} />
-                          <circle cx={px} cy={py} r="14" fill={isCur ? "#059669" : "#ffffff"} stroke="#0f172a" strokeWidth="2" />
-                          <text x={px} y={py + 4} textAnchor="middle" fill={isCur ? "#ffffff" : "#0f172a"} fontSize="10" fontWeight="bold">{idx + 1}</text>
-                          <rect x={px - 45} y={py - 30} width="90" height="18" rx="4" fill={isCur ? "#064e3b" : "rgba(15, 23, 42, 0.85)"} />
-                          <text x={px} y={py - 17} textAnchor="middle" fill="#ffffff" fontSize="9.5" fontWeight="bold">{an.name}</text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-                </div>
-              )}
-            </div>
-
-            {/* Selected Detail */}
-            <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0' }}>
-              <span style={{ backgroundColor: '#fef3c7', color: '#92400e', fontSize: '11px', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
-                {selectedAnimal.zone}
-              </span>
-              <h3 style={{ margin: '8px 0 2px', fontSize: '18px', color: '#0f172a' }}>{selectedAnimal.name}</h3>
-              <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>{selectedAnimal.scientificName}</p>
-              
-              <img src={selectedAnimal.imageUrl} alt={selectedAnimal.name} style={{ width: '100%', height: '170px', objectFit: 'cover', borderRadius: '10px', marginBottom: '12px' }} />
-              
-              <div style={{ backgroundColor: '#f8fafc', padding: '10px', borderRadius: '8px', fontSize: '11px', color: '#475569', marginBottom: '12px' }}>
-                <div>📍 <strong>Tọa độ:</strong> {selectedAnimal.coordinates.lat}°N, {selectedAnimal.coordinates.lon}°E</div>
-                <div>🎯 <strong>Geofence:</strong> {selectedAnimal.radius_meters}m</div>
-                <div>🛡️ <strong>Bảo tồn:</strong> {selectedAnimal.conservationStatus}</div>
-              </div>
-
-              <p style={{ fontSize: '12px', color: '#334155', lineHeight: '1.6', backgroundColor: '#ecfdf5', padding: '12px', borderRadius: '8px', border: '1px solid #a7f3d0', marginBottom: '14px' }}>
-                {selectedAnimal.descriptionVi}
-              </p>
-
-              <button
-                type="button"
-                onClick={() => handleSpeech(selectedAnimal.descriptionVi)}
-                style={{ width: '100%', backgroundColor: isSpeaking ? '#ef4444' : '#059669', color: '#ffffff', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold', fontSize: '13px', cursor: 'pointer' }}
-              >
-                {isSpeaking ? '⏹ Dừng Phát Âm' : '🔊 Nghe Bài Thuyết Minh'}
-              </button>
-            </div>
-          </div>
+          <RealZooMap
+            animals={animals}
+            selectedAnimal={selectedAnimal}
+            onSelectAnimal={setSelectedAnimal}
+            userLocation={userLocation}
+            setUserLocation={setUserLocation}
+            navigationTarget={navigationTarget}
+            tourState={tourState}
+            onStartTour={startAutoTour}
+            onPauseTour={pauseTour}
+            onResumeTour={resumeTour}
+            onSkipTourStop={skipToNextTourStop}
+            onStopTour={stopTour}
+            onStartNavigation={startNavigation}
+            onCancelNavigation={cancelNavigation}
+            showToast={showToast}
+            tourLang={tourLang}
+            setTourLang={setTourLang}
+            handleSpeech={handleSpeech}
+            isSpeaking={isSpeaking}
+            calculateDistance={calculateDistance}
+          />
         )}
 
         {/* TAB 3: DANH SÁCH QUẢN LÝ */}
@@ -1177,7 +1292,7 @@ export default function App() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>
-                  📋 Danh Sách Động Vật & Bài Thuyết Minh ({filteredAnimals.length} Chuồng)
+                  Danh Sách Động Vật & Bài Thuyết Minh ({filteredAnimals.length} Chuồng)
                 </h3>
                 <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>
                   Toàn bộ chuồng thú đã được cấu hình GPS Geofence và bài thuyết minh tự động
@@ -1239,14 +1354,22 @@ export default function App() {
                         {an.conservationStatus}
                       </span>
                     </td>
-                    <td style={{ padding: '12px', fontWeight: 'bold', color: '#059669' }}>⏱ {an.audioLength}</td>
+                    <td style={{ padding: '12px', fontWeight: 'bold', color: '#059669' }}>{an.audioLength}</td>
                     <td style={{ padding: '12px' }}>
-                      <button
-                        onClick={() => { setSelectedAnimal(an); handleSpeech(an.descriptionVi); }}
-                        style={{ backgroundColor: '#ecfdf5', border: '1px solid #10b981', color: '#065f46', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
-                      >
-                        🔊 Nghe
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          onClick={() => { setSelectedAnimal(an); handleSpeech(an.descriptionVi); }}
+                          style={{ backgroundColor: '#ecfdf5', border: '1px solid #10b981', color: '#065f46', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                        >
+                          Nghe
+                        </button>
+                        <button
+                          onClick={() => startNavigation(an)}
+                          style={{ backgroundColor: '#eff6ff', border: '1px solid #3b82f6', color: '#1d4ed8', padding: '5px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}
+                        >
+                          Dẫn Đường
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1260,7 +1383,7 @@ export default function App() {
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '36px', padding: '10px 0' }}>
             <div style={{ width: '340px', backgroundColor: '#ffffff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
               <h3 style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 'bold' }}>
-                📡 Mô Phỏng GPS Du Khách
+                Mô Phỏng GPS Du Khách
               </h3>
               <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '14px' }}>
                 Nhấn vào từng khu chuồng để mô phỏng du khách di chuyển vào vùng bán kính Geofence:
@@ -1283,7 +1406,7 @@ export default function App() {
                     >
                       <div style={{ fontWeight: 'bold', fontSize: '13px', color: '#0f172a' }}>{an.name}</div>
                       <div style={{ fontSize: '11px', color: isCur ? '#059669' : '#64748b' }}>
-                        {isCur ? `🎯 ĐÃ VÀO VÙNG (12m ≤ ${an.radius_meters}m)` : `Cách 60m`}
+                        {isCur ? `Đã vào vùng (12m ≤ ${an.radius_meters}m)` : `Cách 60m`}
                       </div>
                     </button>
                   );
@@ -1306,14 +1429,14 @@ export default function App() {
             }}>
               <div>
                 <div style={{ textAlign: 'center', marginTop: '14px', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '11px', color: '#34d399', fontWeight: 'bold' }}>🌿 THẢO CẦM VIÊN AUDIO TOUR</span>
+                  <span style={{ fontSize: '11px', color: '#34d399', fontWeight: 'bold' }}>VƯỜN THÚ AUDIO TOUR</span>
                 </div>
                 <img src={selectedAnimal.imageUrl} alt={selectedAnimal.name} style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '16px', marginBottom: '12px' }} />
                 <h3 style={{ color: '#ffffff', margin: '4px 0 2px', fontSize: '18px', fontWeight: 'bold' }}>{selectedAnimal.name}</h3>
                 <p style={{ color: '#94a3b8', fontSize: '11px', margin: '0 0 10px', fontStyle: 'italic' }}>{selectedAnimal.scientificName}</p>
 
                 <div style={{ backgroundColor: '#064e3b', border: '1px solid #059669', padding: '10px 12px', borderRadius: '10px' }}>
-                  <p style={{ color: '#34d399', fontSize: '11px', fontWeight: 'bold', margin: '0 0 4px' }}>🎯 GPS GEOFENCE TỰ ĐỘNG PHÁT HIỆN (12m)</p>
+                  <p style={{ color: '#34d399', fontSize: '11px', fontWeight: 'bold', margin: '0 0 4px' }}>GPS GEOFENCE TỰ ĐỘNG PHÁT HIỆN (12m)</p>
                   <p style={{ color: '#e2e8f0', fontSize: '11px', margin: 0, lineHeight: '1.5', maxHeight: '110px', overflowY: 'auto' }}>
                     {selectedAnimal.descriptionVi}
                   </p>
@@ -1323,15 +1446,15 @@ export default function App() {
               <div style={{ backgroundColor: '#1e293b', padding: '12px', borderRadius: '16px', border: '1px solid #334155' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <span style={{ color: '#ffffff', fontSize: '12px', fontWeight: 'bold' }}>
-                    {isSpeaking ? '▶ Đang thuyết minh...' : '⏸ Tạm dừng'}
+                    {isSpeaking ? 'Đang thuyết minh...' : 'Tạm dừng'}
                   </span>
-                  <span style={{ color: '#94a3b8', fontSize: '11px' }}>🇻🇳 Tiếng Việt</span>
+                  <span style={{ color: '#94a3b8', fontSize: '11px' }}>Tiếng Việt</span>
                 </div>
                 <button
                   onClick={() => handleSpeech(selectedAnimal.descriptionVi)}
                   style={{ width: '100%', backgroundColor: isSpeaking ? '#ef4444' : '#10b981', color: '#ffffff', border: 'none', padding: '8px', borderRadius: '8px', fontWeight: 'bold', fontSize: '12px', cursor: 'pointer' }}
                 >
-                  {isSpeaking ? '⏹ Dừng Thuyết Minh' : '▶ Tiếp Tục Nghe'}
+                  {isSpeaking ? 'Dừng Thuyết Minh' : 'Tiếp Tục Nghe'}
                 </button>
               </div>
             </div>

@@ -5,6 +5,7 @@ dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.vite/
 
 # .NET / C#
 bin/
@@ -12,6 +13,19 @@ obj/
 .vs/
 *.user
 *.suo
+
+# Python & Local Monorepo Workspace (Kept in Frontend_Web, Frondend_MobileApp & Backend_core)
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+apps/
+backend-core/
+backend-services/
+storage/
+build_full_report_doc.py
+generate_perfect_report.py
+update_real_map.py
 
 # OS
 Thumbs.db
