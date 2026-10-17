@@ -255,11 +255,22 @@ export default function App() {
         } catch (e2) {}
       }
 
+      // 3. Kiểm tra .NET Narration Microservice (Port 5292)
+      let isNarrationOk = false;
+      try {
+        const resNarr = await fetch('http://localhost:5292/health', { signal: AbortSignal.timeout(1200) });
+        if (resNarr.ok) {
+          isNarrationOk = true;
+          activeNames.push('Narration:5292');
+        }
+      } catch (e3) {}
+
       if (isMounted) {
-        const isConnected = isFastApiOk || isDotnetOk;
+        const isConnected = isFastApiOk || isDotnetOk || isNarrationOk;
         setApiInfo({
           fastApiStatus: isFastApiOk ? 'connected' : 'offline',
           dotnetStatus: isDotnetOk ? 'connected' : 'offline',
+          narrationStatus: isNarrationOk ? 'connected' : 'offline',
           isConnected,
           activeBackend: isConnected ? activeNames.join(' & ') : 'Chờ khởi động API'
         });
@@ -443,10 +454,52 @@ export default function App() {
     });
   };
 
-  // 4. Phát âm thanh kèm callback khi hoàn tất bài đọc
-  const speakWithCallback = (text, lang = tourLang, onEnd) => {
+  // 4. Phát âm thanh kèm callback khi hoàn tất bài đọc (Hỗ trợ cả Narration Microservice :5292 & Web Speech)
+  const speakWithCallback = async (text, lang = tourLang, onEnd) => {
+    let called = false;
+    const done = () => {
+      if (!called) {
+        called = true;
+        setIsSpeaking(false);
+        if (onEnd) onEnd();
+      }
+    };
+
+    // Ưu tiên gọi Narration Microservice (.NET :5292) nếu online
+    if (apiInfo.narrationStatus === 'connected') {
+      try {
+        const resp = await fetch('http://localhost:5292/api/narration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, targetLang: lang })
+        });
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          const audio = new Audio(audioUrl);
+          audio.onplay = () => setIsSpeaking(true);
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            done();
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            speakBrowserTts(text, lang, done);
+          };
+          audio.play().catch(() => speakBrowserTts(text, lang, done));
+          return;
+        }
+      } catch (e) {
+        // Fallback sang Web Speech
+      }
+    }
+
+    speakBrowserTts(text, lang, done);
+  };
+
+  const speakBrowserTts = (text, lang, done) => {
     if (!('speechSynthesis' in window)) {
-      if (onEnd) tourSpeechTimerRef.current = setTimeout(onEnd, 4000);
+      if (done) setTimeout(done, 3500);
       return;
     }
     window.speechSynthesis.cancel();
@@ -460,20 +513,9 @@ export default function App() {
     };
     utterance.lang = langMap[lang] || 'vi-VN';
     utterance.rate = 1.0;
-
-    let called = false;
-    const done = () => {
-      if (!called) {
-        called = true;
-        setIsSpeaking(false);
-        if (onEnd) onEnd();
-      }
-    };
-
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = done;
     utterance.onerror = done;
-
     window.speechSynthesis.speak(utterance);
   };
 
