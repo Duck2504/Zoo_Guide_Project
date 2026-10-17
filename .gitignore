@@ -22,3 +22,11 @@ Thumbs.db
 *.doc
 *.pdf
 *Bao_Cao*
+
+# API keys / secrets
+appsettings.Development.json
+appsettings.Local.json
+.env
+.env.*
+*.mp3
+cache/
