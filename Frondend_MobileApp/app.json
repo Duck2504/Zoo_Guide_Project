@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "Thao Cam Vien Zoo Audio Guide",
+    "slug": "thao-cam-vien-zoo-audio-guide",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#064e3b"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "audio"],
+        "NSLocationWhenInUseUsageDescription": "Cho phép ứng dụng sử dụng vị trí GPS để tự động phát thuyết minh khi du khách đến gần các chuồng động vật trong Thảo Cầm Viên.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Ứng dụng cần định vị chạy ngầm để phát thuyết minh hands-free kể cả khi màn hình tắt."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#064e3b"
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
+    }
+  }
+}

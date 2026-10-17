@@ -1,0 +1,24 @@
+# Node / Frontend
+node_modules/
+dist/
+.expo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# .NET / C#
+bin/
+obj/
+.vs/
+*.user
+*.suo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Reports & Documents
+*.docx
+*.doc
+*.pdf
+*Bao_Cao*
