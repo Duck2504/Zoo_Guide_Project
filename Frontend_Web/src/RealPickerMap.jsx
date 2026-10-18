@@ -61,7 +61,7 @@ export default function RealPickerMap({ formData, setFormData, animals }) {
 
         const refIcon = L.divIcon({
           className: 'picker-ref-marker',
-          html: `<div style="transform:translate(-50%,-50%);background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;padding:2px 6px;font-size:10px;font-weight:bold;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.15);">${idx + 1}. ${an.name}</div>`,
+          html: `<div style="transform:translate(-50%,-50%);background:#ffffff;border:2px solid #94a3b8;border-radius:12px;padding:3px 8px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.2);">${idx + 1}. ${an.name}</div>`,
           iconSize: [20, 20],
           iconAnchor: [0, 0]
         });
@@ -74,10 +74,10 @@ export default function RealPickerMap({ formData, setFormData, animals }) {
       className: 'picker-active-pin',
       html: `
         <div style="transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;">
-          <div style="background:#dc2626;color:white;font-weight:bold;font-size:11px;padding:3px 8px;border-radius:8px;border:1px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);white-space:nowrap;">
+          <div style="background:#dc2626;color:white;font-weight:800;font-size:13px;padding:4px 12px;border-radius:10px;border:2px solid white;box-shadow:0 3px 8px rgba(0,0,0,0.35);white-space:nowrap;">
             Điểm Ghim Mới
           </div>
-          <div style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #dc2626;"></div>
+          <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid #dc2626;"></div>
         </div>
       `,
       iconSize: [30, 30],
@@ -163,14 +163,14 @@ export default function RealPickerMap({ formData, setFormData, animals }) {
         top: '10px',
         left: '10px',
         zIndex: 500,
-        backgroundColor: 'rgba(255,255,255,0.95)',
-        padding: '5px 12px',
-        borderRadius: '8px',
-        fontSize: '11px',
-        fontWeight: 'bold',
+        backgroundColor: 'rgba(255,255,255,0.96)',
+        padding: '7px 14px',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: '800',
         color: '#065f46',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
-        border: '1px solid #cbd5e1'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        border: '1.5px solid #a7f3d0'
       }}>
         Nhấp hoặc kéo thả điểm ghim đỏ để định vị chuồng
       </div>
@@ -181,19 +181,19 @@ export default function RealPickerMap({ formData, setFormData, animals }) {
         bottom: '12px',
         left: '10px',
         zIndex: 500,
-        backgroundColor: isInside ? 'rgba(236, 253, 245, 0.95)' : 'rgba(254, 242, 242, 0.95)',
+        backgroundColor: isInside ? 'rgba(236, 253, 245, 0.98)' : 'rgba(254, 242, 242, 0.98)',
         color: isInside ? '#065f46' : '#991b1b',
-        border: isInside ? '1px solid #a7f3d0' : '1px solid #fecaca',
-        padding: '5px 12px',
-        borderRadius: '8px',
-        fontSize: '11px',
-        fontWeight: 'bold',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+        border: isInside ? '1.5px solid #a7f3d0' : '1.5px solid #fecaca',
+        padding: '7px 14px',
+        borderRadius: '10px',
+        fontSize: '13px',
+        fontWeight: '800',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
         display: 'flex',
         alignItems: 'center',
-        gap: '6px'
+        gap: '8px'
       }}>
-        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isInside ? '#10b981' : '#ef4444', display: 'inline-block' }}></span>
+        <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: isInside ? '#10b981' : '#ef4444', display: 'inline-block' }}></span>
         {isInside ? 'Tọa độ hợp lệ: Nằm trọn vẹn trong ranh giới Vườn Thú' : 'CẢNH BÁO: Tọa độ nằm ngoài ranh giới Vườn Thú!'}
       </div>
 
@@ -212,13 +212,13 @@ export default function RealPickerMap({ formData, setFormData, animals }) {
           zIndex: 500,
           backgroundColor: '#ffffff',
           color: '#0f172a',
-          border: '1px solid #cbd5e1',
-          padding: '5px 10px',
-          borderRadius: '8px',
-          fontSize: '11px',
-          fontWeight: '600',
+          border: '1.5px solid #cbd5e1',
+          padding: '7px 14px',
+          borderRadius: '10px',
+          fontSize: '13px',
+          fontWeight: '800',
           cursor: 'pointer',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
         }}
       >
         Khớp Ranh Giới
