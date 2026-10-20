@@ -13,6 +13,8 @@ obj/
 .vs/
 *.user
 *.suo
+[Bb]in/
+[Oo]bj/
 
 # Python & Local Monorepo Workspace (Kept in Frontend_Web, Frondend_MobileApp & Backend_core)
 __pycache__/
