@@ -41,7 +41,7 @@ namespace ZooAudioGuide.API.Repositories
         public Task UpdateAsync(Zone zone)
         {
             _context.Zones.Update(zone);
-            return Task.CompletedTask; // Vì hàm Update của EF Core không phải là async
+            return Task.CompletedTask; 
         }
 
         public Task DeleteAsync(Zone zone)
