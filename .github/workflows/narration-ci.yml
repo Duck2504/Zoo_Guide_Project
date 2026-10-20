@@ -1,0 +1,21 @@
+name: Narration Service CI
+on:
+  push:
+    paths:
+      - 'MicroServices/**'
+      - '.github/workflows/narration-ci.yml'
+  pull_request:
+    paths:
+      - 'MicroServices/**'
+      - '.github/workflows/narration-ci.yml'
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore MicroServices/ZooAudioGuide.NarrationService.Tests
+      - run: dotnet build MicroServices/ZooAudioGuide.NarrationService.Tests --no-restore
+      - run: dotnet test MicroServices/ZooAudioGuide.NarrationService.Tests --no-build

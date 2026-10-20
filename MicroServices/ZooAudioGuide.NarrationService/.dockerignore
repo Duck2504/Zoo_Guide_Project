@@ -1,0 +1,5 @@
+bin/
+obj/
+cache/
+*.mp3
+appsettings.Development.json

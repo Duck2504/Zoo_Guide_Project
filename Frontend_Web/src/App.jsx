@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import RealZooMap, { ZOO_BOUNDARY_POLYGON, isPointInsideZoo } from './RealZooMap.jsx';
+import RealZooMap, { ZOO_BOUNDARY_POLYGON, isPointInsideZoo, ZOO_GATES } from './RealZooMap.jsx';
 import RealPickerMap from './RealPickerMap.jsx';
 
 // 8 Loài động vật mẫu đại diện vườn thú (Tất cả tọa độ nằm 100% bên trong ranh giới khuôn viên Vườn Thú)
@@ -144,14 +144,21 @@ export default function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notification, setNotification] = useState(null);
+  
+  // Backend API Status (.NET 9.0 port 5000/5222 & Python FastAPI port 8000)
+  const [apiInfo, setApiInfo] = useState({
+    fastApiStatus: 'checking',
+    dotnetStatus: 'checking',
+    activeBackend: 'Đang kết nối API...',
+    isConnected: false
+  });
 
   // Vị trí người dùng & Presets trong vườn thú (100% nằm trọn bên trong ranh giới)
   const LOCATION_PRESETS = [
     { label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)', mapLeft: '32%', mapTop: '82%', lon: 106.7040, lat: 10.7868 },
-    { label: 'Cổng Nguyễn Thị Minh Khai', mapLeft: '15%', mapTop: '50%', lon: 106.7039, lat: 10.7882 },
-    { label: 'Khu Vực Cầu Thị Nghè (Góc Vườn Thú)', mapLeft: '80%', mapTop: '25%', lon: 106.7065, lat: 10.7886 },
     { label: 'Đền Thờ Vua Hùng & Bảo Tàng Lịch Sử', mapLeft: '38%', mapTop: '88%', lon: 106.7046, lat: 10.7863 },
-    { label: 'Hồ Sen & Đảo Linh Trưởng Trung Tâm', mapLeft: '50%', mapTop: '55%', lon: 106.7055, lat: 10.7875 }
+    { label: 'Hồ Sen & Đảo Linh Trưởng Trung Tâm', mapLeft: '50%', mapTop: '55%', lon: 106.7055, lat: 10.7875 },
+    { label: 'Khu Vực Cầu Thị Nghè (Góc Vườn Thú)', mapLeft: '80%', mapTop: '25%', lon: 106.7065, lat: 10.7886 }
   ];
 
   const [userLocation, setUserLocation] = useState({
@@ -162,6 +169,7 @@ export default function App() {
     label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)',
     isRealGPS: false
   });
+  const [selectedGate, setSelectedGate] = useState(ZOO_GATES[0]);
   const [isLocating, setIsLocating] = useState(false);
 
   // Trạng thái Chỉ đường (Navigation)
@@ -212,6 +220,70 @@ export default function App() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return Math.round(R * c);
   };
+
+  // Kiểm tra & kết nối Backend API (.NET 9.0 Port 5000/5222 & Python FastAPI Port 8000)
+  useEffect(() => {
+    let isMounted = true;
+    const checkBackends = async () => {
+      let isFastApiOk = false;
+      let isDotnetOk = false;
+      let activeNames = [];
+
+      // 1. Kiểm tra Python FastAPI (Port 8000)
+      try {
+        const res = await fetch('http://localhost:8000/api/health', { signal: AbortSignal.timeout(1800) });
+        if (res.ok) {
+          isFastApiOk = true;
+          activeNames.push('FastAPI:8000');
+        }
+      } catch (e) {}
+
+      // 2. Kiểm tra C# .NET API (Port 5000 hoặc 5222)
+      try {
+        const resNet = await fetch('http://localhost:5000/weatherforecast', { signal: AbortSignal.timeout(1800) });
+        if (resNet.ok) {
+          isDotnetOk = true;
+          activeNames.push('.NET:5000');
+        }
+      } catch (e) {
+        try {
+          const resNet2 = await fetch('http://localhost:5222/weatherforecast', { signal: AbortSignal.timeout(1200) });
+          if (resNet2.ok) {
+            isDotnetOk = true;
+            activeNames.push('.NET:5222');
+          }
+        } catch (e2) {}
+      }
+
+      // 3. Kiểm tra .NET Narration Microservice (Port 5292)
+      let isNarrationOk = false;
+      try {
+        const resNarr = await fetch('http://localhost:5292/health', { signal: AbortSignal.timeout(1200) });
+        if (resNarr.ok) {
+          isNarrationOk = true;
+          activeNames.push('Narration:5292');
+        }
+      } catch (e3) {}
+
+      if (isMounted) {
+        const isConnected = isFastApiOk || isDotnetOk || isNarrationOk;
+        setApiInfo({
+          fastApiStatus: isFastApiOk ? 'connected' : 'offline',
+          dotnetStatus: isDotnetOk ? 'connected' : 'offline',
+          narrationStatus: isNarrationOk ? 'connected' : 'offline',
+          isConnected,
+          activeBackend: isConnected ? activeNames.join(' & ') : 'Chờ khởi động API'
+        });
+      }
+    };
+
+    checkBackends();
+    const interval = setInterval(checkBackends, 8000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Lấy vị trí GPS thật từ trình duyệt
   const handleGetLiveGPS = () => {
@@ -280,6 +352,174 @@ export default function App() {
     showToast("Đã dừng chỉ đường.", "info");
   };
 
+  // Đặt hình người đi bộ tại Cổng Chính
+  const placeTouristAtGate = (gate = ZOO_GATES[0]) => {
+    const targetGate = gate || ZOO_GATES[0];
+    setSelectedGate(targetGate);
+    cancelNavigation();
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
+
+    setUserLocation({
+      lat: targetGate.lat,
+      lon: targetGate.lon,
+      label: `Tôi (Tại ${targetGate.name})`,
+      isRealGPS: false
+    });
+    showToast(`Đã đặt người đi bộ tại: ${targetGate.name}! Sẵn sàng xuất phát.`, "success");
+  };
+
+  // Người đi bộ xuất phát từ Cổng Chính đi vào một địa điểm cụ thể
+  const walkFromGateToAnimal = (gate = ZOO_GATES[0], targetAnimal) => {
+    const targetGate = gate || ZOO_GATES[0];
+    setSelectedGate(targetGate);
+    cancelNavigation();
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    setSelectedAnimal(targetAnimal);
+    setNavigationTarget(targetAnimal);
+
+    setTourState({
+      isActive: true,
+      isPaused: false,
+      currentStopIndex: animals.findIndex(a => a.id === targetAnimal.id),
+      phase: 'driving'
+    });
+
+    showToast(`Người đi bộ xuất phát từ ${targetGate.shortName} -> đang di chuyển đến: ${targetAnimal.name}...`, "info");
+
+    const startLat = targetGate.lat;
+    const startLon = targetGate.lon;
+    const targetLat = targetAnimal.coordinates.lat;
+    const targetLon = targetAnimal.coordinates.lon;
+
+    let step = 0;
+    const totalSteps = 28;
+
+    tourTimerRef.current = setInterval(() => {
+      step++;
+      const p = step / totalSteps;
+      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+      if (p >= 1) {
+        clearInterval(tourTimerRef.current);
+        tourTimerRef.current = null;
+
+        setUserLocation(prev => ({
+          ...prev,
+          lat: targetLat,
+          lon: targetLon,
+          label: `Tại chuồng ${targetAnimal.name}`
+        }));
+
+        setTourState(prev => ({ ...prev, phase: 'narrating' }));
+        showToast(`ĐÃ ĐẾN NƠI: Người đi bộ từ ${gate.shortName} đã đến chuồng ${targetAnimal.name}! Bắt đầu thuyết minh.`, "success");
+
+        const speechContent = `Quý khách vừa đi bộ từ ${gate.name} đến điểm tham quan ${targetAnimal.name}. ` + targetAnimal.descriptionVi;
+        speakWithCallback(speechContent, tourLang, () => {
+          showToast(`Đã hoàn tất thuyết minh tại chuồng ${targetAnimal.name}!`, "info");
+          setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
+        });
+      } else {
+        const curLat = parseFloat((startLat + (targetLat - startLat) * ease).toFixed(6));
+        const curLon = parseFloat((startLon + (targetLon - startLon) * ease).toFixed(6));
+        setUserLocation(prev => ({
+          ...prev,
+          lat: curLat,
+          lon: curLon,
+          label: `Đi từ ${gate.shortName} -> ${targetAnimal.name}...`
+        }));
+      }
+    }, 60);
+  };
+
+  // Bắt đầu tour đi bộ từ Cổng Chính vào lần lượt 8 địa điểm
+  const startTourFromGate = (gate = ZOO_GATES[0]) => {
+    const targetGate = gate || ZOO_GATES[0];
+    setSelectedGate(targetGate);
+    setUserLocation({
+      lat: targetGate.lat,
+      lon: targetGate.lon,
+      label: `Xuất phát từ ${targetGate.name}`,
+      isRealGPS: false
+    });
+    showToast(`Bắt đầu hành trình đi bộ từ ${targetGate.name} lần lượt qua 8 địa điểm...`, "success");
+    setTimeout(() => {
+      startAutoTour();
+    }, 200);
+  };
+
+  // 0. Cho hình người đi thử đến một điểm cụ thể theo yêu cầu
+  const walkToAnimal = (targetAnimal) => {
+    cancelNavigation();
+    if (tourTimerRef.current) clearInterval(tourTimerRef.current);
+    if (tourSpeechTimerRef.current) clearTimeout(tourSpeechTimerRef.current);
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+
+    setSelectedAnimal(targetAnimal);
+    setNavigationTarget(targetAnimal);
+
+    setTourState({
+      isActive: true,
+      isPaused: false,
+      currentStopIndex: animals.findIndex(a => a.id === targetAnimal.id),
+      phase: 'driving'
+    });
+
+    showToast(`Hình người đi thử đang di chuyển đến: ${targetAnimal.name}...`, "info");
+
+    const startLat = userLocation.lat;
+    const startLon = userLocation.lon;
+    const targetLat = targetAnimal.coordinates.lat;
+    const targetLon = targetAnimal.coordinates.lon;
+
+    let step = 0;
+    const totalSteps = 26;
+
+    tourTimerRef.current = setInterval(() => {
+      step++;
+      const p = step / totalSteps;
+      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+
+      if (p >= 1) {
+        clearInterval(tourTimerRef.current);
+        tourTimerRef.current = null;
+
+        setUserLocation(prev => ({
+          ...prev,
+          lat: targetLat,
+          lon: targetLon,
+          label: `Tại chuồng ${targetAnimal.name}`
+        }));
+
+        setTourState(prev => ({ ...prev, phase: 'narrating' }));
+        showToast(`ĐÃ ĐẾN NƠI: Hình người đã đến chuồng ${targetAnimal.name}! Bắt đầu thuyết minh.`, "success");
+
+        const speechContent = `Quý khách đã đến điểm tham quan ${targetAnimal.name}. ` + targetAnimal.descriptionVi;
+        speakWithCallback(speechContent, tourLang, () => {
+          showToast(`Đã hoàn tất thuyết minh tại chuồng ${targetAnimal.name}!`, "info");
+          setTourState(prev => ({ ...prev, isActive: false, phase: 'idle' }));
+        });
+      } else {
+        const curLat = parseFloat((startLat + (targetLat - startLat) * ease).toFixed(6));
+        const curLon = parseFloat((startLon + (targetLon - startLon) * ease).toFixed(6));
+        setUserLocation(prev => ({
+          ...prev,
+          lat: curLat,
+          lon: curLon,
+          label: `Đang đi đến chuồng ${targetAnimal.name}...`
+        }));
+      }
+    }, 60);
+  };
+
   // 1. Bắt đầu tour thuyết minh tự động qua các địa điểm
   const startAutoTour = () => {
     if (animals.length === 0) {
@@ -296,7 +536,7 @@ export default function App() {
       currentStopIndex: 0,
       phase: 'driving'
     });
-    showToast("Bắt đầu hành trình! Xe tham quan đang khởi hành...", "success");
+    showToast("Bắt đầu hành trình đi thử! Hình người du khách đang di chuyển từ vị trí của bạn...", "success");
     driveToStop(0, userLocation.lat, userLocation.lon);
   };
 
@@ -382,10 +622,52 @@ export default function App() {
     });
   };
 
-  // 4. Phát âm thanh kèm callback khi hoàn tất bài đọc
-  const speakWithCallback = (text, lang = tourLang, onEnd) => {
+  // 4. Phát âm thanh kèm callback khi hoàn tất bài đọc (Hỗ trợ cả Narration Microservice :5292 & Web Speech)
+  const speakWithCallback = async (text, lang = tourLang, onEnd) => {
+    let called = false;
+    const done = () => {
+      if (!called) {
+        called = true;
+        setIsSpeaking(false);
+        if (onEnd) onEnd();
+      }
+    };
+
+    // Ưu tiên gọi Narration Microservice (.NET :5292) nếu online
+    if (apiInfo.narrationStatus === 'connected') {
+      try {
+        const resp = await fetch('http://localhost:5292/api/narration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, targetLang: lang })
+        });
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const audioUrl = URL.createObjectURL(blob);
+          const audio = new Audio(audioUrl);
+          audio.onplay = () => setIsSpeaking(true);
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            done();
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            speakBrowserTts(text, lang, done);
+          };
+          audio.play().catch(() => speakBrowserTts(text, lang, done));
+          return;
+        }
+      } catch (e) {
+        // Fallback sang Web Speech
+      }
+    }
+
+    speakBrowserTts(text, lang, done);
+  };
+
+  const speakBrowserTts = (text, lang, done) => {
     if (!('speechSynthesis' in window)) {
-      if (onEnd) tourSpeechTimerRef.current = setTimeout(onEnd, 4000);
+      if (done) setTimeout(done, 3500);
       return;
     }
     window.speechSynthesis.cancel();
@@ -399,20 +681,9 @@ export default function App() {
     };
     utterance.lang = langMap[lang] || 'vi-VN';
     utterance.rate = 1.0;
-
-    let called = false;
-    const done = () => {
-      if (!called) {
-        called = true;
-        setIsSpeaking(false);
-        if (onEnd) onEnd();
-      }
-    };
-
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = done;
     utterance.onerror = done;
-
     window.speechSynthesis.speak(utterance);
   };
 
@@ -656,7 +927,27 @@ export default function App() {
 
     setAnimals([newAnimal, ...animals]);
     setSelectedAnimal(newAnimal);
-    showToast(`Đã lưu thành công loài "${newAnimal.name}"!`, "success");
+
+    // Đồng bộ sang Backend API nếu đang online
+    if (apiInfo.isConnected) {
+      try {
+        fetch('http://localhost:8000/api/poi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: newAnimal.name,
+            category: 'mammal',
+            address: `Chuồng ${newAnimal.name}, Vườn Thú`,
+            coordinates: [lonNum, latNum],
+            radius_meters: newAnimal.radius_meters,
+            description_vi: newAnimal.descriptionVi,
+            image_url: newAnimal.imageUrl
+          })
+        }).catch(() => {});
+      } catch (e) {}
+    }
+
+    showToast(`Đã lưu thành công loài "${newAnimal.name}" vào cơ sở dữ liệu & Bản đồ!`, "success");
     setActiveTab('list');
   };
 
@@ -700,6 +991,21 @@ export default function App() {
         }
         .tour-pulse-ring {
           animation: tour-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        @keyframes personWalkBob {
+          0% { transform: translateY(0) rotate(-3deg); }
+          50% { transform: translateY(-4px) rotate(3deg); }
+          100% { transform: translateY(0) rotate(-3deg); }
+        }
+        .person-walking {
+          animation: personWalkBob 0.45s ease-in-out infinite alternate;
+        }
+        @keyframes footPulseEffect {
+          0% { transform: scale(0.6); opacity: 0.9; }
+          100% { transform: scale(2.2); opacity: 0; }
+        }
+        .foot-pulse {
+          animation: footPulseEffect 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
         }
         .custom-animal-marker, .custom-user-marker {
           background: transparent !important;
@@ -745,7 +1051,7 @@ export default function App() {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', letterSpacing: '-0.3px' }}>
+          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.3px' }}>
             HỆ THỐNG THUYẾT MINH SỞ THÚ TỰ ĐỘNG
           </h1>
         </div>
@@ -753,9 +1059,9 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             backgroundColor: 'rgba(255,255,255,0.12)',
-            padding: '6px 14px',
+            padding: '7px 16px',
             borderRadius: '20px',
-            fontSize: '12px',
+            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -763,7 +1069,33 @@ export default function App() {
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#34d399', display: 'inline-block' }}></span>
             <span>Geofence Engine: <strong>{animals.length} Chuồng Online</strong></span>
           </div>
-          <span style={{ backgroundColor: '#047857', color: '#ffffff', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+
+          {/* Backend API Connection Status Chip */}
+          <div style={{
+            backgroundColor: apiInfo.isConnected ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.22)',
+            border: apiInfo.isConnected ? '1px solid #34d399' : '1px solid #f87171',
+            padding: '7px 16px',
+            borderRadius: '20px',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            boxShadow: apiInfo.isConnected ? '0 0 10px rgba(52, 211, 153, 0.35)' : 'none'
+          }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: apiInfo.isConnected ? '#34d399' : '#f87171',
+              display: 'inline-block',
+              animation: apiInfo.isConnected ? 'tour-ping 1.5s infinite' : 'none'
+            }}></span>
+            <span>
+              API Backend: <strong>{apiInfo.isConnected ? `${apiInfo.activeBackend} Đã Kết Nối` : 'Đang Kiểm Tra...'}</strong>
+            </span>
+          </div>
+
+          <span style={{ backgroundColor: '#047857', color: '#ffffff', padding: '7px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
             TTS Tiếng Việt: Sẵn sàng
           </span>
         </div>
@@ -791,13 +1123,13 @@ export default function App() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                padding: '14px 20px',
+                padding: '16px 22px',
                 border: 'none',
                 backgroundColor: 'transparent',
-                borderBottom: isActive ? '3px solid #059669' : '3px solid transparent',
-                color: isActive ? '#059669' : '#64748b',
-                fontWeight: isActive ? '800' : '600',
-                fontSize: '13px',
+                borderBottom: isActive ? '3.5px solid #059669' : '3.5px solid transparent',
+                color: isActive ? '#059669' : '#475569',
+                fontWeight: isActive ? '900' : '700',
+                fontSize: '15px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
@@ -1195,7 +1527,7 @@ export default function App() {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
                   <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>
-                    👁️ Bản Xem Trước Thẻ Du Khách (Live Preview)
+                    Bản Xem Trước Thẻ Du Khách (Live Preview)
                   </h3>
                   <span style={{ backgroundColor: '#ecfdf5', color: '#059669', padding: '3px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
                     Đồng Bộ Tức Thì
@@ -1210,7 +1542,7 @@ export default function App() {
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     <div style={{ position: 'absolute', top: '10px', left: '10px', backgroundColor: 'rgba(0,0,0,0.65)', padding: '3px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: 'bold' }}>
-                      📍 {formData.zone}
+                      {formData.zone}
                     </div>
                     <div style={{ position: 'absolute', bottom: '10px', right: '10px', backgroundColor: '#10b981', color: '#ffffff', padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 'bold' }}>
                       Geofence: {formData.radius}m
@@ -1233,9 +1565,9 @@ export default function App() {
                     </div>
 
                     <div style={{ display: 'flex', gap: '8px', backgroundColor: '#1e293b', padding: '6px 10px', borderRadius: '6px', fontSize: '11px', color: '#34d399', margin: '10px 0', fontFamily: 'monospace' }}>
-                      <span>🌐 Kinh độ: {formData.lon}</span>
+                      <span>Kinh độ: {formData.lon}</span>
                       <span>|</span>
-                      <span>🌐 Vĩ độ: {formData.lat}</span>
+                      <span>Vĩ độ: {formData.lat}</span>
                     </div>
 
                     <p style={{ fontSize: '12px', color: '#e2e8f0', lineHeight: '1.6', backgroundColor: '#1e293b', padding: '10px', borderRadius: '8px', maxHeight: '120px', overflowY: 'auto' }}>
@@ -1258,7 +1590,7 @@ export default function App() {
                         marginTop: '10px'
                       }}
                     >
-                      {isSpeaking ? '⏹ Dừng Giọng Đọc' : '▶ Nghe Thuyết Minh vườn thú'}
+                      {isSpeaking ? 'Dừng Giọng Đọc' : 'Nghe Thuyết Minh Vườn Thú'}
                     </button>
                   </div>
                 </div>
@@ -1284,6 +1616,11 @@ export default function App() {
             onStopTour={stopTour}
             onStartNavigation={startNavigation}
             onCancelNavigation={cancelNavigation}
+            onWalkToAnimal={walkToAnimal}
+            selectedGate={selectedGate}
+            onSelectGate={placeTouristAtGate}
+            onWalkFromGateToAnimal={walkFromGateToAnimal}
+            onStartTourFromGate={startTourFromGate}
             showToast={showToast}
             tourLang={tourLang}
             setTourLang={setTourLang}
