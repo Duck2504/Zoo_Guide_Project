@@ -113,7 +113,7 @@
       <!-- Các phần cần thiết: Chọn ngôn ngữ & Nút Quản trị -->
       <div class="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
         <!-- Bộ chọn ngôn ngữ gọn gàng -->
-        <select id="header-lang-select" onchange="changeLanguageVisual(this.value)" class="text-xs font-bold py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl focus:outline-none text-slate-700 cursor-pointer transition">
+        <select id="header-lang-select" class="text-xs font-bold py-1.5 px-2.5 bg-slate-100 border border-slate-300 rounded-xl text-slate-700 cursor-not-allowed opacity-75" disabled aria-label="Lựa chọn ngôn ngữ, chỉ hiển thị">
           <option value="vi">🇻🇳 Tiếng Việt</option>
           <option value="en">🇬🇧 English</option>
           <option value="fr">🇫🇷 Français</option>
@@ -121,8 +121,8 @@
           <option value="ja">🇯🇵 日本語</option>
         </select>
 
-        <!-- Nút Đăng Nhập Quản Trị (Chuyển sang phần đăng nhập admin) -->
-        <a href="admin.html?view=login" onclick="try{sessionStorage.removeItem('ZOO_ADMIN_SESSION');sessionStorage.removeItem('ZOO_ADMIN_USER');}catch(e){}" class="inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl shadow-sm transition cursor-pointer" title="Chuyển sang phần đăng nhập Admin">
+        <!-- Mở giao diện quản trị tĩnh -->
+        <a href="admin.html" class="inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl shadow-sm transition cursor-pointer" title="Mở giao diện quản trị">
           <i class="fa-solid fa-lock text-amber-300 text-xs"></i>
           <span id="nav-text-admin">Đăng Nhập Quản Trị</span>
         </a>
@@ -137,8 +137,13 @@
     <!-- BẢN ĐỒ GOOGLE MAPS TOÀN CẢNH (RÕ RÀNG, KHÔNG BỊ CHE KHUẤT) -->
     <div id="section-map" class="relative bg-slate-900 scroll-mt-20 rounded-3xl border border-slate-200 shadow-xl overflow-hidden h-[620px] sm:h-[680px] lg:h-[720px]">
       
-      <!-- CONTAINER BẢN ĐỒ GOOGLE MAPS (CHIẾM TRỌN 100% CHIỀU CAO) -->
+      <!-- Bản đồ nền, chưa hiển thị dữ liệu động vật khi chưa kết nối cơ sở dữ liệu. -->
       <div id="google-maps-view" class="w-full h-full z-10"></div>
+      <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+        <div id="map-empty-text" class="rounded-2xl bg-white/95 px-5 py-3 text-center text-xs font-bold text-slate-600 shadow-lg border border-slate-200">
+          Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.
+        </div>
+      </div>
 
       <!-- THANH TÌM KIẾM NỔI GOOGLE MAPS (TOP-LEFT) -->
       <div class="absolute top-4 left-4 right-4 sm:right-auto z-20 sm:w-96 space-y-2 pointer-events-auto">
@@ -155,22 +160,10 @@
 
         <!-- Các Chip Thao Tác Nhanh (Pills) -->
         <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar pb-1">
-          <button id="pill-all" onclick="filterByTag('all')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition">
-            Tất cả
-          </button>
-          <button id="pill-elephant" onclick="selectAnimalById('zoo-1')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition">
-            🐘 Voi
-          </button>
-          <button id="pill-tiger" onclick="selectAnimalById('zoo-2')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition">
-            🐅 Hổ
-          </button>
-          <button id="pill-giraffe" onclick="selectAnimalById('zoo-3')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition">
-            🦒 Hươu
-          </button>
-          <button id="pill-gate1" onclick="jumpToGate(10.7876, 106.7042, 'gate1')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition">
+          <button id="pill-gate1" onclick="jumpToGate(10.7876, 106.7042, 'gate1')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition cursor-pointer">
             🚪 Cổng 1
           </button>
-          <button id="pill-gate2" onclick="jumpToGate(10.7887, 106.7058, 'gate2')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition">
+          <button id="pill-gate2" onclick="jumpToGate(10.7887, 106.7058, 'gate2')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition cursor-pointer">
             🚪 Cổng 2
           </button>
         </div>
@@ -269,20 +262,24 @@
 
     </div>
 
-    <!-- ================= DANH MỤC 8 ĐIỂM THAM QUAN BÊN DƯỚI BẢN ĐỒ ================= -->
+    <!-- ================= DANH MỤC ĐIỂM THAM QUAN ================= -->
     <div class="space-y-4 pt-2">
       <div class="flex items-center justify-between">
         <div>
-          <h2 id="grid-heading-title" class="text-lg font-black text-slate-900">Danh Sách Chuồng Thú Trên Bản Đồ Google Maps</h2>
-          <p id="grid-heading-desc" class="text-xs text-slate-500">Bấm vào bất kỳ con thú nào để bản đồ tự động di chuyển đến đúng vị trí.</p>
+          <h2 id="grid-heading-title" class="text-lg font-black text-slate-900">Danh Sách Động Vật</h2>
+          <p id="grid-heading-desc" class="text-xs text-slate-500">Dữ liệu sẽ hiển thị sau khi kết nối cơ sở dữ liệu.</p>
         </div>
         <span id="grid-heading-badge" class="text-xs font-bold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-          8 Điểm Geofence
+          Chưa có dữ liệu
         </span>
       </div>
 
-      <!-- Lưới 8 Thẻ Thú Gọn Gàng -->
-      <div id="animals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+      <!-- Lưới Thẻ Thú Gọn Gàng (Chưa có dữ liệu động vật) -->
+      <div id="animals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs font-bold text-slate-500">
+          Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.
+        </div>
+      </div>
     </div>
 
 
@@ -360,7 +357,7 @@
                 <span id="btn-try-qr-text">Quét Thử Mã QR Chuồng Thú</span>
               </button>
               
-              <a href="admin.html?view=login" class="px-5 py-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs sm:text-sm flex items-center space-x-2 transition shadow-md">
+              <a href="admin.html" class="px-5 py-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs sm:text-sm flex items-center space-x-2 transition shadow-md">
                 <i class="fa-solid fa-print text-amber-400"></i>
                 <span id="btn-admin-qr-text">Tạo Biển Bảng QR (Dành Cho Admin)</span>
               </a>
@@ -390,18 +387,17 @@
                 <!-- Thẻ thông tin bài phát thanh (Spotlight) -->
                 <div class="space-y-3">
                   
-                  <!-- Hình ảnh chuồng thú có nhãn phân khu -->
+                  <!-- Hình ảnh chuồng thú có nhãn phân khu (Chưa có dữ liệu) -->
                   <div class="relative rounded-2xl overflow-hidden h-40 bg-slate-800 border border-slate-700/60 shadow-inner">
-                    <img id="mobile-mockup-img" src="https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700" alt="Voi Châu Á" class="w-full h-full object-cover" />
-                    <div id="mobile-mockup-zone" class="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] font-bold text-emerald-300 border border-white/10">
-                      Khu Động Vật Thảo Tự Nhiên & Móng Guốc
+                    <div class="flex h-full items-center justify-center text-center text-xs font-bold text-slate-400">
+                      Chưa có dữ liệu động vật
                     </div>
                   </div>
 
                   <!-- Tên loài thú & Tên khoa học -->
                   <div>
-                    <h4 id="mobile-mockup-name" class="text-lg font-black text-white">Voi Châu Á</h4>
-                    <p id="mobile-mockup-sciname" class="text-xs text-slate-400 italic">Elephas maximus</p>
+                    <h4 id="mobile-mockup-name" class="text-lg font-black text-white">Chưa có dữ liệu</h4>
+                    <p id="mobile-mockup-sciname" class="text-xs text-slate-400 italic">Nội dung sẽ được cập nhật khi kết nối cơ sở dữ liệu</p>
                   </div>
 
                   <!-- Thanh thời lượng âm thanh -->
@@ -460,7 +456,7 @@
       </div>
       <div class="flex items-center space-x-4">
         <span id="footer-satellite">Bản đồ vệ tinh Google Maps</span>
-        <a href="admin.html?view=login" onclick="try{sessionStorage.removeItem('ZOO_ADMIN_SESSION');sessionStorage.removeItem('ZOO_ADMIN_USER');}catch(e){}" class="text-emerald-700 font-bold hover:underline flex items-center space-x-1" title="Chuyển sang phần đăng nhập Admin">
+        <a href="admin.html" class="text-emerald-700 font-bold hover:underline flex items-center space-x-1" title="Mở giao diện quản trị">
           <i class="fa-solid fa-lock text-[10px]"></i>
           <span id="footer-admin">Cổng Quản Trị</span>
         </a>
@@ -468,148 +464,14 @@
     </div>
   </footer>
 
-  <!-- ================= SCRIPT KẾT NỐI ĐỒNG BỘ DỮ LIỆU ADMIN VÀ BẢN ĐỒ GOOGLE MAPS ================= -->
+  <!-- ================= GIAO DIỆN BẢN ĐỒ VÀ DỮ LIỆU TĨNH (CHƯA CÓ DATABASE) ================= -->
   <script>
-    const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
-
-
-    // ================= DỮ LIỆU ĐA NGÔN NGỮ ĐỒNG BỘ 5 THỨ TIẾNG =================
-    const MULTILINGUAL_TOUR_DATA = {
-  "zoo-1": {
-    names: { vi: "Voi Châu Á", en: "Asian Elephant", fr: "Éléphant d'Asie", zh: "亚洲象", ja: "アジアゾウ" },
-    vi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc chu đáo với chế độ ăn giàu chất xơ gồm cỏ tươi, mía, chuối và bí đỏ. Hãy cùng bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
-    en: "Welcome to the Asian Elephant exhibit at Saigon Zoo and Botanical Gardens. The Asian Elephant is the largest land mammal in Asia, possessing an agile trunk with over 40,000 muscles. Here, our elephants enjoy a fiber-rich diet of fresh grass, sugarcane, bananas, and pumpkin. Let us join hands to protect this endangered species.",
-    fr: "Bienvenue à l'enclos des éléphants d'Asie au Jardin Botanique et Zoologique de Saïgon. L'éléphant d'Asie est le plus grand mammifère terrestre du continent, doté d'une trompe agile comprenant plus de 40 000 muscles. Protégeons ensemble cette espèce majestueuse menacée d'extinction.",
-    zh: "欢迎来到西贡动植物园的亚洲象展区。亚洲象是亚洲大陆上现存最大的陆生动物，长鼻拥有超过4万条肌肉组织，极为灵巧敏捷。让我们携手保护这一珍稀濒危物种。",
-    ja: "サイゴン動植物園のアジアゾウ展示エリアへようこそ。アジアゾウはアジア大陸最大の陸生動物であり、4万以上の筋肉からなる器用な鼻を持っています。絶滅が危惧される貴重なゾウたちを共に守りましょう。"
-  },
-  "zoo-2": {
-    names: { vi: "Hổ Đông Dương", en: "Indochinese Tiger", fr: "Tigre d'Indochine", zh: "印支虎", ja: "インドシナトラ" },
-    vi: "Quý khách đang đứng trước khu nuôi dưỡng Hổ Đông Dương - chúa tể của núi rừng Đông Nam Á. Với bộ lông vàng cam rực rỡ và những vằn đen độc bản, hổ sở hữu sức mạnh và khả năng bơi lội đáng nể. Hổ Đông Dương hiện được xếp vào nhóm động vật cực kỳ nguy cấp cần được bảo tồn nghiêm ngặt.",
-    en: "You are standing in front of the Indochinese Tiger exhibit - the undisputed lord of the Southeast Asian jungle. Boasting brilliant orange fur and unique black stripes, tigers possess extraordinary muscular power and excellent swimming abilities. They are critically endangered and in urgent need of protection.",
-    fr: "Vous vous trouvez devant l'espace du Tigre d'Indochine, seigneur des forêts d'Asie du Sud-Est. Avec son pelage fauve et ses rayures uniques, le tigre possède une puissance colossale et d'excellentes aptitudes à la nage. Cette espèce en danger critique fait l'objet d'un programme strict de conservation.",
-    zh: "您现在看到的是东南亚丛林霸主——印支虎展区。金黄色的皮毛配以独一无二的黑色条纹，印支虎拥有极其敏捷的身姿和出色的游泳本领。目前该物种处于极度濒危状态，亟需全社会的严格保护。",
-    ja: "東南アジアの密林の王者、インドシナトラの展示場へようこそ。鮮やかなオレンジ色と一頭ごとに異なる黒い縞模様をまとい、圧倒的な筋力と優れた泳ぎの能力を誇ります。絶滅寸前の貴重な野生動物です。"
-  },
-  "zoo-3": {
-    names: { vi: "Hươu Cao Cổ & Ngựa Vằn", en: "Giraffe & Zebra", fr: "Girafe & Zèbre", zh: "长颈鹿与斑马", ja: "キリンとシマウマ" },
-    vi: "Khuôn viên thảo nguyên xanh mát mở ra trước mắt quý khách là ngôi nhà chung của Hươu Cao Cổ và Ngựa Vằn. Chiếc cổ dài đặc trưng giúp hươu vươn tới những ngọn cây keo cao nhất. Trong khi đó, bộ lông sọc vằn của ngựa vằn tạo hiệu ứng thị giác xua đuổi côn trùng và đánh lừa động vật ăn thịt trên đồng cỏ hoang dã.",
-    en: "The savannah grassland before you is home to both Giraffes and Zebras. The giraffe's iconic long neck allows it to browse the tenderest leaves high up in acacia trees, while the zebra's dazzling black-and-white stripes deter biting flies and confuse predators in the wild.",
-    fr: "La plaine verdoyante sous vos yeux accueille girafes et zèbres d'Afrique. Le long cou de la girafe lui permet d'atteindre les cimes des acacias, tandis que les rayures du zèbre repoussent les insectes et perturbent la vue des prédateurs.",
-    zh: "展现在您眼前的是非洲草原区，长颈鹿与斑马在此和谐共处。长颈鹿修长的脖颈能轻松采食高耸金合欢树的新鲜嫩叶，而斑马独特的黑白条纹则能有效驱赶蚊蝇并迷惑草原捕食者。",
-    ja: "目の前に広がる草原エリアは、キリンとシマウマの共生ゾーンです。キリンの長い首は高いアカシアの若葉を食べるために進化し、シマウマの美しい白黒の縞模様は虫除けや肉食動物を惑わす効果があります。"
-  },
-  "zoo-4": {
-    names: { vi: "Vượn Má Vàng & Linh Trưởng", en: "Yellow-cheeked Gibbon", fr: "Gibbon à joues jaunes", zh: "黄颊长臂猿", ja: "キッペクシロテテナガザル" },
-    vi: "Tiếng hót lảnh lót vang vọng cả một góc Vườn Thú chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Thảo Cầm Viên là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
-    en: "The melodious morning calls echoing across the canopy belong to the Yellow-cheeked Crested Gibbon, endemic to Indochina. Their exceptionally long arms allow swift brachiation through the treetops. Saigon Zoo is internationally recognized for its successful breeding program for this endangered primate.",
-    fr: "Les chants mélodieux résonnant dans la canopée sont ceux du Gibbon à joues jaunes, primate endémique d'Indochine. Ses bras très longs lui confèrent une agilité remarquable dans les branchages.",
-    zh: "在树冠间回荡的清脆鸣叫来自黄颊长臂猿，这是中南半岛的特有灵长类动物。它们拥有极长的双臂，能够在树枝间以惊人的速度荡越移动。西贡动植物园是全球少数成功繁育该物种的动物园之一。",
-    ja: "梢に響き渡る美しいデュエットは、インドシナ半島固有種であるキッペクシロテテナガザルの鳴き声です。非常に長い腕を使って枝から枝へと華麗に跳び移ります。"
-  },
-  "zoo-5": {
-    names: { vi: "Vườn Chim & Hồng Hạc", en: "Flamingo & Tropical Aviary", fr: "Flamants Roses & Volière", zh: "火烈鸟与热带鸟园", ja: "フラミンゴと熱帯鳥類園" },
-    vi: "Đầm lầy rực rỡ sắc hồng là nơi sinh sống của đàn Chim Hồng Hạc cùng hàng chục loài chim quý hiếm như Vẹt Macaw, Cò Sen và Giang Sen. Màu hồng đặc trưng của chim đến từ sắc tố carotenoid có trong các loài giáp xác và tảo nhỏ mà chúng ăn hằng ngày dưới nước.",
-    en: "This vibrant pink wetland is home to our American Flamingos alongside exotic tropical birds like Macaws and Painted Storks. The vivid pink coloration comes from natural carotenoid pigments found in the crustaceans and micro-algae of their wetland diet.",
-    fr: "Cette zone humide abrite de magnifiques Flamants roses ainsi que des aras tropicaux et des tantales d'Asie. Leur couleur rose éclatante provient des pigments de caroténoïdes présents dans les petits crustacés qu'ils filtrent dans l'eau.",
-    zh: "这片泛着梦幻粉红色的水沼栖息着美洲红鹳群以及金刚鹦鹉、白颈鹳等多样鸟类。火烈鸟羽毛亮丽的粉红色泽源自其每日滤食的小型甲壳类动物和藻类中丰富的类胡萝卜素。",
-    ja: "鮮やかなピンク色の水辺には、ベニイロフラミンゴや熱帯のインコたちが優雅に暮らしています。特徴的な羽の色は、餌となる微細藻類や甲殻類に含まれるカロテノイド色素によるものです。"
-  },
-  "zoo-6": {
-    names: { vi: "Đầm Cá Sấu Nước Lợ", en: "Saltwater Crocodile", fr: "Crocodile marin", zh: "湾鳄（咸水鳄）", ja: "イリエワニ" },
-    vi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
-    en: "Welcome to the Crocodile Lagoon. The Saltwater Crocodile is the largest living reptile on Earth, packing a devastating bite force exceeding 3,700 pounds per square inch. Masters of stealth, they remain motionless for hours like floating logs awaiting unsuspecting prey.",
-    fr: "Bienvenue au lagon des crocodiles. Le crocodile marin est le plus grand reptile vivant sur Terre, doté d'une force de morsure herculéenne dépassant 3 700 livres par pouce carré. Prédateur suprême, il se camoufle parfaitement au ras de l'eau.",
-    zh: "欢迎来到鳄鱼池。湾鳄是现存体型最大的爬行动物，咬合力超过3700磅每平方英寸，堪称自然界的生物机械奇迹。它们擅长像浮木一样在水中静止潜伏数小时以伏击猎物。",
-    ja: "ワニ池へようこそ。イリエワニは地球上で最大の現生爬虫類であり、3,700ポンド/平方インチを超える圧倒的な咬合力を誇ります。水面に丸太のように擬態して獲物を待ち伏せします。"
-  },
-  "zoo-7": {
-    names: { vi: "Tê Giác Một Sừng", en: "Greater One-Horned Rhino", fr: "Rhinocéros indien", zh: "独角犀牛", ja: "インドサイ" },
-    vi: "Tê giác là một trong những loài thú to lớn cổ xưa còn tồn tại đến ngày nay với lớp da dầy xếp nếp như áo giáp chiến binh. Chiếc sừng đặc trưng được cấu tạo từ keratin giống như móng tay con người. Chúng đóng vai trò cực kỳ quan trọng trong việc cân bằng hệ sinh thái đồng cỏ.",
-    en: "The Greater One-horned Rhino is a prehistoric megaherbivore sporting armor-plated skin folds. Its iconic single horn consists of dense keratin, identical to human hair and fingernails. Rhinos play an indispensable keystone role in shaping grassland ecosystems.",
-    fr: "Le Rhinocéros unicorne d'Asie est un titan préhistorique doté d'une peau épaisse formant des replis semblables à une armure de chevalier. Sa corne unique est faite de kératine pure, semblable à nos ongles.",
-    zh: "独角犀牛是极其古老的巨型植食动物，厚实坚硬的皮肤褶皱犹如披挂的重装铠甲。标志性的独角完全由角蛋白纤维紧密构成。它们是维护草地森林健康的关键基石物种。",
-    ja: "鎧のような分厚い皮膚のひだを持つインドサイは、古代から姿を変えずに生き残った巨大草食獣です。角は骨ではなく人間の爪と同じケラチンでできています。"
-  },
-  "zoo-8": {
-    names: { vi: "Gấu Ngựa Đông Dương", en: "Asian Black Bear", fr: "Ours noir d'Asie", zh: "亚洲黑熊（月熊）", ja: "ツキノワグマ" },
-    vi: "Gấu ngựa sở hữu vệt lông màu vàng hình chữ Y hoặc chữ V đặc trưng trước ngực, nổi bật trên nền lông đen bóng. Chúng là những vận động viên leo trèo cừ khôi và có thói quen làm tổ trên các chảng cây cao để nghỉ ngơi và ăn trái cây rừng.",
-    en: "The Asian Black Bear is famously known for the striking cream-colored V-shaped patch across its chest. Master climbers with powerful curved claws, they often build feeding platforms high up in tree canopies to feast on wild fruits, nuts, and forest honey.",
-    fr: "L'Ours noir d'Asie se distingue par sa marque pectorale en forme de croissant blanc ou doré. Grimpeur exceptionnel, il aime confectionner des nids végétaux au sommet des arbres pour se nourrir de baies et de miel.",
-    zh: "亚洲黑熊以胸前醒目的乳白色月牙形V字斑纹闻名，因此常被称为月熊。它们是出色的爬树高手，经常在茂密的高树上筑巢以享用野果和蜂蜜。",
-    ja: "ツキノワグマは胸元にある三日月型の白い斑紋が特徴です。鋭い爪を活かした木登りが得意で、高木の上に棚のような座を作って果実や木の実、蜂蜜を食べます。"
-  }
-};
-
-    const ZONE_TRANSLATIONS = {
-      "zoo-1": {
-        vi: "Khu Móng Guốc & Thú Lớn",
-        en: "Ungulates & Large Mammals Zone",
-        fr: "Zone Ongulés & Grands Mammifères",
-        zh: "大型有蹄类动物展区",
-        ja: "大型有蹄類・大型動物ゾーン"
-      },
-      "zoo-2": {
-        vi: "Khu Động Vật Ăn Thịt",
-        en: "Carnivore Predators Zone",
-        fr: "Zone Prédateurs Carnivores",
-        zh: "食肉猛兽展区",
-        ja: "肉食獣ゾーン"
-      },
-      "zoo-3": {
-        vi: "Khu Thảo Nguyên Châu Phi",
-        en: "African Savannah Zone",
-        fr: "Zone Savane Africaine",
-        zh: "非洲草原展区",
-        ja: "アフリカサバンナゾーン"
-      },
-      "zoo-4": {
-        vi: "Khu Đảo Linh Trưởng",
-        en: "Primate Island Zone",
-        fr: "Zone Île des Primates",
-        zh: "灵长类动物岛展区",
-        ja: "霊長類の島ゾーン"
-      },
-      "zoo-5": {
-        vi: "Khu Vườn Chim & Đầm Lầy",
-        en: "Aviary & Wetlands Zone",
-        fr: "Zone Oiseaux & Zone Humide",
-        zh: "鸟园与湿地展区",
-        ja: "鳥類・湿地帯ゾーン"
-      },
-      "zoo-6": {
-        vi: "Khu Bò Sát & Thủy Sinh",
-        en: "Reptile & Aquatic Zone",
-        fr: "Zone Reptiles & Milieu Aquatique",
-        zh: "爬行动物与水生动物展区",
-        ja: "爬虫類・水生生物ゾーン"
-      },
-      "zoo-7": {
-        vi: "Khu Thú Lớn Móng Guốc",
-        en: "Megaherbivore Ungulates Zone",
-        fr: "Zone Grands Herbivores Ongulés",
-        zh: "大型草食动物展区",
-        ja: "大型草食獣ゾーン"
-      },
-      "zoo-8": {
-        vi: "Khu Thú Rừng Nhiệt Đới",
-        en: "Tropical Rainforest Wildlife Zone",
-        fr: "Zone Faune Forêt Tropicale",
-        zh: "热带雨林野生动物展区",
-        ja: "熱帯雨林野生動物ゾーン"
-      }
-    };
-
     const UI_TRANSLATIONS = {
       vi: {
         navMap: "Bản đồ sở thú",
         navMobile: "Mô phỏng di động",
         navAdmin: "Đăng Nhập Quản Trị",
         searchPlaceholder: "Tìm chuồng thú trên bản đồ...",
-        pillAll: "Tất cả",
-        pillElephant: "🐘 Voi",
-        pillTiger: "🐅 Hổ",
-        pillGiraffe: "🦒 Hươu",
         pillGate1: "🚪 Cổng 1",
         pillGate2: "🚪 Cổng 2",
         gate1Name: "Cổng 1 (Nguyễn Bỉnh Khiêm)",
@@ -624,9 +486,10 @@
         btnStop: "Dừng",
         btnViewOnMap: "Xem Trên Google Maps",
         geofenceRadiusLabel: "Bán kính Geofence",
-        gridHeading: "Danh Sách Chuồng Thú Trên Bản Đồ Google Maps",
-        gridSubheading: "Bấm vào bất kỳ con thú nào để bản đồ tự động di chuyển đến đúng vị trí.",
-        gridBadge: "8 Điểm Geofence",
+        gridHeading: "Danh Sách Động Vật",
+        gridSubheading: "Dữ liệu sẽ hiển thị sau khi kết nối cơ sở dữ liệu.",
+        gridBadge: "Chưa có dữ liệu",
+        noAnimalData: "Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.",
         mobileBadge: "TRẢI NGHIỆM ĐIỆN THOẠI DU KHÁCH",
         mobileTitle: "Sử Dụng Trực Tiếp Trên Điện Thoại Di Động",
         mobileDesc: "Hệ thống tương thích 100% với trình duyệt trên mọi dòng điện thoại thông minh (iOS Safari, Android Chrome). Du khách chỉ cần mở trang web hoặc quét mã QR gắn tại chuồng thú là có thể nghe thuyết minh trực tiếp mà không cần cài đặt ứng dụng phức tạp.",
@@ -641,507 +504,46 @@
         phoneSubtitle: "Hệ Thống Thuyết Minh GPS",
         phoneScanBtn: "Quét QR tại chuồng",
         qrModalTitle: "Quét Mã QR Chuồng Thú",
-        qrModalDetecting: "Đang nhận diện mã QR tại chuồng Voi Châu Á...",
-        qrModalSimulate: "Mô Phỏng Quét Thành Công Voi Châu Á",
+        qrModalDetecting: "Chưa có dữ liệu QR để hiển thị.",
         qrModalClose: "Đóng",
         footerAddress: "Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1, TP.HCM",
         footerSatellite: "Bản đồ vệ tinh Google Maps",
         footerAdmin: "Cổng Quản Trị",
         langCardTag: "🇻🇳 VIỆT NAM"
-      },
-      en: {
-        navMap: "Zoo Map",
-        navMobile: "Mobile Simulation",
-        navAdmin: "Admin Portal",
-        searchPlaceholder: "Search exhibits on map...",
-        pillAll: "All",
-        pillElephant: "🐘 Elephant",
-        pillTiger: "🐅 Tiger",
-        pillGiraffe: "🦒 Giraffe",
-        pillGate1: "🚪 Gate 1",
-        pillGate2: "🚪 Gate 2",
-        gate1Name: "Gate 1 (Nguyen Binh Khiem)",
-        gate2Name: "Gate 2 (Nguyen Thi Minh Khai)",
-        gateDesc: "Saigon Zoo Visitor Entrance Gate",
-        satelliteBadge: "Google Maps Satellite",
-        mapDigital: "Digital Map",
-        mapSatellite: "Satellite",
-        autoDetect: "Auto Detection",
-        audioGuideHeading: "Audio Narrative",
-        btnListen: "Audio Guide",
-        btnStop: "Stop",
-        btnViewOnMap: "View on Google Maps",
-        geofenceRadiusLabel: "Geofence radius",
-        gridHeading: "Exhibits on Google Maps",
-        gridSubheading: "Click any animal to fly directly to its location on the map.",
-        gridBadge: "8 Geofence Zones",
-        mobileBadge: "VISITOR MOBILE EXPERIENCE",
-        mobileTitle: "Experience Directly on Your Smartphone",
-        mobileDesc: "100% compatible with modern mobile browsers (iOS Safari, Android Chrome). Visitors simply open the webpage or scan QR codes at enclosures to listen to audio tours without installing any app.",
-        feature1Title: "Scan QR Code at Exhibit",
-        feature1Desc: "Point your phone camera at any exhibit QR code to immediately trigger the corresponding audio tour.",
-        feature2Title: "Automatic GPS Geofencing",
-        feature2Desc: "Smart automatic playback triggers as soon as you stroll within 20 – 30 meters of an animal enclosure.",
-        feature3Title: "5 International Languages",
-        feature3Desc: "Seamless real-time switching between Vietnamese, English, French, Chinese, and Japanese.",
-        btnTryQr: "Try QR Code Scanner",
-        btnAdminQr: "Generate QR Signage (Admin)",
-        phoneSubtitle: "GPS Audio Tour System",
-        phoneScanBtn: "Scan QR at Exhibit",
-        qrModalTitle: "Scan Animal QR Code",
-        qrModalDetecting: "Detecting QR code at Asian Elephant exhibit...",
-        qrModalSimulate: "Simulate Scanning Asian Elephant",
-        qrModalClose: "Close",
-        footerAddress: "2 Nguyen Binh Khiem, Ben Nghe, District 1, HCMC",
-        footerSatellite: "Google Maps Satellite View",
-        footerAdmin: "Admin Portal",
-        langCardTag: "🇬🇧 ENGLISH"
-      },
-      fr: {
-        navMap: "Carte du Zoo",
-        navMobile: "Simulation Mobile",
-        navAdmin: "Portail Admin",
-        searchPlaceholder: "Rechercher des enclos sur la carte...",
-        pillAll: "Tous",
-        pillElephant: "🐘 Éléphant",
-        pillTiger: "🐅 Tigre",
-        pillGiraffe: "🦒 Girafe",
-        pillGate1: "🚪 Porte 1",
-        pillGate2: "🚪 Porte 2",
-        gate1Name: "Porte 1 (Nguyen Binh Khiem)",
-        gate2Name: "Porte 2 (Nguyen Thi Minh Khai)",
-        gateDesc: "Entrée principale du Jardin Zoologique",
-        satelliteBadge: "Google Maps Satellite",
-        mapDigital: "Carte Numérique",
-        mapSatellite: "Satellite",
-        autoDetect: "Détection Auto",
-        audioGuideHeading: "Commentaire Audio",
-        btnListen: "Écouter l'Audio",
-        btnStop: "Arrêter",
-        btnViewOnMap: "Voir sur Google Maps",
-        geofenceRadiusLabel: "Rayon Geofence",
-        gridHeading: "Liste des Enclos sur Google Maps",
-        gridSubheading: "Cliquez sur un animal pour centrer automatiquement la carte à son emplacement.",
-        gridBadge: "8 Zones Geofence",
-        mobileBadge: "EXPÉRIENCE MOBILE VISITEUR",
-        mobileTitle: "Utilisation Directe sur Smartphone",
-        mobileDesc: "Compatible à 100% avec les navigateurs mobiles (iOS Safari, Android Chrome). Les visiteurs peuvent simplement ouvrir le site web ou scanner les codes QR aux enclos sans installer d'application.",
-        feature1Title: "Scannez le QR Code de l'Enclos",
-        feature1Desc: "Pointez l'appareil photo vers le QR code d'un enclos pour lancer instantanément la visite audio correspondante.",
-        feature2Title: "Détection GPS Geofence Automatique",
-        feature2Desc: "Lecture automatique dès que vous vous approchez à 20 – 30 mètres de l'enclos de l'animal.",
-        feature3Title: "Support International Multilingue",
-        feature3Desc: "Basculez facilement entre 5 langues : vietnamien, anglais, français, chinois et japonais.",
-        btnTryQr: "Tester le Scanner QR",
-        btnAdminQr: "Générer la Signalétique QR (Admin)",
-        phoneSubtitle: "Système Audio Tour GPS",
-        phoneScanBtn: "Scanner le QR à l'enclos",
-        qrModalTitle: "Scanner le QR Code de l'Enclos",
-        qrModalDetecting: "Détection du QR code à l'enclos des éléphants d'Asie...",
-        qrModalSimulate: "Simuler le Scan de l'Éléphant d'Asie",
-        qrModalClose: "Fermer",
-        footerAddress: "2 Nguyen Binh Khiem, Dist. 1, HCMC, Vietnam",
-        footerSatellite: "Vue Satellite Google Maps",
-        footerAdmin: "Portail Admin",
-        langCardTag: "🇫🇷 FRANÇAIS"
-      },
-      zh: {
-        navMap: "动物园地图",
-        navMobile: "移动端模拟",
-        navAdmin: "管理后台",
-        searchPlaceholder: "在地图上搜索动物展区...",
-        pillAll: "全部",
-        pillElephant: "🐘 大象",
-        pillTiger: "🐅 老虎",
-        pillGiraffe: "🦒 长颈鹿",
-        pillGate1: "🚪 1号门",
-        pillGate2: "🚪 2号门",
-        gate1Name: "1号门（阮秉谦路）",
-        gate2Name: "2号门（阮氏明开路）",
-        gateDesc: "西贡动植物园游客主入口",
-        satelliteBadge: "谷歌地图卫星图",
-        mapDigital: "数字地图",
-        mapSatellite: "卫星图",
-        autoDetect: "智能自动感应",
-        audioGuideHeading: "语音讲解词",
-        btnListen: "语音讲解",
-        btnStop: "停止",
-        btnViewOnMap: "在谷歌地图上查看",
-        geofenceRadiusLabel: "地理围栏半径",
-        gridHeading: "谷歌地图动物展区列表",
-        gridSubheading: "点击任意动物，地图将自动平滑移动到对应展区位置。",
-        gridBadge: "8个地理围栏点",
-        mobileBadge: "游客移动端体验",
-        mobileTitle: "在智能手机上直接体验",
-        mobileDesc: "100%兼容主流智能手机浏览器（iOS Safari、Android Chrome）。游客只需打开网页或扫描展区旁的二维码即可收听自动语音讲解，无需安装任何APP。",
-        feature1Title: "展区现场扫码听讲解",
-        feature1Desc: "在展区前使用手机摄像头扫描二维码，对应的语音讲解内容即可自动实时播放。",
-        feature2Title: "GPS地理围栏自动感应",
-        feature2Desc: "当漫步靠近动物展区（20-30米半径）时，系统自动识别并触发语音解说。",
-        feature3Title: "5国多语言即时翻译",
-        feature3Desc: "支持在越南语、英语、法语、中文、日语5种语言之间即时自由切换。",
-        btnTryQr: "体验模拟扫描二维码",
-        btnAdminQr: "生成展区二维码标识（管理端）",
-        phoneSubtitle: "GPS智能语音导览系统",
-        phoneScanBtn: "展区现场扫码",
-        qrModalTitle: "扫描动物展区二维码",
-        qrModalDetecting: "正在识别亚洲象展区二维码...",
-        qrModalSimulate: "模拟成功扫描亚洲象",
-        qrModalClose: "关闭",
-        footerAddress: "西贡动植物园 — 胡志明市第一郡阮秉谦街2号",
-        footerSatellite: "谷歌地图高清卫星实景",
-        footerAdmin: "管理后台入口",
-        langCardTag: "🇨🇳 中文"
-      },
-      ja: {
-        navMap: "動物園マップ",
-        navMobile: "モバイル体験",
-        navAdmin: "管理者ポータル",
-        searchPlaceholder: "マップで動物を検索...",
-        pillAll: "すべて",
-        pillElephant: "🐘 ゾウ",
-        pillTiger: "🐅 トラ",
-        pillGiraffe: "🦒 キリン",
-        pillGate1: "🚪 第1ゲート",
-        pillGate2: "🚪 第2ゲート",
-        gate1Name: "第1ゲート（グエン・ビン・キエム通り）",
-        gate2Name: "第2ゲート（グエン・ティ・ミン・カイ通り）",
-        gateDesc: "サイゴン動植物園 メイン入場口",
-        satelliteBadge: "Google Maps 衛星写真",
-        mapDigital: "デジタルマップ",
-        mapSatellite: "衛星写真",
-        autoDetect: "自動検知対応",
-        audioGuideHeading: "音声ガイド解説",
-        btnListen: "音声ガイド",
-        btnStop: "停止",
-        btnViewOnMap: "Googleマップで見る",
-        geofenceRadiusLabel: "ジオフェンス半径",
-        gridHeading: "Googleマップ動物展示一覧",
-        gridSubheading: "動物をクリックすると、地図が自動的にその場所へ移動します。",
-        gridBadge: "8箇所のジオフェンス",
-        mobileBadge: "来園者モバイル体験",
-        mobileTitle: "スマートフォンで直接体験",
-        mobileDesc: "すべてのスマートフォンのブラウザ（iOS Safari、Android Chrome）に完全対応。アプリをインストールすることなく、Webサイトを開くかQRコードを読み取るだけで音声ガイドを楽しめます。",
-        feature1Title: "展示エリアのQRコード読取",
-        feature1Desc: "展示看板のQRコードをカメラで読み取るだけで、対応する音声解説がすぐに再生されます。",
-        feature2Title: "GPSジオフェンス自動再生",
-        feature2Desc: "動物の展示エリア（半径20〜30メートル）に近づくだけで、自動的に音声が流れます。",
-        feature3Title: "5ヶ国語マルチリンガル対応",
-        feature3Desc: "ベトナム語、英語、フランス語、中国語、日本語の5言語をリアルタイムで瞬時に切り替え可能。",
-        btnTryQr: "QRコード読取を試す",
-        btnAdminQr: "QR看板を作成（管理者専用）",
-        phoneSubtitle: "GPS音声ガイドシステム",
-        phoneScanBtn: "展示場でQRスキャン",
-        qrModalTitle: "展示エリアのQRコードをスキャン",
-        qrModalDetecting: "アジアゾウ展示場のQRコードを認識中...",
-        qrModalSimulate: "アジアゾウの読取成功をシミュレート",
-        qrModalClose: "閉じる",
-        footerAddress: "サイゴン動植物園 — ホーチミン市1区グエンビンキエム通り2番地",
-        footerSatellite: "Google Maps 衛星ビュー",
-        footerAdmin: "管理者ポータル",
-        langCardTag: "🇯🇵 日本語"
       }
     };
 
     let currentLanguage = 'vi';
 
+    // Dữ liệu động vật rỗng theo yêu cầu (Chưa có cơ sở dữ liệu động vật nào hết)
+    let zooAnimals = [];
+    let currentSelectedAnimal = null;
+    let map = null;
+    let currentMapType = 'roadmap';
+    let googleMapLayer = null;
+    let markers = [];
+    let circles = [];
+    let touristMarker = null;
+    let gateMarkers = [];
+
     function getAnimalLocalizedName(animal, lang = currentLanguage) {
       if (!animal) return '';
-      const mid = String(animal.id || '').toLowerCase();
-      const baseKey = mid.startsWith('zoo-') ? mid : ('zoo-' + mid);
-      if (MULTILINGUAL_TOUR_DATA[baseKey] && MULTILINGUAL_TOUR_DATA[baseKey].names && MULTILINGUAL_TOUR_DATA[baseKey].names[lang]) {
-        return MULTILINGUAL_TOUR_DATA[baseKey].names[lang];
-      }
-      if (animal.names && animal.names[lang]) return animal.names[lang];
       return animal.name || '';
     }
 
     function getAnimalLocalizedZone(animal, lang = currentLanguage) {
       if (!animal) return '';
-      const mid = String(animal.id || '').toLowerCase();
-      const baseKey = mid.startsWith('zoo-') ? mid : ('zoo-' + mid);
-      if (ZONE_TRANSLATIONS[baseKey] && ZONE_TRANSLATIONS[baseKey][lang]) {
-        return ZONE_TRANSLATIONS[baseKey][lang];
-      }
       return animal.zone || '';
     }
 
     function getAnimalLocalizedNarrative(animal, lang = currentLanguage) {
       if (!animal) return '';
-      const mid = String(animal.id || '').toLowerCase();
-      const baseKey = mid.startsWith('zoo-') ? mid : ('zoo-' + mid);
-      if (MULTILINGUAL_TOUR_DATA[baseKey] && MULTILINGUAL_TOUR_DATA[baseKey][lang]) {
-        return MULTILINGUAL_TOUR_DATA[baseKey][lang];
-      }
-      if (animal[lang]) return animal[lang];
-      if (animal.narrative) return animal.narrative;
-      if (animal.descriptionVi) return animal.descriptionVi;
-      return '';
+      return animal.narrative || animal.descriptionVi || '';
     }
-
-    // 8 Điểm Động Vật Chuẩn Mặc Định Thảo Cầm Viên (Đồng bộ trực tiếp với Admin)
-    const DEFAULT_ZOO_ANIMALS = [
-      {
-        id: "zoo-1",
-        name: "Voi Châu Á",
-        scientificName: "Elephas maximus",
-        sciname: "Elephas maximus",
-        zone: "Khu Móng Guốc & Thú Lớn",
-        conservationStatus: "EN - Nguy cấp (Sách Đỏ IUCN)",
-        iucn: "EN",
-        coordinates: [106.7056, 10.7872],
-        coords: [10.7872, 106.7056],
-        radius_meters: 25,
-        radius: 25,
-        color: "#059669",
-        icon: "🐘",
-        imageUrl: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=600",
-        img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=600",
-        descriptionVi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc chu đáo với chế độ ăn giàu chất xơ gồm cỏ tươi, mía, chuối và bí đỏ.",
-        narrative: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc chu đáo với chế độ ăn giàu chất xơ gồm cỏ tươi, mía, chuối và bí đỏ."
-      },
-      {
-        id: "zoo-2",
-        name: "Hổ Đông Dương",
-        scientificName: "Panthera tigris corbetti",
-        sciname: "Panthera tigris corbetti",
-        zone: "Khu Thú Ăn Thịt Nguy Cấp",
-        conservationStatus: "CR - Cực kỳ nguy cấp",
-        iucn: "CR",
-        coordinates: [106.7061, 10.7885],
-        coords: [10.7885, 106.7061],
-        radius_meters: 20,
-        radius: 20,
-        color: "#dc2626",
-        icon: "🐅",
-        imageUrl: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=600",
-        img: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=600",
-        descriptionVi: "Quý khách đang đứng trước khu vực bảo tồn Hổ Đông Dương - chúa tể của núi rừng Đông Nam Á. Bộ lông màu cam với các vạch vằn đen độc nhất vô nhị giúp hổ ngụy trang hoàn hảo. Hổ bơi lội rất giỏi và ưa thích ngâm mình dưới nước.",
-        narrative: "Quý khách đang đứng trước khu vực bảo tồn Hổ Đông Dương - chúa tể của núi rừng Đông Nam Á. Bộ lông màu cam với các vạch vằn đen độc nhất vô nhị giúp hổ ngụy trang hoàn hảo. Hổ bơi lội rất giỏi và ưa thích ngâm mình dưới nước."
-      },
-      {
-        id: "zoo-3",
-        name: "Hươu Cao Cổ & Ngựa Vằn",
-        scientificName: "Giraffa camelopardalis & Equus quagga",
-        sciname: "Giraffa camelopardalis",
-        zone: "Khu Đồng Cỏ Thảo Nguyên",
-        conservationStatus: "VU - Sắp nguy cấp",
-        iucn: "VU",
-        coordinates: [106.7045, 10.7868],
-        coords: [10.7868, 106.7045],
-        radius_meters: 30,
-        radius: 30,
-        color: "#d97706",
-        icon: "🦒",
-        imageUrl: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=600",
-        img: "https://images.unsplash.com/photo-1547721064-da6cfb341d50?w=600",
-        descriptionVi: "Chào mừng bạn đến với khu vực mô phỏng đồng cỏ hoang dã. Hươu cao cổ là loài động vật có chiều cao ấn tượng nhất hành tinh, đạt từ 4 đến 5.5 mét. Chúng cùng đàn ngựa vằn chung sống hòa thuận trong không gian sinh thái rợp bóng cây cổ thụ.",
-        narrative: "Chào mừng bạn đến với khu vực mô phỏng đồng cỏ hoang dã. Hươu cao cổ là loài động vật có chiều cao ấn tượng nhất hành tinh, đạt từ 4 đến 5.5 mét. Chúng cùng đàn ngựa vằn chung sống hòa thuận trong không gian sinh thái rợp bóng cây cổ thụ."
-      },
-      {
-        id: "zoo-4",
-        name: "Vượn Má Vàng & Linh Trưởng",
-        scientificName: "Nomascus gabriellae",
-        sciname: "Nomascus gabriellae",
-        zone: "Khu Đảo Linh Trưởng",
-        conservationStatus: "EN - Nguy cấp đặc hữu",
-        iucn: "EN",
-        coordinates: [106.7049, 10.7880],
-        coords: [10.7880, 106.7049],
-        radius_meters: 20,
-        radius: 20,
-        color: "#7c3aed",
-        icon: "🐒",
-        imageUrl: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?w=600",
-        img: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?w=600",
-        descriptionVi: "Bạn đang lắng nghe tiếng hót đặc trưng của loài Vượn Má Vàng - báu vật linh trưởng quý hiếm đặc hữu của miền Nam Đông Dương. Vượn có cánh tay dài linh hoạt, di chuyển thoăn thoắt trên cành cao và sống theo chế độ một vợ một chồng trọn đời.",
-        narrative: "Bạn đang lắng nghe tiếng hót đặc trưng của loài Vượn Má Vàng - báu vật linh trưởng quý hiếm đặc hữu của miền Nam Đông Dương. Vượn có cánh tay dài linh hoạt, di chuyển thoăn thoắt trên cành cao và sống theo chế độ một vợ một chồng trọn đời."
-      },
-      {
-        id: "zoo-5",
-        name: "Vườn Chim & Hồng Hạc",
-        scientificName: "Phoenicopterus ruber",
-        sciname: "Phoenicopterus ruber",
-        zone: "Khu Đầm Lầy Thủy Cầm",
-        conservationStatus: "LC - Ít lo ngại",
-        iucn: "LC",
-        coordinates: [106.7068, 10.7878],
-        coords: [10.7878, 106.7068],
-        radius_meters: 25,
-        radius: 25,
-        color: "#ec4899",
-        icon: "🦩",
-        imageUrl: "https://images.unsplash.com/photo-1539418561314-565804e349c0?w=600",
-        img: "https://images.unsplash.com/photo-1539418561314-565804e349c0?w=600",
-        descriptionVi: "Chào mừng bạn đến với hồ Hồng Hạc. Bộ lông màu hồng cam rực rỡ của chúng bắt nguồn từ các sắc tố carotenoid có trong tôm và tảo biển mà chúng ăn hàng ngày. Chúng thường có tập tính đứng một chân để giảm thiểu sự mất nhiệt cơ thể.",
-        narrative: "Chào mừng bạn đến với hồ Hồng Hạc. Bộ lông màu hồng cam rực rỡ của chúng bắt nguồn từ các sắc tố carotenoid có trong tôm và tảo biển mà chúng ăn hàng ngày. Chúng thường có tập tính đứng một chân để giảm thiểu sự mất nhiệt cơ thể."
-      },
-      {
-        id: "zoo-6",
-        name: "Đầm Cá Sấu Nước Lợ",
-        scientificName: "Crocodylus porosus",
-        sciname: "Crocodylus porosus",
-        zone: "Khu Bò Sát & Thủy Sinh",
-        conservationStatus: "LC - Được bảo vệ nghiêm ngặt",
-        iucn: "LC",
-        coordinates: [106.7072, 10.7865],
-        coords: [10.7865, 106.7072],
-        radius_meters: 25,
-        radius: 25,
-        color: "#2563eb",
-        icon: "🐊",
-        imageUrl: "https://images.unsplash.com/photo-1520542099817-0d19524eccca?w=600",
-        img: "https://images.unsplash.com/photo-1520542099817-0d19524eccca?w=600",
-        descriptionVi: "Cá sấu nước lợ là loài bò sát lớn nhất còn tồn tại trên Trái Đất. Chúng có lực cắn mạnh bậc nhất trong giới động vật và khả năng thích nghi cao ở cả môi trường nước ngọt lẫn cửa sông nước lợ. Hãy quan sát tập tính tắm nắng sưởi ấm của chúng.",
-        narrative: "Cá sấu nước lợ là loài bò sát lớn nhất còn tồn tại trên Trái Đất. Chúng có lực cắn mạnh bậc nhất trong giới động vật và khả năng thích nghi cao ở cả môi trường nước ngọt lẫn cửa sông nước lợ. Hãy quan sát tập tính tắm nắng sưởi ấm của chúng."
-      },
-      {
-        id: "zoo-7",
-        name: "Tê Giác Một Sừng",
-        scientificName: "Rhinoceros unicornis",
-        sciname: "Rhinoceros unicornis",
-        zone: "Khu Thú Lớn Móng Guốc",
-        conservationStatus: "VU - Sắp nguy cấp",
-        iucn: "VU",
-        coordinates: [106.7051, 10.7865],
-        coords: [10.7865, 106.7051],
-        radius_meters: 30,
-        radius: 30,
-        color: "#0d9488",
-        icon: "🦏",
-        imageUrl: "https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=600",
-        img: "https://images.unsplash.com/photo-1575550959106-5a7defe28b56?w=600",
-        descriptionVi: "Tê giác là một trong những loài thú to lớn cổ xưa còn tồn tại đến ngày nay với lớp da dầy xếp nếp như áo giáp chiến binh. Mặc dù thị lực kém, chúng sở hữu khứu giác và thính giác cực kỳ nhạy bén để nhận diện đồng loại.",
-        narrative: "Tê giác là một trong những loài thú to lớn cổ xưa còn tồn tại đến ngày nay với lớp da dầy xếp nếp như áo giáp chiến binh. Mặc dù thị lực kém, chúng sở hữu khứu giác và thính giác cực kỳ nhạy bén để nhận diện đồng loại."
-      },
-      {
-        id: "zoo-8",
-        name: "Gấu Ngựa Đông Dương",
-        scientificName: "Ursus thibetanus",
-        sciname: "Ursus thibetanus",
-        zone: "Khu Thú Rừng Nhiệt Đới",
-        conservationStatus: "VU - Sắp nguy cấp",
-        iucn: "VU",
-        coordinates: [106.7065, 10.7888],
-        coords: [10.7888, 106.7065],
-        radius_meters: 20,
-        radius: 20,
-        color: "#475569",
-        icon: "🐻",
-        imageUrl: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=600",
-        img: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=600",
-        descriptionVi: "Gấu ngựa nổi bật với vệt lông hình chữ V màu trắng vàng ở trước ngực. Chúng là loài ăn tạp, thích leo trèo cây gỗ lớn, bơi lội và thưởng thức mật ong rừng cùng các loại trái cây ngọt mọng nước.",
-        narrative: "Gấu ngựa nổi bật với vệt lông hình chữ V màu trắng vàng ở trước ngực. Chúng là loài ăn tạp, thích leo trèo cây gỗ lớn, bơi lội và thưởng thức mật ong rừng cùng các loại trái cây ngọt mọng nước."
-      }
-    ];
-
-    // Helper tự động gắn biểu tượng emoji cho loài thú
-    function getAnimalIcon(name, index = 0) {
-      const n = (name || '').toLowerCase();
-      if (n.includes('voi')) return '🐘';
-      if (n.includes('hổ') || n.includes('cọp')) return '🐅';
-      if (n.includes('hươu') || n.includes('ngựa vằn') || n.includes('ngựa')) return '🦒';
-      if (n.includes('vượn') || n.includes('khỉ') || n.includes('linh trưởng')) return '🐒';
-      if (n.includes('hồng hạc') || n.includes('chim') || n.includes('vẹt')) return '🦩';
-      if (n.includes('cá sấu')) return '🐊';
-      if (n.includes('tê giác')) return '🦏';
-      if (n.includes('gấu')) return '🐻';
-      if (n.includes('báo')) return '🐆';
-      if (n.includes('sư tử')) return '🦁';
-      if (n.includes('rùa')) return '🐢';
-      if (n.includes('rắn')) return '🐍';
-      const defaultIcons = ['🐾', '🦁', '🌿', '🐘', '🦒', '🐅', '🦩', '🐊'];
-      return defaultIcons[index % defaultIcons.length];
-    }
-
-    // Chuẩn hóa dữ liệu tương thích giữa Admin & Index
-    function normalizeAnimal(a, index = 0) {
-      let lat = 10.7876, lng = 106.7056;
-      if (Array.isArray(a.coordinates) && a.coordinates.length === 2) {
-        if (a.coordinates[0] > 50) {
-          lng = parseFloat(a.coordinates[0]);
-          lat = parseFloat(a.coordinates[1]);
-        } else {
-          lat = parseFloat(a.coordinates[0]);
-          lng = parseFloat(a.coordinates[1]);
-        }
-      } else if (Array.isArray(a.coords) && a.coords.length === 2) {
-        if (a.coords[0] > 50) {
-          lng = parseFloat(a.coords[0]);
-          lat = parseFloat(a.coords[1]);
-        } else {
-          lat = parseFloat(a.coords[0]);
-          lng = parseFloat(a.coords[1]);
-        }
-      }
-
-      const icon = a.icon || getAnimalIcon(a.name, index);
-      const sciname = a.scientificName || a.sciname || '';
-      const narrative = a.descriptionVi || a.narrative || '';
-      const img = a.imageUrl || a.img || 'https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=600';
-      let iucn = 'LC';
-      if (a.conservationStatus) {
-        iucn = a.conservationStatus.split(' ')[0].replace(/[^a-zA-Z]/g, '') || a.conservationStatus;
-      } else if (a.iucn) {
-        iucn = a.iucn;
-      }
-
-      return {
-        id: a.id || ('zoo-' + (index + 1)),
-        name: a.name || 'Loài Động Vật',
-        sciname: sciname,
-        scientificName: sciname,
-        zone: a.zone || 'Khu Vực Tham Quan',
-        iucn: iucn,
-        conservationStatus: a.conservationStatus || iucn,
-        coords: [lat, lng],
-        coordinates: [lng, lat],
-        radius: parseInt(a.radius_meters || a.radius || 25),
-        radius_meters: parseInt(a.radius_meters || a.radius || 25),
-        color: a.color || '#059669',
-        icon: icon,
-        img: img,
-        imageUrl: img,
-        narrative: narrative,
-        descriptionVi: narrative
-      };
-    }
-
-    // Tải dữ liệu kết nối từ LocalStorage
-    function loadConnectedAnimals() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item, idx) => normalizeAnimal(item, idx));
-          }
-        }
-      } catch (err) {
-        console.warn("Lỗi đọc LocalStorage:", err);
-      }
-
-      // Khởi tạo lưu trữ ban đầu nếu chưa có
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_ZOO_ANIMALS));
-      } catch (err) {}
-
-      return DEFAULT_ZOO_ANIMALS.map((item, idx) => normalizeAnimal(item, idx));
-    }
-
-    let zooAnimals = [];
-    let currentSelectedAnimal = null;
-    let map = null;
-    let currentMapType = 'roadmap'; // 'roadmap' (Bản đồ số Google Maps) hoặc 'satellite' (Vệ tinh)
-    let googleMapLayer = null;
 
     function getGoogleMapTileUrl(mapType, lang) {
-      const hlMap = { 'vi': 'vi', 'en': 'en', 'fr': 'fr', 'zh': 'zh-CN', 'ja': 'ja' };
-      const hl = hlMap[lang] || 'vi';
-      // lyrs=m: Bản đồ số Google Maps (Roadmap Vector rõ nét, đầy đủ lối đi dạo trong sở thú)
-      // lyrs=y: Bản đồ vệ tinh Google Maps có nhãn (Satellite Hybrid)
       const lyrs = (mapType === 'satellite') ? 'y' : 'm';
-      return `https://mt{s}.google.com/vt/lyrs=${lyrs}&hl=${hl}&x={x}&y={y}&z={z}`;
+      return `https://mt{s}.google.com/vt/lyrs=${lyrs}&hl=vi&x={x}&y={y}&z={z}`;
     }
 
     function setGoogleMapType(type) {
@@ -1150,7 +552,6 @@
         googleMapLayer.setUrl(getGoogleMapTileUrl(currentMapType, currentLanguage));
       }
 
-      // Cập nhật giao diện 2 nút chuyển đổi
       const btnRoad = document.getElementById('btn-map-roadmap');
       const btnSat = document.getElementById('btn-map-satellite');
       if (type === 'roadmap') {
@@ -1161,13 +562,7 @@
         if (btnRoad) btnRoad.className = "px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center space-x-1.5 transition text-slate-700 hover:text-emerald-700 hover:bg-slate-100 cursor-pointer";
       }
     }
-    let markers = [];
-    let circles = [];
-    let touristMarker = null;
 
-    let gateMarkers = [];
-
-    // Vẽ Ghim các Cổng vào chuẩn đa ngôn ngữ
     function renderGateMarkers() {
       if (!map) return;
       gateMarkers.forEach(m => {
@@ -1192,12 +587,12 @@
       });
     }
 
-    // Vẽ Ghim và Vòng Geofence trên bản đồ theo đúng ngôn ngữ đã chọn
     function renderMapAnimals(animals) {
       if (!map) return;
       const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
+      const emptyMessage = document.getElementById('map-empty-text');
+      if (emptyMessage) emptyMessage.classList.toggle('hidden', animals && animals.length > 0);
 
-      // Xóa các lớp cũ để cập nhật mới
       markers.forEach(m => {
         try { map.removeLayer(m); } catch (e) {}
       });
@@ -1210,24 +605,21 @@
 
       animals.forEach(animal => {
         const localizedName = getAnimalLocalizedName(animal, currentLanguage);
-
-        // Vòng tròn bán kính Geofence mờ nhẹ, không làm che bản đồ vệ tinh
         const circle = L.circle(animal.coords, {
-          radius: animal.radius,
-          color: animal.color,
-          fillColor: animal.color,
+          radius: animal.radius || 25,
+          color: animal.color || '#059669',
+          fillColor: animal.color || '#059669',
           fillOpacity: 0.15,
           weight: 2,
           dashArray: '4, 4'
         }).addTo(map);
         circles.push(circle);
 
-        // Marker Ghim Phong Cách Google Maps với tên đã dịch tự động
         const pinIcon = L.divIcon({
           className: 'gmap-pin',
           html: `
-            <div style="background:${animal.color};color:white;padding:5px 10px;border-radius:18px;font-size:11px;font-weight:900;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,0.4);border:2px solid white;display:flex;align-items:center;gap:4px;">
-              <span>${animal.icon}</span> <span>${localizedName}</span>
+            <div style="background:${animal.color || '#059669'};color:white;padding:5px 10px;border-radius:18px;font-size:11px;font-weight:900;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,0.4);border:2px solid white;display:flex;align-items:center;gap:4px;">
+              <span>${animal.icon || '🐾'}</span> <span>${localizedName}</span>
             </div>
           `,
           iconSize: [110, 32],
@@ -1235,28 +627,21 @@
         });
 
         const marker = L.marker(animal.coords, { icon: pinIcon }).addTo(map);
-        marker.on('click', () => {
-          selectAnimal(animal);
-        });
-        marker.bindPopup(`<b>${animal.icon} ${localizedName}</b><br><i style="font-size:11px;color:#64748b;">${animal.sciname}</i><br><span style="color:${animal.color};font-weight:bold;font-size:11px;">${t.geofenceRadiusLabel}: ${animal.radius}m</span>`);
+        marker.on('click', () => selectAnimal(animal));
         markers.push(marker);
       });
     }
 
-    // Đồng bộ tức thời khi Admin thay đổi dữ liệu
-    function syncFromStorage() {
-      zooAnimals = loadConnectedAnimals();
-      renderMapAnimals(zooAnimals);
-      renderAnimalsGrid(zooAnimals);
+    function renderAnimalsGrid(animals) {
+      const grid = document.getElementById('animals-grid');
+      if (!grid) return;
+      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
+      const badge = document.getElementById('grid-heading-badge');
+      if (badge) badge.innerText = animals && animals.length ? `${animals.length} mục` : t.gridBadge;
 
-      // Cập nhật lại thẻ chi tiết nếu đang mở loài thú vừa được sửa
-      if (currentSelectedAnimal) {
-        const updated = zooAnimals.find(a => String(a.id) === String(currentSelectedAnimal.id));
-        if (updated) {
-          updatePlaceCard(updated);
-        } else {
-          closePlaceCard();
-        }
+      if (!animals || animals.length === 0) {
+        grid.innerHTML = `<div class="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs font-bold text-slate-500">${t.noAnimalData}</div>`;
+        return;
       }
     }
 
@@ -1268,7 +653,7 @@
         zoomControl: false
       });
 
-      // 2. LỚP BẢN ĐỒ SỐ GOOGLE MAPS SẮC NÉT (Có nhãn chuẩn theo ngôn ngữ)
+      // 2. LỚP BẢN ĐỒ SỐ GOOGLE MAPS SẮC NÉT
       googleMapLayer = L.tileLayer(getGoogleMapTileUrl(currentMapType, currentLanguage), {
         subdomains: ['0', '1', '2', '3'],
         maxZoom: 20,
@@ -1279,7 +664,7 @@
         if (map) map.invalidateSize();
       }, 150);
 
-      // 3. Đánh dấu các Cổng vào (Phong cách Google Maps Marker đa ngôn ngữ)
+      // 3. Đánh dấu các Cổng vào
       renderGateMarkers();
 
       // 4. Ghim Vị Trí Du Khách (Google Blue Dot Marker)
@@ -1291,97 +676,20 @@
       });
       touristMarker = L.marker([10.7876, 106.7042], { icon: touristIcon }).addTo(map);
 
-      // 5. Nạp dữ liệu đồng bộ với Admin và hiển thị lên Map & Grid
-      syncFromStorage();
+      // 5. Khởi tạo danh sách động vật rỗng (Chưa có database)
+      renderMapAnimals(zooAnimals);
+      renderAnimalsGrid(zooAnimals);
 
-      // Nạp ngôn ngữ người dùng đã chọn trước đó (mặc định Tiếng Việt)
-      try {
-        const savedLang = localStorage.getItem('ZOO_SELECTED_LANG') || 'vi';
-        changeLanguageVisual(savedLang);
-      } catch(e) {}
-
-      // 6. Kiểm tra xem có URL tham số chọn loài thú từ trang Admin không
-      try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const selectId = urlParams.get('select') || window.location.hash.replace('#', '');
-        if (selectId) {
-          setTimeout(() => selectAnimalById(selectId), 400);
-        }
-      } catch (e) {}
-
-      // 8. Kích hoạt sự kiện click bản đồ mô phỏng GPS theo chuẩn Geofence Presentation
       map.on('click', (e) => {
-        handleTouristManualMove(e.latlng.lat, e.latlng.lng);
-      });
-
-      // 7. LẮNG NGHE SỰ KIỆN STORAGE TỪ ADMIN (Khi Admin thêm, sửa, xóa sẽ tự động cập nhật ngay)
-      window.addEventListener('storage', (e) => {
-        if (!e.key || e.key === STORAGE_KEY) {
-          syncFromStorage();
-        }
-      });
-
-      // Đồng bộ lại khi người dùng quay lại tab này
-      window.addEventListener('focus', () => {
-        syncFromStorage();
+        if (touristMarker) touristMarker.setLatLng([e.latlng.lat, e.latlng.lng]);
       });
     });
 
-    // Chọn động vật: lướt bản đồ tới vị trí và mở thẻ chi tiết Google Maps
     function selectAnimal(animal) {
       currentSelectedAnimal = animal;
-      updatePlaceCard(animal);
-
-      if (map) {
-        map.flyTo(animal.coords, 18, { duration: 1.1 });
-      }
-
-      if (touristMarker) {
-        touristMarker.setLatLng(animal.coords);
-      }
-
-      // Mở Place Card
       const card = document.getElementById('gmap-place-card');
       if (card) card.classList.remove('hidden');
-    }
-
-    // Cập nhật thẻ chi tiết điểm đến Google Maps chuẩn đa ngôn ngữ
-    function updatePlaceCard(animal) {
-      if (!animal) return;
-      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
-      const localizedName = getAnimalLocalizedName(animal, currentLanguage);
-      const localizedZone = getAnimalLocalizedZone(animal, currentLanguage);
-      const localizedNarrative = getAnimalLocalizedNarrative(animal, currentLanguage);
-
-      const elName = document.getElementById('card-animal-name');
-      if (elName) elName.innerText = localizedName;
-
-      const elSci = document.getElementById('card-animal-sciname');
-      if (elSci) elSci.innerText = animal.sciname || animal.scientificName || '';
-
-      const elZone = document.getElementById('card-animal-zone');
-      if (elZone) elZone.innerText = localizedZone;
-
-      const elIucn = document.getElementById('card-animal-iucn');
-      if (elIucn) elIucn.innerText = `IUCN: ${animal.iucn}`;
-
-      const elGeo = document.getElementById('card-animal-geofence');
-      if (elGeo) elGeo.innerText = `${t.geofenceRadiusLabel}: ${animal.radius}m`;
-
-      const elNarrative = document.getElementById('card-animal-narrative');
-      if (elNarrative) elNarrative.innerText = localizedNarrative;
-
-      const elImg = document.getElementById('card-animal-img');
-      if (elImg) elImg.src = animal.img || animal.imageUrl;
-
-      const elTag = document.getElementById('card-lang-tag');
-      if (elTag) elTag.innerText = t.langCardTag;
-
-      const elBtnListen = document.getElementById('card-btn-listen-text');
-      if (elBtnListen) elBtnListen.innerText = t.btnListen;
-
-      const elBtnStop = document.getElementById('card-btn-stop-text');
-      if (elBtnStop) elBtnStop.innerText = t.btnStop;
+      if (map && animal.coords) map.flyTo(animal.coords, 18);
     }
 
     function closePlaceCard() {
@@ -1390,54 +698,6 @@
       if (card) card.classList.add('hidden');
     }
 
-
-    // ================= GEOFENCE & LOCATION ENGINE (CHUẨN CHAPTER 04 PRESENTATION) =================
-    // 3 Hằng số cốt lõi quy chuẩn từ system-presentation-standalone.html:
-    const GPS_THROTTLE_MS = 5000;      // 5s: Tần suất lấy mẫu GPS để tiết kiệm pin
-    const GEOFENCE_DEBOUNCE_MS = 3000; // 3s: Debounce lọc nhiễu di chuyển
-    const GEOFENCE_COOLDOWN_MS = 300000; // 5 phút (300.000ms): Cooldown tránh lặp bài thuyết minh
-    let geofenceCooldownHistory = {};
-    let lastGpsTriggerTime = 0;
-
-    // Công thức khoảng cách trắc địa Haversine (chuẩn mét)
-    function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371e3; // Bán kính Trái Đất (mét)
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
-
-    // Xử lý di chuyển vị trí du khách & nhận diện chuồng thú Geofence
-    function handleTouristManualMove(lat, lng) {
-      if (touristMarker) {
-        touristMarker.setLatLng([lat, lng]);
-      }
-
-      const now = Date.now();
-      let matchedAnimal = null;
-      let closestDistance = Infinity;
-
-      zooAnimals.forEach(animal => {
-        const dist = calculateHaversineDistance(lat, lng, animal.coords[0], animal.coords[1]);
-        if (dist <= (animal.radius || 25)) {
-          const lastTime = geofenceCooldownHistory[animal.id] || 0;
-          if (now - lastTime >= GEOFENCE_COOLDOWN_MS) {
-            matchedAnimal = animal;
-          }
-        }
-      });
-
-      if (matchedAnimal) {
-        geofenceCooldownHistory[matchedAnimal.id] = now;
-        selectAnimal(matchedAnimal);
-      }
-    }
-
-    // Nhảy tới Cổng
     function jumpToGate(lat, lng, gateKey) {
       if (map) {
         map.flyTo([lat, lng], 18, { duration: 1 });
@@ -1447,179 +707,18 @@
       }
     }
 
-    // Xem toàn cảnh
     function resetMapView() {
       if (map) {
         map.flyTo([10.7876, 106.7056], 17, { duration: 1 });
       }
     }
 
-    // Định vị du khách (Google Blue Dot)
     function locateTouristGMap() {
       jumpToGate(10.7876, 106.7042, 'gate1');
     }
 
-    // Cập nhật thông tin mô phỏng điện thoại di động
-    function updateMobileMockup(lang) {
-      const t = UI_TRANSLATIONS[lang] || UI_TRANSLATIONS['vi'];
-      const elephant = zooAnimals.find(a => String(a.id) === 'zoo-1') || zooAnimals[0];
-      if (elephant) {
-        const elName = document.getElementById('mobile-mockup-name');
-        if (elName) elName.innerText = getAnimalLocalizedName(elephant, lang);
-
-        const elZone = document.getElementById('mobile-mockup-zone');
-        if (elZone) elZone.innerText = getAnimalLocalizedZone(elephant, lang);
-      }
-      const elBtnQr = document.getElementById('mobile-mockup-btn-qr');
-      if (elBtnQr) elBtnQr.innerText = t.phoneScanBtn;
-    }
-
-    // TỰ ĐỘNG DỊCH VÀ ĐỔI TOÀN BỘ GIAO DIỆN KHI CHỌN NGÔN NGỮ
-    function changeLanguageVisual(lang) {
-      currentLanguage = lang || 'vi';
-      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
-
-      // 1. Đồng bộ giá trị thẻ select ngôn ngữ ở Header
-      const select = document.getElementById('header-lang-select');
-      if (select && select.value !== currentLanguage) {
-        select.value = currentLanguage;
-      }
-
-      // 2. Thanh Menu điều hướng
-      const navMap = document.getElementById('nav-text-map');
-      if (navMap) navMap.innerText = t.navMap;
-      const navMobile = document.getElementById('nav-text-mobile');
-      if (navMobile) navMobile.innerText = t.navMobile;
-      const navAdmin = document.getElementById('nav-text-admin');
-      if (navAdmin) navAdmin.innerText = t.navAdmin;
-
-      // 3. Khung Tìm Kiếm & Các nút Pills thao tác nhanh
-      const searchInp = document.getElementById('gmap-search-input');
-      if (searchInp) searchInp.placeholder = t.searchPlaceholder;
-      const pillAll = document.getElementById('pill-all');
-      if (pillAll) pillAll.innerText = t.pillAll;
-      const pillEle = document.getElementById('pill-elephant');
-      if (pillEle) pillEle.innerText = t.pillElephant;
-      const pillTig = document.getElementById('pill-tiger');
-      if (pillTig) pillTig.innerText = t.pillTiger;
-      const pillGir = document.getElementById('pill-giraffe');
-      if (pillGir) pillGir.innerText = t.pillGiraffe;
-      const pillG1 = document.getElementById('pill-gate1');
-      if (pillG1) pillG1.innerText = t.pillGate1;
-      const pillG2 = document.getElementById('pill-gate2');
-      if (pillG2) pillG2.innerText = t.pillGate2;
-
-      // 4. Huy hiệu vệ tinh Google Maps
-      const satBadge = document.getElementById('satellite-badge-text');
-      if (satBadge) satBadge.innerText = t.satelliteBadge;
-
-      // 5. Cập nhật nhãn lớp bản đồ số Google Maps theo ngôn ngữ
-      if (googleMapLayer && map) {
-        googleMapLayer.setUrl(getGoogleMapTileUrl(currentMapType, currentLanguage));
-      }
-      const textDig = document.getElementById('text-map-digital');
-      if (textDig && t.mapDigital) textDig.innerText = t.mapDigital;
-      const textSat = document.getElementById('text-map-satellite');
-      if (textSat && t.mapSatellite) textSat.innerText = t.mapSatellite;
-
-      // 6. Cập nhật Place Card (nếu đang mở hoặc khi mở)
-      const cardAutoDetect = document.getElementById('card-auto-detect-text');
-      if (cardAutoDetect) cardAutoDetect.innerText = t.autoDetect;
-      const cardAudioTitle = document.getElementById('card-audio-title');
-      if (cardAudioTitle) cardAudioTitle.innerText = t.audioGuideHeading;
-      const cardLangTag = document.getElementById('card-lang-tag');
-      if (cardLangTag) cardLangTag.innerText = t.langCardTag;
-      const cardBtnListen = document.getElementById('card-btn-listen-text');
-      if (cardBtnListen) cardBtnListen.innerText = t.btnListen;
-      const cardBtnStop = document.getElementById('card-btn-stop-text');
-      if (cardBtnStop) cardBtnStop.innerText = t.btnStop;
-
-      if (currentSelectedAnimal) {
-        updatePlaceCard(currentSelectedAnimal);
-      }
-
-      // 7. Cập nhật Ghim động vật & Ghim các cổng trên Google Maps
-      renderMapAnimals(zooAnimals);
-      renderGateMarkers();
-
-      // 8. Cập nhật tiêu đề & Danh sách 8 thẻ chuồng thú bên dưới
-      const gridTitle = document.getElementById('grid-heading-title');
-      if (gridTitle) gridTitle.innerText = t.gridHeading;
-      const gridDesc = document.getElementById('grid-heading-desc');
-      if (gridDesc) gridDesc.innerText = t.gridSubheading;
-      const gridBadge = document.getElementById('grid-heading-badge');
-      if (gridBadge) gridBadge.innerText = t.gridBadge;
-      renderAnimalsGrid(zooAnimals);
-
-      // 9. Cập nhật Section Mô Phỏng Di Động
-      const mobBadge = document.getElementById('mobile-badge-text');
-      if (mobBadge) mobBadge.innerText = t.mobileBadge;
-      const mobTitle = document.getElementById('mobile-title-text');
-      if (mobTitle) mobTitle.innerText = t.mobileTitle;
-      const mobDesc = document.getElementById('mobile-desc-text');
-      if (mobDesc) mobDesc.innerText = t.mobileDesc;
-
-      const f1Title = document.getElementById('feature-1-title');
-      if (f1Title) f1Title.innerText = t.feature1Title;
-      const f1Desc = document.getElementById('feature-1-desc');
-      if (f1Desc) f1Desc.innerText = t.feature1Desc;
-
-      const f2Title = document.getElementById('feature-2-title');
-      if (f2Title) f2Title.innerText = t.feature2Title;
-      const f2Desc = document.getElementById('feature-2-desc');
-      if (f2Desc) f2Desc.innerText = t.feature2Desc;
-
-      const f3Title = document.getElementById('feature-3-title');
-      if (f3Title) f3Title.innerText = t.feature3Title;
-      const f3Desc = document.getElementById('feature-3-desc');
-      if (f3Desc) f3Desc.innerText = t.feature3Desc;
-
-      const btnTryQr = document.getElementById('btn-try-qr-text');
-      if (btnTryQr) btnTryQr.innerText = t.btnTryQr;
-      const btnAdminQr = document.getElementById('btn-admin-qr-text');
-      if (btnAdminQr) btnAdminQr.innerText = t.btnAdminQr;
-
-      updateMobileMockup(currentLanguage);
-
-      // 10. Cập nhật Modal quét QR code
-      const qrTitle = document.getElementById('qr-modal-title');
-      if (qrTitle) qrTitle.innerText = t.qrModalTitle;
-      const qrDetect = document.getElementById('qr-modal-detecting-text');
-      if (qrDetect) qrDetect.innerText = t.qrModalDetecting;
-      const qrSim = document.getElementById('qr-modal-simulate-text');
-      if (qrSim) qrSim.innerText = t.qrModalSimulate;
-      const qrClose = document.getElementById('qr-modal-close-text');
-      if (qrClose) qrClose.innerText = t.qrModalClose;
-
-      // 11. Cập nhật Footer
-      const footerAddr = document.getElementById('footer-address');
-      if (footerAddr) footerAddr.innerHTML = `<strong>Thảo Cầm Viên</strong> — ${t.footerAddress}`;
-      const footerSat = document.getElementById('footer-satellite');
-      if (footerSat) footerSat.innerText = t.footerSatellite;
-      const footerAdm = document.getElementById('footer-admin');
-      if (footerAdm) footerAdm.innerText = t.footerAdmin;
-
-      // Lưu lựa chọn ngôn ngữ
-      try {
-        localStorage.setItem('ZOO_SELECTED_LANG', currentLanguage);
-      } catch(e) {}
-    }
-
-    // Lọc tìm kiếm theo từ khóa (hỗ trợ cả tiếng Việt lẫn ngôn ngữ đang chọn)
     function filterAnimalsSearch(query) {
-      const q = (query || '').trim().toLowerCase();
-      const filtered = zooAnimals.filter(a => {
-        const locName = getAnimalLocalizedName(a, currentLanguage).toLowerCase();
-        const locZone = getAnimalLocalizedZone(a, currentLanguage).toLowerCase();
-        const viName = (a.name || '').toLowerCase();
-        const sciname = (a.sciname || a.scientificName || '').toLowerCase();
-        return locName.includes(q) || viName.includes(q) || locZone.includes(q) || sciname.includes(q);
-      });
-      renderAnimalsGrid(filtered);
-
-      if (filtered.length > 0 && q.length > 1) {
-        selectAnimal(filtered[0]);
-      }
+      renderAnimalsGrid(zooAnimals);
     }
 
     function clearSearch() {
@@ -1628,85 +727,14 @@
       renderAnimalsGrid(zooAnimals);
     }
 
-    function filterByTag(tag) {
-      if (tag === 'all') {
-        renderAnimalsGrid(zooAnimals);
-      }
-    }
-
-    function selectAnimalById(id) {
-      const strId = String(id).toLowerCase();
-      const a = zooAnimals.find(item => {
-        const itemStrId = String(item.id).toLowerCase();
-        return itemStrId === strId ||
-               itemStrId === ('zoo-' + strId) ||
-               strId === ('zoo-' + itemStrId) ||
-               (item.name && item.name.toLowerCase().includes(strId));
-      });
-      if (a) selectAnimal(a);
-    }
-
-    // Render danh sách các thẻ thú bên dưới chuẩn ngôn ngữ đang chọn
-    function renderAnimalsGrid(animals) {
-      const grid = document.getElementById('animals-grid');
-      if (!grid) return;
-      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
-
-      if (!animals || animals.length === 0) {
-        const notFoundText = {
-          vi: 'Không tìm thấy chuồng thú phù hợp với tìm kiếm.',
-          en: 'No matching animal exhibits found.',
-          fr: 'Aucun enclos trouvé correspondant à votre recherche.',
-          zh: '未找到匹配的动物展区。',
-          ja: '一致する動物展示が見つかりませんでした。'
-        };
-        grid.innerHTML = `<div class="col-span-full text-center py-6 text-xs text-slate-500 font-bold bg-white rounded-2xl border border-slate-200 p-6">${notFoundText[currentLanguage] || notFoundText['vi']}</div>`;
-        return;
-      }
-
-      grid.innerHTML = animals.map(a => {
-        const localizedName = getAnimalLocalizedName(a, currentLanguage);
-        const localizedZone = getAnimalLocalizedZone(a, currentLanguage);
-        const localizedNarrative = getAnimalLocalizedNarrative(a, currentLanguage);
-
-        return `
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition">
-          <div>
-            <div class="h-36 overflow-hidden relative bg-slate-100">
-              <img src="${a.img || a.imageUrl}" alt="${localizedName}" class="w-full h-full object-cover" />
-              <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[10px] font-bold text-white shadow-sm" style="background:${a.color}">
-                ${localizedZone}
-              </span>
-            </div>
-            <div class="p-3 space-y-1">
-              <h4 class="text-sm font-black text-slate-900 flex items-center space-x-1.5">
-                <span>${a.icon}</span> <span>${localizedName}</span>
-              </h4>
-              <p class="text-[11px] text-slate-400 italic">${a.sciname || a.scientificName || ''}</p>
-              <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed mt-1">${localizedNarrative}</p>
-            </div>
-          </div>
-          <div class="p-3 pt-0 space-y-1.5">
-            <!-- Nút Nghe Thuyết Minh: thuần giao diện hiển thị, chưa có chức năng âm thanh theo yêu cầu -->
-            <button type="button" class="w-full py-1.5 px-2 rounded-xl bg-emerald-50 text-emerald-800 font-extrabold text-xs flex items-center justify-center space-x-1.5 border border-emerald-200">
-              <i class="fa-solid fa-headphones text-emerald-600"></i>
-              <span>${t.btnListen}</span>
-            </button>
-            <button onclick="selectAnimalById('${a.id}')" class="w-full py-1.5 px-2 rounded-xl bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 font-bold text-xs flex items-center justify-center space-x-1 transition cursor-pointer">
-              <i class="fa-solid fa-location-dot"></i>
-              <span>${t.btnViewOnMap}</span>
-            </button>
-          </div>
-        </div>
-      `;}).join('');
-    }
-  
-    function scrollToMap(e) { if(e) e.preventDefault();
+    function scrollToMap(e) {
+      if(e) e.preventDefault();
       const el = document.getElementById('section-map');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function scrollToMobile(e) { if(e) e.preventDefault();
+    function scrollToMobile(e) {
+      if(e) e.preventDefault();
       const el = document.getElementById('section-mobile');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -1726,13 +754,7 @@
         modal.classList.remove('flex');
       }
     }
-
-    function simulateScanAnimal(id) {
-      closeQrScannerModal();
-      selectAnimalById(id);
-      scrollToMap();
-    }
-</script>
+  </script>
 
   <!-- ================= MODAL QUÉT QR MÔ PHỎNG ================= -->
   <div id="qr-scan-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
@@ -1747,19 +769,13 @@
         </button>
       </div>
 
-      <!-- Khung Camera Quét Mã -->
+      <!-- Khu vực QR chờ dữ liệu từ cơ sở dữ liệu -->
       <div class="relative h-60 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex flex-col items-center justify-center p-4 text-center">
-        <div class="w-40 h-40 border-2 border-emerald-400/80 rounded-2xl relative flex items-center justify-center">
-          <div class="absolute inset-x-0 h-0.5 bg-emerald-400 shadow-md shadow-emerald-400 animate-pulse"></div>
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VoiChauA_ThaoCamVien" alt="Mã QR Mẫu" class="w-24 h-24 object-contain rounded-lg opacity-90" />
-        </div>
-        <p id="qr-modal-detecting-text" class="text-[11px] text-slate-400 mt-2.5">Đang nhận diện mã QR tại chuồng Voi Châu Á...</p>
+        <i class="fa-solid fa-qrcode text-4xl text-slate-600" aria-hidden="true"></i>
+        <p id="qr-modal-detecting-text" class="text-[11px] text-slate-400 mt-3">Chưa có dữ liệu QR để hiển thị.</p>
       </div>
 
       <div class="text-center space-y-2 pt-1">
-        <button onclick="simulateScanAnimal('zoo-1')" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/30 transition">
-          <span id="qr-modal-simulate-text">Mô Phỏng Quét Thành Công Voi Châu Á</span>
-        </button>
         <button onclick="closeQrScannerModal()" class="w-full py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700 transition">
           <span id="qr-modal-close-text">Đóng</span>
         </button>

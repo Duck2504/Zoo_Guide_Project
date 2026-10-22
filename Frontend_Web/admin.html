@@ -174,12 +174,13 @@
     <header class="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex items-center justify-between">
         
-        <!-- Brand Logo (Chỉ hiện chữ Thảo Cầm Viên) -->
-        <div class="flex items-center">
-          <a href="index.html" class="text-lg sm:text-xl font-black text-white tracking-tight hover:text-emerald-400 transition" title="Về trang bản đồ du khách">
-            Thảo Cầm Viên
-          </a>
-        </div>
+                <!-- Brand Logo: Biểu tượng 🦁 và chữ Thảo Cầm Viên bên trái (Bấm để xem giao diện người dùng) -->
+        <a href="index.html" class="flex items-center space-x-2.5 group shrink-0" title="Chuyển sang trang giao diện người dùng">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-lg shadow-sm group-hover:scale-105 transition">
+            🦁
+          </div>
+          <span class="text-base sm:text-lg font-black text-white tracking-tight group-hover:text-emerald-400 transition">Thảo Cầm Viên</span>
+        </a>
 
         <!-- Admin Profile Info & Quick Actions -->
         <div class="flex items-center space-x-3">
@@ -192,11 +193,10 @@
 
 
 
-          <!-- Link to User Front-End -->
-          <a href="index.html" target="_blank" class="px-3 py-2 rounded-xl bg-zoo-700 hover:bg-zoo-600 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm" title="Mở trang bản đồ du khách">
+                    <!-- Link to User Front-End -->
+          <a href="index.html" class="px-3 py-2 rounded-xl bg-zoo-700 hover:bg-zoo-600 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm cursor-pointer" title="Chuyển sang trang giao diện người dùng">
             <i class="fa-solid fa-eye"></i>
-            <span class="hidden md:inline">Xem Giao Diện Người Dùng</span>
-            <span class="md:hidden">Xem Web</span>
+            <span>Xem Giao Diện</span>
           </a>
 
           <!-- Logout Button -->
@@ -247,7 +247,7 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <span class="text-xs text-slate-500 font-bold block">Tổng Số Loài Quản Lý</span>
-            <span id="kpi-total-animals" class="text-2xl font-black text-slate-900">8</span>
+            <span id="kpi-total-animals" class="text-2xl font-black text-slate-900">0</span>
           </div>
           <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
             <i class="fa-solid fa-paw"></i>
@@ -257,7 +257,7 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <span class="text-xs text-slate-500 font-bold block">Số Phân Khu Sở Thú</span>
-            <span class="text-2xl font-black text-slate-900">6</span>
+            <span id="kpi-total-zones" class="text-2xl font-black text-slate-900">0</span>
           </div>
           <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
             <i class="fa-solid fa-layer-group"></i>
@@ -267,7 +267,7 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
             <span class="text-xs text-slate-500 font-bold block">Điểm Geofence GPS</span>
-            <span id="kpi-geofence-count" class="text-2xl font-black text-slate-900">8</span>
+            <span id="kpi-geofence-count" class="text-2xl font-black text-slate-900">0</span>
           </div>
           <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg">
             📍
@@ -276,160 +276,14 @@
 
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <span class="text-xs text-slate-500 font-bold block">Trạng Thái Đồng Bộ</span>
-            <span class="text-xs font-bold text-emerald-600 block mt-1 flex items-center"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block mr-1.5"></span>Đã kết nối</span>
+            <span class="text-xs text-slate-500 font-bold block">Trạng Thái CSDL</span>
+            <span id="kpi-system-mode" class="text-xs font-bold text-slate-500 block mt-1 flex items-center"><span class="w-2 h-2 rounded-full bg-slate-400 inline-block mr-1.5"></span>Chưa có CSDL (Sẽ hiển thị khi kết nối CSDL)</span>
           </div>
-          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-lg">
             ⚡
           </div>
         </div>
       </div>
-
-      <!-- ================= TAB 1: THÊM MỚI LOÀI ĐỘNG VẬT ================= -->
-      <section id="pane-create" class="admin-pane space-y-6">
-        
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-2">
-            <div>
-              <h2 class="text-xl font-black text-slate-900 tracking-tight">Thêm Mới Loài Động Vật & Bài Thuyết Minh</h2>
-              <p class="text-xs text-slate-500">Dữ liệu sau khi lưu sẽ đồng bộ ngay lập tức sang trang Khám phá (index.html) cho du khách.</p>
-            </div>
-            <button onclick="resetCreateForm()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition">
-              <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Xóa Trắng Form
-            </button>
-          </div>
-
-          <!-- Create Animal Form Grid -->
-          <form id="admin-create-form" onsubmit="handleCreateAnimal(event)" class="space-y-6">
-            
-            <!-- Section 1: Biology Specs -->
-            <div class="space-y-4">
-              <div class="flex items-center space-x-2 text-xs font-black uppercase text-zoo-700 tracking-wider">
-                <span class="w-6 h-6 rounded-lg bg-zoo-100 text-zoo-800 flex items-center justify-center">1</span>
-                <span>Thông Tin Sinh Học & Loài Thú</span>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Tên Loài Thú (Tiếng Việt) <span class="text-red-500">*</span></label>
-                  <input type="text" id="c-name" required placeholder="VD: Báo Hoa Mai, Tê Giác..." class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition" oninput="syncLiveCreatePreview()" />
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Tên Khoa Học (Latin) <span class="text-red-500">*</span></label>
-                  <input type="text" id="c-sciname" required placeholder="VD: Panthera pardus" class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition italic" oninput="syncLiveCreatePreview()" />
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Phân Khu Sở Thú <span class="text-red-500">*</span></label>
-                  <select id="c-zone" class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition" onchange="syncLiveCreatePreview()">
-                    <option value="Khu Động Vật Thảo Tự Nhiên & Móng Guốc">Khu Động Vật Thảo Tự Nhiên & Móng Guốc</option>
-                    <option value="Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)">Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)</option>
-                    <option value="Khu Thảo Nguyên & Xavan Châu Phi">Khu Thảo Nguyên & Xavan Châu Phi</option>
-                    <option value="Đảo Linh Trưởng Rừng Mưa Nhiệt Đới">Đảo Linh Trưởng Rừng Mưa Nhiệt Đới</option>
-                    <option value="Vườn Chim & Đầm Lầy Thủy Điểu">Vườn Chim & Đầm Lầy Thủy Điểu</option>
-                    <option value="Khu Bò Sát & Lưỡng Cư Cổ Đại">Khu Bò Sát & Lưỡng Cư Cổ Đại</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Tình Trạng Sách Đỏ IUCN</label>
-                  <select id="c-iucn" class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition" onchange="syncLiveCreatePreview()">
-                    <option value="CR - Cực kỳ nguy cấp">CR - Cực kỳ nguy cấp (Critically Endangered)</option>
-                    <option value="EN - Nguy cấp (Sách Đỏ IUCN)" selected>EN - Nguy cấp (Endangered)</option>
-                    <option value="VU - Sắp nguy cấp">VU - Sắp nguy cấp (Vulnerable)</option>
-                    <option value="LC - Ít lo ngại">LC - Ít lo ngại (Least Concern)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Khẩu Phần Ăn</label>
-                  <input type="text" id="c-diet" placeholder="VD: Thịt bò tươi, sườn, gà..." value="Cỏ tươi, mía, chuối" class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition" />
-                </div>
-
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Màu Sắc Nhận Diện Pin Bản Đồ</label>
-                  <input type="color" id="c-color" value="#059669" class="w-full h-11 p-1 bg-slate-50 border border-slate-300 rounded-xl cursor-pointer" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Section 2: GPS Coordinates & Geofence Picker Map -->
-            <div class="space-y-4 pt-4 border-t border-slate-200">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2 text-xs font-black uppercase text-zoo-700 tracking-wider">
-                  <span class="w-6 h-6 rounded-lg bg-zoo-100 text-zoo-800 flex items-center justify-center">2</span>
-                  <span>Tọa Độ GPS & Bán Kính Geofence Tự Động Kích Hoạt</span>
-                </div>
-                <button type="button" onclick="getCurrentDeviceGPSForCreate()" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1">
-                  <i class="fa-solid fa-crosshairs"></i>
-                  <span>Lấy GPS Thiết Bị</span>
-                </button>
-              </div>
-
-              <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <!-- Inputs & Sliders -->
-                <div class="lg:col-span-5 space-y-4">
-                  <div class="grid grid-cols-2 gap-3">
-                    <div>
-                      <label class="block text-xs font-bold text-slate-700 mb-1">Kinh Độ (Longitude) <span class="text-red-500">*</span></label>
-                      <input type="number" step="0.000001" id="c-lon" value="106.705600" required class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-zoo-500" oninput="syncPickerMapFromInputs()" />
-                    </div>
-                    <div>
-                      <label class="block text-xs font-bold text-slate-700 mb-1">Vĩ Độ (Latitude) <span class="text-red-500">*</span></label>
-                      <input type="number" step="0.000001" id="c-lat" value="10.787200" required class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-zoo-500" oninput="syncPickerMapFromInputs()" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div class="flex justify-between items-center mb-1">
-                      <label class="text-xs font-bold text-slate-700">Bán Kính Vòng Geofence Kích Hoạt:</label>
-                      <span id="c-radius-badge" class="px-2 py-0.5 rounded text-xs font-black bg-emerald-100 text-emerald-800">25 mét</span>
-                    </div>
-                    <input type="range" id="c-radius" min="10" max="60" value="25" class="w-full accent-zoo-600 cursor-pointer" oninput="updateCreateRadiusSlider(this.value)" />
-                    <p class="text-[11px] text-slate-400 mt-1">Khi du khách bước vào bán kính này, thuyết minh sẽ tự động phát.</p>
-                  </div>
-
-                  <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">URL Hình Ảnh Chuồng Thú</label>
-                    <input type="url" id="c-img" value="https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700" placeholder="https://..." class="w-full text-xs font-semibold p-3 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500" oninput="syncLiveCreatePreview()" />
-                    
-                    <!-- Quick sample images -->
-                    <div class="flex items-center space-x-2 pt-2">
-                      <span class="text-[10px] text-slate-400 font-bold">Gợi ý ảnh:</span>
-                      <button type="button" onclick="setCreateImage('https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700')" class="text-[10px] font-bold text-emerald-600 hover:underline">Voi</button>
-                      <button type="button" onclick="setCreateImage('https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=700')" class="text-[10px] font-bold text-emerald-600 hover:underline">Hổ</button>
-                      <button type="button" onclick="setCreateImage('https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=700')" class="text-[10px] font-bold text-emerald-600 hover:underline">Hươu</button>
-                      <button type="button" onclick="setCreateImage('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700')" class="text-[10px] font-bold text-emerald-600 hover:underline">Hồng Hạc</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Leaflet Picker Map (Google Satellite Hybrid Sắc Nét) -->
-                <div class="lg:col-span-7">
-                  <div class="rounded-2xl overflow-hidden border border-slate-300 shadow-md relative">
-                    <div id="admin-picker-map" class="w-full h-[380px] z-10"></div>
-                    
-                    <!-- Top Controller: Chuyển Bản Đồ Số & Vệ Tinh -->
-                    <div class="absolute top-2.5 right-2.5 z-20 flex items-center space-x-1.5 bg-white/95 backdrop-blur-sm p-1 rounded-xl shadow-md border border-slate-300">
-                      <button type="button" id="btn-picker-roadmap" onclick="setAdminPickerMapType('roadmap')" class="px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-600 text-white transition">
-                        🗺️ Bản đồ số
-                      </button>
-                      <button type="button" id="btn-picker-sat" onclick="setAdminPickerMapType('satellite')" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-700 hover:bg-slate-100 transition">
-                        🛰️ Vệ tinh
-                      </button>
-                      <button type="button" onclick="resetPickerToDefaultCenter()" class="px-2 py-1 rounded-lg bg-slate-800 text-white text-[10px] font-bold hover:bg-slate-700 transition" title="Về tâm">
-                        🎯 Voi
-                      </button>
-                    </div>
-
-                    <!-- Bottom Notification -->
-                    <div class="absolute bottom-2.5 left-2.5 right-2.5 z-20 bg-slate-900/90 backdrop-blur-sm text-white px-3.5 py-2 rounded-xl text-[11px] flex justify-between items-center pointer-events-none border border-slate-700 shadow-lg">
-                      <span><i class="fa-solid fa-crosshairs text-emerald-400 mr-1.5"></i><b>Vệ tinh Google Maps:</b> Nhấp chuột hoặc kéo ghim 📍 trên ảnh vệ tinh thực tế để chọn tọa độ chuẩn xác nhất!</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             <!-- Section 3: Audio Narrative -->
@@ -446,7 +300,7 @@
               </div>
 
               <div>
-                <textarea id="c-desc" rows="4" required placeholder="Nhập nội dung thuyết minh đầy đủ, truyền cảm giới thiệu về tập tính, nguồn gốc, chế độ dinh dưỡng và nỗ lực bảo tồn loài động vật này..." class="w-full text-xs font-medium p-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition leading-relaxed" oninput="syncLiveCreatePreview()">Chào mừng quý khách đến với khu vực nuôi dưỡng động vật tại Thảo Cầm Viên Sài Gòn. Loài thú này đóng vai trò quan trọng trong hệ sinh thái tự nhiên và được bảo tồn nghiêm ngặt.</textarea>
+                <textarea id="c-desc" rows="4" required placeholder="Nhập nội dung thuyết minh đầy đủ, truyền cảm giới thiệu về tập tính, nguồn gốc, chế độ dinh dưỡng và nỗ lực bảo tồn loài động vật này..." class="w-full text-xs font-medium p-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition leading-relaxed" oninput="syncLiveCreatePreview()" placeholder="Nhập nội dung thuyết minh giới thiệu về tập tính, nguồn gốc, dinh dưỡng..."></textarea>
               </div>
             </div>
 
@@ -518,7 +372,7 @@
                 <h2 class="text-xl font-black text-slate-900 tracking-tight">Bản Đồ Quản Trị Tọa Độ & Toàn Bộ Vòng Geofence</h2>
                 <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
                   <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span id="overview-count-badge">8 loài thú</span>
+                  <span id="overview-count-badge">Chưa có dữ liệu</span>
                 </span>
               </div>
               <p class="text-xs text-slate-500 mt-1">Bản đồ vệ tinh Google Maps trực quan độ phân giải cao — Toàn bộ tọa độ chuồng thú, bán kính kích hoạt & 2 cổng đón khách.</p>
@@ -529,7 +383,7 @@
                 <i class="fa-solid fa-expand text-emerald-600"></i>
                 <span>Xem Toàn Cảnh</span>
               </button>
-              <a href="index.html" target="_blank" class="px-3.5 py-2 rounded-xl bg-zoo-700 hover:bg-zoo-600 text-white font-bold text-xs flex items-center space-x-1.5 transition shadow-sm" title="Mở trang bản đồ vệ tinh của du khách">
+              <a href="index.html" class="px-3.5 py-2 rounded-xl bg-zoo-700 hover:bg-zoo-600 text-white font-bold text-xs flex items-center space-x-1.5 transition shadow-sm cursor-pointer" title="Xem trên web du khách">
                 <i class="fa-solid fa-eye"></i>
                 <span>Xem Trên Web Du Khách</span>
               </a>
@@ -559,6 +413,11 @@
               </button>
             </div>
             <div id="admin-overview-map" class="w-full h-[620px] z-10"></div>
+            <div id="admin-overview-map-empty" class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+              <div class="rounded-2xl bg-white/95 px-5 py-3 text-center text-xs font-bold text-slate-600 shadow-lg border border-slate-200">
+                Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.
+              </div>
+            </div>
             
             <!-- Chú Thích Nổi Góc Dưới Bản Đồ -->
             <div class="absolute bottom-3 left-3 z-20 bg-slate-900/90 backdrop-blur-md text-white px-3.5 py-2.5 rounded-xl text-xs border border-slate-700 shadow-lg pointer-events-none flex flex-wrap items-center gap-3">
@@ -608,10 +467,10 @@
 
               <!-- Animal Main Info -->
               <div class="space-y-1 text-center">
-                <h2 id="sign-name" class="text-2xl font-black text-slate-900 tracking-tight">Voi Châu Á</h2>
-                <p id="sign-sciname" class="text-xs font-serif italic text-slate-500">Elephas maximus</p>
-                <div class="inline-block mt-1 px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-extrabold border border-emerald-200" id="sign-zone">
-                  Khu Động Vật Thảo Tự Nhiên
+                <h2 id="sign-name" class="text-2xl font-black text-slate-900 tracking-tight">Chưa có dữ liệu động vật</h2>
+                <p id="sign-sciname" class="text-xs font-serif italic text-slate-500">Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu</p>
+                <div class="inline-block mt-1 px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-extrabold border border-slate-200" id="sign-zone">
+                  Chưa có phân khu
                 </div>
               </div>
 
@@ -857,144 +716,7 @@
   <!-- ================= SCRIPTS ================= -->
   <script>
 
-const DEFAULT_ZOO_ANIMALS = [
-  {
-    id: "zoo-1",
-icon: "🐘",
-    name: "Voi Châu Á",
-    scientificName: "Elephas maximus",
-    zone: "Khu Động Vật Thảo Tự Nhiên & Móng Guốc",
-    conservationStatus: "EN - Nguy cấp (Sách Đỏ IUCN)",
-    diet: "Ăn thực vật (Cỏ tươi, mía, bí đỏ, chuối)",
-    coordinates: [106.7056, 10.7872],
-    radius_meters: 25,
-    color: "#059669",
-    mapLeft: "57.5%",
-    mapTop: "36.5%",
-    imageUrl: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?w=700",
-    descriptionVi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc theo chế độ dinh dưỡng giàu chất xơ với cỏ tươi, mía, chuối và bí đỏ. Hãy cùng chung tay bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
-    audioLength: "01:25"
-  },
-  {
-    id: "zoo-2",
-icon: "🐅",
-    name: "Hổ Đông Dương",
-    scientificName: "Panthera tigris corbetti",
-    zone: "Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)",
-    conservationStatus: "CR - Cực kỳ nguy cấp",
-    diet: "Ăn thịt tươi (Bò, sườn heo, gà)",
-    coordinates: [106.7061, 10.7885],
-    radius_meters: 20,
-    color: "#dc2626",
-    mapLeft: "63.0%",
-    mapTop: "23.5%",
-    imageUrl: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?w=700",
-    descriptionVi: "Quý khách đang đứng trước khu nuôi dưỡng Hổ Đông Dương - chúa tể của núi rừng Đông Nam Á. Với bộ lông vàng cam rực rỡ và những vằn đen độc bản không con nào giống con nào, hổ sở hữu sức mạnh và khả năng bơi lội đáng nể. Hổ Đông Dương hiện được xếp vào nhóm động vật cực kỳ nguy cấp cần được bảo tồn nghiêm ngặt.",
-    audioLength: "01:10"
-  },
-  {
-    id: "zoo-3",
-icon: "🦒",
-    name: "Hươu Cao Cổ & Ngựa Vằn",
-    scientificName: "Giraffa camelopardalis & Equus quagga",
-    zone: "Khu Thảo Nguyên & Xavan Châu Phi",
-    conservationStatus: "VU - Sắp nguy cấp",
-    diet: "Ăn thực vật (Lá keo cao, cỏ khô)",
-    coordinates: [106.7045, 10.7868],
-    radius_meters: 30,
-    color: "#f59e0b",
-    mapLeft: "42.0%",
-    mapTop: "42.0%",
-    imageUrl: "https://images.unsplash.com/photo-1534567153574-2b12153a87f0?w=700",
-    descriptionVi: "Khuôn viên thảo nguyên xanh mát mở ra trước mắt quý khách là ngôi nhà chung của Hươu Cao Cổ và Ngựa Vằn. Chiếc cổ dài đặc trưng giúp hươu vươn tới những ngọn cây keo cao nhất. Trong khi đó, bộ lông sọc vằn của ngựa vằn tạo hiệu ứng thị giác xua đuổi côn trùng và đánh lừa động vật ăn thịt trên đồng cỏ hoang dã.",
-    audioLength: "01:35"
-  },
-  {
-    id: "zoo-4",
-icon: "🐒",
-    name: "Vượn Má Vàng & Linh Trưởng",
-    scientificName: "Nomascus gabriellae",
-    zone: "Đảo Linh Trưởng Rừng Mưa Nhiệt Đới",
-    conservationStatus: "EN - Nguy cấp đặc hữu",
-    diet: "Ăn tạp (Trái cây rừng, lá non, côn trùng)",
-    coordinates: [106.7049, 10.7880],
-    radius_meters: 20,
-    color: "#7c3aed",
-    mapLeft: "46.5%",
-    mapTop: "28.5%",
-    imageUrl: "https://images.unsplash.com/photo-1540573133985-87b6da6d54a9?w=700",
-    descriptionVi: "Tiếng hót lảnh lót vang vọng cả một góc Vườn Thú chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Vườn Thú là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
-    audioLength: "01:15"
-  },
-  {
-    id: "zoo-5",
-icon: "🦩",
-    name: "Vườn Chim Nhiệt Đới & Hồng Hạc",
-    scientificName: "Phoenicopterus ruber",
-    zone: "Vườn Chim & Đầm Lầy Thủy Điểu",
-    conservationStatus: "LC - Ít lo ngại",
-    diet: "Thủy sinh & Giáp xác giàu Carotenoid",
-    coordinates: [106.7068, 10.7878],
-    radius_meters: 25,
-    color: "#ec4899",
-    mapLeft: "71.0%",
-    mapTop: "32.0%",
-    imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=700",
-    descriptionVi: "Đầm lầy rực rỡ sắc hồng là nơi sinh sống của đàn Chim Hồng Hạc cùng hàng chục loài chim quý hiếm như Vẹt Macaw, Cò Sen và Giang Sen. Màu hồng đặc trưng của chim đến từ sắc tố carotenoid có trong các loài giáp xác và tảo nhỏ mà chúng ăn hằng ngày dưới nước.",
-    audioLength: "01:05"
-  },
-  {
-    id: "zoo-6",
-icon: "🐊",
-    name: "Đầm Cá Sấu Nước Lợ",
-    scientificName: "Crocodylus porosus",
-    zone: "Khu Bò Sát & Lưỡng Cư Cổ Đại",
-    conservationStatus: "LC - Được bảo vệ nghiêm ngặt",
-    diet: "Thịt tươi sống & cá lớn",
-    coordinates: [106.7072, 10.7865],
-    radius_meters: 25,
-    color: "#2563eb",
-    mapLeft: "76.0%",
-    mapTop: "48.0%",
-    imageUrl: "https://images.unsplash.com/photo-1551085254-e96b210db58a?w=700",
-    descriptionVi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
-    audioLength: "01:20"
-  },
-  {
-    id: "zoo-7",
-icon: "🦏",
-    name: "Tê Giác Một Sừng",
-    scientificName: "Rhinoceros unicornis",
-    zone: "Khu Động Vật Thảo Tự Nhiên & Móng Guốc",
-    conservationStatus: "VU - Sắp nguy cấp",
-    diet: "Cỏ voi, cành cây non, rễ cây",
-    coordinates: [106.7051, 10.7865],
-    radius_meters: 30,
-    color: "#0d9488",
-    mapLeft: "51.0%",
-    mapTop: "45.0%",
-    imageUrl: "https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?w=700",
-    descriptionVi: "Tê giác là một trong những loài thú to lớn cổ xưa còn tồn tại đến ngày nay với lớp da dầy xếp nếp như áo giáp chiến binh. Chiếc sừng đặc trưng được cấu tạo từ keratin giống như móng tay con người. Chúng đóng vai trò cực kỳ quan trọng trong việc cân bằng hệ sinh thái đồng cỏ.",
-    audioLength: "01:18"
-  },
-  {
-    id: "zoo-8",
-icon: "🐻",
-    name: "Gấu Ngựa Đông Dương",
-    scientificName: "Ursus thibetanus",
-    zone: "Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)",
-    conservationStatus: "VU - Sắp nguy cấp",
-    diet: "Ăn tạp (Mật ong, cá, quả mọng, trứng)",
-    coordinates: [106.7065, 10.7888],
-    radius_meters: 20,
-    color: "#475569",
-    mapLeft: "67.5%",
-    mapTop: "19.5%",
-    imageUrl: "https://images.unsplash.com/photo-1589656966895-2f33e7653819?w=700",
-    descriptionVi: "Gấu ngựa sở hữu vệt lông màu vàng hình chữ Y hoặc chữ V đặc trưng trước ngực, nổi bật trên nền lông đen bóng. Chúng là những vận động viên leo trèo cừ khôi và có thói quen làm tổ trên các chảng cây cao để nghỉ ngơi và ăn trái cây rừng.",
-    audioLength: "01:12"
-  }
-];
+const DEFAULT_ZOO_ANIMALS = [];
 
 const MULTILINGUAL_TOUR_DATA = {
   "zoo-1": {
@@ -1082,7 +804,7 @@ const MULTILINGUAL_TOUR_DATA = {
       return defaultIcons[index % defaultIcons.length];
     }
 
-const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
+const STORAGE_KEY = 'ZOO_ANIMALS_DATA_V2';
     const SESSION_KEY = 'ZOO_ADMIN_SESSION';
 
     function getZooAnimals() {
@@ -1093,7 +815,7 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
         }
       } catch (err) {}
-      return DEFAULT_ZOO_ANIMALS;
+      return [];
     }
 
     let ZOO_ANIMALS = getZooAnimals();
@@ -1268,11 +990,29 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
       renderAdminTable();
       populateSignageAnimalSelect();
       setTimeout(initAdminPickerMap, 200);
+      renderSignageForAnimal(null);
     }
 
     function updateKpis() {
-      document.getElementById('kpi-total-animals').innerText = ZOO_ANIMALS.length;
-      document.getElementById('kpi-geofence-count').innerText = ZOO_ANIMALS.length;
+      const count = ZOO_ANIMALS ? ZOO_ANIMALS.length : 0;
+      const elAnimals = document.getElementById('kpi-total-animals');
+      if (elAnimals) elAnimals.innerText = count;
+
+      const elGeofence = document.getElementById('kpi-geofence-count');
+      if (elGeofence) elGeofence.innerText = count;
+
+      const zones = new Set((ZOO_ANIMALS || []).map(a => a.zone).filter(Boolean));
+      const elZones = document.getElementById('kpi-total-zones');
+      if (elZones) elZones.innerText = zones.size;
+
+      const elMode = document.getElementById('kpi-system-mode');
+      if (elMode) {
+        if (count > 0) {
+          elMode.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse"></span>' + count + ' loài trong hệ thống';
+        } else {
+          elMode.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-400 inline-block mr-1.5"></span>Chưa có CSDL (0 dữ liệu)';
+        }
+      }
     }
 
     // ================= TAB NAVIGATION =================
@@ -1532,7 +1272,7 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
       }
 
       if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-bold">Không có dữ liệu loài thú nào.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-bold text-xs bg-slate-50/50">Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.</td></tr>`;
         return;
       }
 
@@ -1559,7 +1299,7 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
           <td class="py-3 px-4 font-mono text-[11px] font-bold text-emerald-600">${an.radius_meters || 25}m</td>
           <td class="py-3 px-4 text-center">
             <div class="flex items-center justify-center space-x-1.5">
-              <a href="index.html?select=${an.id}" target="_blank" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition flex items-center space-x-1" title="Xem trực tiếp trên Google Maps của du khách">
+              <a href="index.html?select=${an.id}" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition flex items-center space-x-1" title="Xem trực tiếp trên Google Maps của du khách">
                 <i class="fa-solid fa-eye"></i>
                 <span class="hidden xl:inline">Xem map</span>
               </a>
@@ -1688,6 +1428,10 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
 
     function renderAdminOverviewLayers() {
       if (!adminOverviewMap) return;
+      const emptyOverlay = document.getElementById('admin-overview-map-empty');
+      if (emptyOverlay) {
+        emptyOverlay.classList.toggle('hidden', ZOO_ANIMALS && ZOO_ANIMALS.length > 0);
+      }
 
       // Xóa ghim và vòng tròn cũ
       overviewMarkers.forEach(m => {
@@ -1708,7 +1452,7 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
 
       const countBadge = document.getElementById('overview-count-badge');
       if (countBadge) {
-        countBadge.innerText = `${list.length} / ${ZOO_ANIMALS.length} loài`;
+        countBadge.innerText = (ZOO_ANIMALS && ZOO_ANIMALS.length > 0) ? `${list.length} / ${ZOO_ANIMALS.length} loài` : 'Chưa có dữ liệu';
       }
 
       list.forEach((an, idx) => {
@@ -1766,7 +1510,7 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
               <button onclick="openEditModal('${an.id}')" style="background:#2563eb;color:white;padding:5px;border-radius:8px;font-size:11px;font-weight:bold;border:none;cursor:pointer;">
                 <i class="fa-solid fa-pen"></i> Sửa
               </button>
-              <a href="index.html?select=${an.id}" target="_blank" style="background:#059669;color:white;padding:5px;border-radius:8px;font-size:11px;font-weight:bold;text-align:center;text-decoration:none;display:block;">
+              <a href="index.html?select=${an.id}" style="background:#059669;color:white;padding:5px;border-radius:8px;font-size:11px;font-weight:bold;text-align:center;text-decoration:none;display:block;">
                 <i class="fa-solid fa-eye"></i> Xem Web
               </a>
             </div>
@@ -1818,6 +1562,13 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
       const sel = document.getElementById('signage-animal-select');
       if (!sel) return;
       sel.innerHTML = '';
+      if (!ZOO_ANIMALS || ZOO_ANIMALS.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.innerText = "Chưa có loài thú nào";
+        sel.appendChild(opt);
+        return;
+      }
       ZOO_ANIMALS.forEach(an => {
         const opt = document.createElement('option');
         opt.value = an.id;
@@ -1827,8 +1578,30 @@ const STORAGE_KEY = 'ZOO_ANIMALS_DATA';
     }
 
     function renderSignageForAnimal(id) {
-      const an = ZOO_ANIMALS.find(x => x.id === id) || ZOO_ANIMALS[0];
-      if (!an) return;
+      const an = id ? ZOO_ANIMALS.find(x => x.id === id) : (ZOO_ANIMALS && ZOO_ANIMALS.length > 0 ? ZOO_ANIMALS[0] : null);
+      if (!an) {
+        const signName = document.getElementById('sign-name');
+        if (signName) signName.innerText = "Chưa có dữ liệu động vật";
+        const signSci = document.getElementById('sign-sciname');
+        if (signSci) signSci.innerText = "Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu";
+        const signZone = document.getElementById('sign-zone');
+        if (signZone) signZone.innerText = "Chưa có phân khu";
+        const signDesc = document.getElementById('sign-desc');
+        if (signDesc) signDesc.innerText = "Chưa có dữ liệu bài thuyết minh. Hãy kết nối cơ sở dữ liệu.";
+        const signDiet = document.getElementById('sign-diet');
+        if (signDiet) signDiet.innerText = "—";
+        const signIucn = document.getElementById('sign-iucn');
+        if (signIucn) signIucn.innerText = "—";
+        const signCoords = document.getElementById('sign-coords');
+        if (signCoords) signCoords.innerText = "10.78760, 106.70560";
+        const signRadius = document.getElementById('sign-radius');
+        if (signRadius) signRadius.innerText = "0m";
+        const qrBox = document.getElementById('signage-qrcode-box');
+        if (qrBox) {
+          qrBox.innerHTML = '<div class="w-32 h-32 flex flex-col items-center justify-center text-center p-2 text-slate-400 text-[10px] font-bold"><i class="fa-solid fa-qrcode text-3xl mb-1 text-slate-300"></i>Chưa có mã QR</div>';
+        }
+        return;
+      }
 
       document.getElementById('sign-name').innerText = an.name;
       document.getElementById('sign-sciname').innerText = an.scientificName;

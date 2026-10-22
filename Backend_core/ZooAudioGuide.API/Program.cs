@@ -30,8 +30,6 @@ builder.Services.AddCors(options =>
 });
 var app = builder.Build();
 
-var app = builder.Build();
-
 // 1. KÍCH HOẠT CORS
 app.UseCors("AllowFE");
 
