@@ -1051,7 +1051,7 @@ export default function App() {
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', letterSpacing: '-0.3px' }}>
+          <h1 style={{ margin: 0, fontSize: '22px', fontWeight: '900', letterSpacing: '-0.3px' }}>
             HỆ THỐNG THUYẾT MINH SỞ THÚ TỰ ĐỘNG
           </h1>
         </div>
@@ -1059,9 +1059,9 @@ export default function App() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             backgroundColor: 'rgba(255,255,255,0.12)',
-            padding: '6px 14px',
+            padding: '7px 16px',
             borderRadius: '20px',
-            fontSize: '12px',
+            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -1074,9 +1074,9 @@ export default function App() {
           <div style={{
             backgroundColor: apiInfo.isConnected ? 'rgba(16, 185, 129, 0.25)' : 'rgba(239, 68, 68, 0.22)',
             border: apiInfo.isConnected ? '1px solid #34d399' : '1px solid #f87171',
-            padding: '6px 14px',
+            padding: '7px 16px',
             borderRadius: '20px',
-            fontSize: '12px',
+            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
@@ -1095,7 +1095,7 @@ export default function App() {
             </span>
           </div>
 
-          <span style={{ backgroundColor: '#047857', color: '#ffffff', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+          <span style={{ backgroundColor: '#047857', color: '#ffffff', padding: '7px 14px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
             TTS Tiếng Việt: Sẵn sàng
           </span>
         </div>
@@ -1123,13 +1123,13 @@ export default function App() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                padding: '14px 20px',
+                padding: '16px 22px',
                 border: 'none',
                 backgroundColor: 'transparent',
-                borderBottom: isActive ? '3px solid #059669' : '3px solid transparent',
-                color: isActive ? '#059669' : '#64748b',
-                fontWeight: isActive ? '800' : '600',
-                fontSize: '13px',
+                borderBottom: isActive ? '3.5px solid #059669' : '3.5px solid transparent',
+                color: isActive ? '#059669' : '#475569',
+                fontWeight: isActive ? '900' : '700',
+                fontSize: '15px',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}

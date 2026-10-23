@@ -211,39 +211,39 @@ export default function RealZooMap({
       });
       animalsLayerRef.current.addLayer(circle);
 
-      // Clean Numbered Marker Badge (No unnecessary cartoon emojis)
+      // Clean Numbered Marker Badge (Chữ to rõ, số thứ tự nổi bật)
       const iconHtml = `
-        <div style="position: relative; width: 36px; height: 36px; transform: translate(-50%, -50%); cursor: pointer;">
+        <div style="position: relative; width: 42px; height: 42px; transform: translate(-50%, -50%); cursor: pointer;">
           ${isTourTarget ? '<div class="tour-pulse-ring" style="position:absolute;inset:-6px;border-radius:50%;background:rgba(5,150,105,0.45);animation:tour-ping 1.6s infinite;"></div>' : ''}
           <div style="
-            width: 34px;
-            height: 34px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: ${isHighlighted ? '#059669' : (animal.color || '#1e293b')};
             color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 13px;
-            font-weight: 800;
-            border: 2.5px solid #ffffff;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+            font-size: 15px;
+            font-weight: 900;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.35);
             transition: transform 0.2s;
           ">${index + 1}</div>
           <div style="
             position: absolute;
-            bottom: -20px;
+            bottom: -24px;
             left: 50%;
             transform: translateX(-50%);
             white-space: nowrap;
-            background: ${isHighlighted ? '#064e3b' : 'rgba(15,23,42,0.9)'};
+            background: ${isHighlighted ? '#064e3b' : 'rgba(15,23,42,0.95)'};
             color: #ffffff;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 7px;
-            border-radius: 5px;
-            border: 1px solid ${isHighlighted ? '#34d399' : 'rgba(255,255,255,0.2)'};
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            font-size: 13px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1.5px solid ${isHighlighted ? '#34d399' : 'rgba(255,255,255,0.3)'};
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
             pointer-events: none;
           ">
             ${animal.name}
@@ -255,7 +255,7 @@ export default function RealZooMap({
         icon: L.divIcon({
           className: 'custom-animal-marker',
           html: iconHtml,
-          iconSize: [36, 36],
+          iconSize: [42, 42],
           iconAnchor: [0, 0]
         }),
         zIndexOffset: isHighlighted ? 500 : 100
@@ -270,13 +270,13 @@ export default function RealZooMap({
 
       // Clean Popup Content với Nút Đi Thử
       const popupHtml = `
-        <div style="font-family: inherit; width: 220px; padding: 4px;">
-          <div style="margin-bottom:6px;">
-            <h4 style="margin:0;font-size:14px;font-weight:800;color:#0f172a;">${animal.name}</h4>
-            <p style="margin:2px 0 0;font-size:11px;color:#64748b;font-style:italic;">${animal.scientificName}</p>
+        <div style="font-family: inherit; width: 230px; padding: 4px;">
+          <div style="margin-bottom:8px;">
+            <h4 style="margin:0;font-size:16px;font-weight:900;color:#0f172a;">${animal.name}</h4>
+            <p style="margin:2px 0 0;font-size:13px;color:#64748b;font-style:italic;">${animal.scientificName}</p>
           </div>
-          <img src="${animal.imageUrl}" alt="${animal.name}" style="width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
-          <div style="font-size:11px;color:#334155;margin-bottom:6px;line-height:1.5;">
+          <img src="${animal.imageUrl}" alt="${animal.name}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />
+          <div style="font-size:13px;color:#334155;margin-bottom:8px;line-height:1.6;">
             <div><strong>Phân khu:</strong> ${animal.zone}</div>
             <div><strong>Bán kính Geofence:</strong> ${animal.radius_meters} mét</div>
           </div>
@@ -288,19 +288,17 @@ export default function RealZooMap({
               background: #059669;
               color: #ffffff;
               border: none;
-              padding: 8px 12px;
+              padding: 10px 14px;
               border-radius: 8px;
-              font-size: 11px;
+              font-size: 13px;
               font-weight: 800;
               cursor: pointer;
               display: flex;
               align-items: center;
               justify-content: center;
-              gap: 6px;
               box-shadow: 0 3px 8px rgba(5,150,105,0.35);
             "
           >
-            <span>🚶</span>
             <span>Hình Người Đi Thử Đến Đây</span>
           </button>
         </div>
@@ -356,18 +354,18 @@ export default function RealZooMap({
           </div>
           <div style="
             position: absolute;
-            bottom: -22px;
+            bottom: -24px;
             left: 50%;
             transform: translateX(-50%);
             white-space: nowrap;
             background: ${isSelectedGate ? '#78350f' : 'rgba(120,53,15,0.95)'};
             color: #ffffff;
-            font-size: 11px;
+            font-size: 13px;
             font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 5px;
-            border: 1px solid #fcd34d;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            padding: 3px 10px;
+            border-radius: 6px;
+            border: 1.5px solid #fcd34d;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
             pointer-events: none;
           ">
             ${gate.shortName}
@@ -386,24 +384,24 @@ export default function RealZooMap({
       });
 
       const popupHtml = `
-        <div style="font-family: inherit; width: 230px; padding: 4px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <div style="width:30px;height:30px;border-radius:8px;background:#d97706;display:flex;align-items:center;justify-content:center;color:#ffffff;flex-shrink:0;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <div style="font-family: inherit; width: 240px; padding: 4px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <div style="width:32px;height:32px;border-radius:8px;background:#d97706;display:flex;align-items:center;justify-content:center;color:#ffffff;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 21h18"/>
                 <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
                 <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
               </svg>
             </div>
             <div>
-              <h4 style="margin:0;font-size:13px;font-weight:800;color:#78350f;">${gate.name}</h4>
-              <p style="margin:1px 0 0;font-size:10px;color:#64748b;">${gate.address}</p>
+              <h4 style="margin:0;font-size:15px;font-weight:900;color:#78350f;">${gate.name}</h4>
+              <p style="margin:2px 0 0;font-size:12px;color:#64748b;">${gate.address}</p>
             </div>
           </div>
-          <p style="margin:0 0 8px;font-size:11px;color:#475569;line-height:1.4;">
+          <p style="margin:0 0 10px;font-size:12px;color:#475569;line-height:1.5;">
             ${gate.subtitle}
           </p>
-          <div style="display:flex;flex-direction:column;gap:5px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
             <button
               type="button"
               onclick="window.__setTouristAtGate && window.__setTouristAtGate('${gate.id}')"
@@ -412,19 +410,17 @@ export default function RealZooMap({
                 background: #d97706;
                 color: #ffffff;
                 border: none;
-                padding: 7px 10px;
-                border-radius: 7px;
-                font-size: 11px;
+                padding: 9px 12px;
+                border-radius: 8px;
+                font-size: 13px;
                 font-weight: 800;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
                 box-shadow: 0 2px 6px rgba(217,119,6,0.3);
               "
             >
-              <span>🚶</span>
               <span>Đặt Người Đi Bộ Tại Cổng Này</span>
             </button>
             <button
@@ -435,19 +431,17 @@ export default function RealZooMap({
                 background: #059669;
                 color: #ffffff;
                 border: none;
-                padding: 7px 10px;
-                border-radius: 7px;
-                font-size: 11px;
+                padding: 9px 12px;
+                border-radius: 8px;
+                font-size: 13px;
                 font-weight: 800;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 5px;
                 box-shadow: 0 2px 6px rgba(5,150,105,0.3);
               "
             >
-              <span>🚶</span>
               <span>Đi Thử Từ Cổng Này (8 Điểm)</span>
             </button>
           </div>
@@ -483,25 +477,25 @@ export default function RealZooMap({
         <!-- Status Label Badge Above Head -->
         <div style="
           position: absolute;
-          top: -24px;
+          top: -28px;
           white-space: nowrap;
           background: ${isTouring ? '#064e3b' : '#1e3a8a'};
           color: #ffffff;
-          font-size: 11px;
-          font-weight: 800;
-          padding: 3px 9px;
-          border-radius: 12px;
+          font-size: 13px;
+          font-weight: 900;
+          padding: 4px 12px;
+          border-radius: 14px;
           border: 1.5px solid #ffffff;
-          box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+          box-shadow: 0 4px 10px rgba(0,0,0,0.35);
           display: flex;
           align-items: center;
-          gap: 5px;
+          gap: 6px;
           z-index: 10;
         ">
           <span style="
             display: inline-block;
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: ${isTouring ? '#34d399' : '#60a5fa'};
             ${isTouring ? 'animation: tour-ping 1.2s infinite;' : ''}
@@ -653,28 +647,28 @@ export default function RealZooMap({
       <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
         
         {/* Map Header & Layer Selector */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', color: '#0f172a' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '900', color: '#0f172a' }}>
                 Bản Đồ Thực Tế Sở Thú
               </h3>
-              <span style={{ backgroundColor: '#ecfdf5', color: '#059669', fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+              <span style={{ backgroundColor: '#ecfdf5', color: '#059669', fontSize: '12px', fontWeight: '800', padding: '3px 10px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
                 Live GPS WGS-84
               </span>
             </div>
-            <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b' }}>
+            <p style={{ margin: '5px 0 0', fontSize: '13px', color: '#475569', fontWeight: '500' }}>
               Tọa độ thực tế: 10.7876°N, 106.7052°E • Nhấp chuột lên bản đồ để thay đổi vị trí của bạn
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-              <span style={{ fontSize: '11px', color: '#047857', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: '6px', fontWeight: '600' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+              <span style={{ fontSize: '12px', color: '#047857', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '3px 10px', borderRadius: '6px', fontWeight: '700' }}>
                 Đường viền xanh nét đứt: Ranh giới Vườn Thú (100% động vật nằm trọn bên trong)
               </span>
             </div>
           </div>
 
           {/* Clean Map Layer Mode & Bounds Button */}
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             <button
               type="button"
               onClick={() => {
@@ -685,11 +679,11 @@ export default function RealZooMap({
               }}
               title="Căn chỉnh bản đồ khớp trọn vẹn ranh giới Vườn Thú"
               style={{
-                padding: '6px 12px',
+                padding: '8px 16px',
                 borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                border: '1px solid #10b981',
+                fontSize: '13px',
+                fontWeight: '800',
+                border: '1.5px solid #10b981',
                 cursor: 'pointer',
                 backgroundColor: '#ecfdf5',
                 color: '#047857',
@@ -703,10 +697,10 @@ export default function RealZooMap({
               type="button"
               onClick={() => setTileMode('roadmap')}
               style={{
-                padding: '6px 12px',
+                padding: '8px 16px',
                 borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
+                fontSize: '13px',
+                fontWeight: '800',
                 border: 'none',
                 cursor: 'pointer',
                 backgroundColor: tileMode === 'roadmap' ? '#059669' : 'transparent',
@@ -720,10 +714,10 @@ export default function RealZooMap({
               type="button"
               onClick={() => setTileMode('satellite')}
               style={{
-                padding: '6px 12px',
+                padding: '8px 16px',
                 borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
+                fontSize: '13px',
+                fontWeight: '800',
                 border: 'none',
                 cursor: 'pointer',
                 backgroundColor: tileMode === 'satellite' ? '#059669' : 'transparent',
@@ -737,10 +731,10 @@ export default function RealZooMap({
               type="button"
               onClick={() => setTileMode('voyager')}
               style={{
-                padding: '6px 12px',
+                padding: '8px 16px',
                 borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: 'bold',
+                fontSize: '13px',
+                fontWeight: '800',
                 border: 'none',
                 cursor: 'pointer',
                 backgroundColor: tileMode === 'voyager' ? '#059669' : 'transparent',
@@ -883,7 +877,7 @@ export default function RealZooMap({
                 </h4>
                 <div style={{ fontSize: '12px', color: '#a7f3d0', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                   <span>Vị trí hiện tại của bạn:</span>
-                  <strong style={{ color: '#fde047', backgroundColor: 'rgba(0,0,0,0.3)', padding: '2px 8px', borderRadius: '6px' }}>
+                  <strong style={{ color: '#fde047', backgroundColor: 'rgba(0,0,0,0.3)', padding: '3px 10px', borderRadius: '6px', fontSize: '13px' }}>
                     {userLocation.label || `[${userLocation.lat}, ${userLocation.lon}]`}
                   </strong>
                 </div>
@@ -900,10 +894,10 @@ export default function RealZooMap({
                     backgroundColor: '#0284c7',
                     color: '#ffffff',
                     border: '1px solid #38bdf8',
-                    padding: '10px 16px',
+                    padding: '11px 18px',
                     borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    fontWeight: '800',
                     cursor: isLocating ? 'wait' : 'pointer',
                     boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)',
                     transition: 'all 0.15s'
@@ -924,10 +918,10 @@ export default function RealZooMap({
                     backgroundColor: 'rgba(255,255,255,0.15)',
                     color: '#ffffff',
                     border: '1px solid rgba(255,255,255,0.3)',
-                    padding: '10px 14px',
+                    padding: '11px 16px',
                     borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
+                    fontSize: '13px',
+                    fontWeight: '800',
                     cursor: 'pointer'
                   }}
                 >
@@ -941,25 +935,24 @@ export default function RealZooMap({
                     backgroundColor: '#10b981',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '10px 22px',
+                    padding: '11px 24px',
                     borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: '800',
+                    fontSize: '14px',
+                    fontWeight: '900',
                     cursor: 'pointer',
                     boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    justifyContent: 'center',
                     transition: 'all 0.15s'
                   }}
                 >
-                  <span style={{ fontSize: '16px' }}>🚶</span>
                   <span>Bắt Đầu Đi Thử (Lần Lượt 8 Điểm)</span>
                 </button>
               </div>
             </div>
 
-            <p style={{ margin: 0, fontSize: '11px', color: '#93c5fd', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '8px' }}>
+            <p style={{ margin: 0, fontSize: '13px', color: '#93c5fd', borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: '10px' }}>
               Khi bấm <strong>"Bắt Đầu Đi Thử"</strong>, hình người du khách của bạn sẽ xuất phát từ vị trí hiện tại, di chuyển tuần tự qua 8 phân khu chuồng động vật và tự động phát thuyết minh tiếng Việt tại mỗi điểm.
             </p>
           </div>
@@ -968,27 +961,20 @@ export default function RealZooMap({
         {/* KHỐI ĐIỀU KHIỂN DUY NHẤT: XUẤT PHÁT TỪ CỔNG CHÍNH ĐẾN CÁC ĐỊA ĐIỂM */}
         <div style={{
           backgroundColor: '#fffbeb',
-          border: '1.5px solid #fcd34d',
-          borderRadius: '12px',
-          padding: '10px 14px',
-          marginBottom: '10px',
-          boxShadow: '0 2px 8px rgba(217, 119, 6, 0.08)'
+          border: '2px solid #fcd34d',
+          borderRadius: '14px',
+          padding: '12px 16px',
+          marginBottom: '12px',
+          boxShadow: '0 2px 10px rgba(217, 119, 6, 0.1)'
         }}>
           {/* Hàng 1: Thông tin Cổng Chính & Nút đặt lại vị trí */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px', borderBottom: '1px solid #fef3c7', paddingBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '10px', borderBottom: '1.5px solid #fef3c7', paddingBottom: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ width: '26px', height: '26px', borderRadius: '6px', backgroundColor: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 21h18"/>
-                  <path d="M4 21V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"/>
-                  <path d="M9 21v-7a3 3 0 0 1 6 0v7"/>
-                </svg>
-              </div>
               <div>
-                <span style={{ fontSize: '13px', fontWeight: '800', color: '#92400e' }}>
+                <span style={{ fontSize: '16px', fontWeight: '900', color: '#92400e' }}>
                   CỔNG CHÍNH (ĐIỂM XUẤT PHÁT CỦA DU KHÁCH)
                 </span>
-                <span style={{ fontSize: '11px', color: '#b45309', marginLeft: '6px' }}>
+                <span style={{ fontSize: '13px', color: '#b45309', marginLeft: '8px', fontWeight: '600' }}>
                   • Số 2 Nguyễn Bỉnh Khiêm (Đối diện đại lộ Lê Duẩn)
                 </span>
               </div>
@@ -1002,15 +988,14 @@ export default function RealZooMap({
                 backgroundColor: '#d97706',
                 color: '#ffffff',
                 border: 'none',
-                padding: '5px 12px',
+                padding: '8px 18px',
                 borderRadius: '8px',
-                fontSize: '11px',
+                fontSize: '13px',
                 fontWeight: '800',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 2px 6px rgba(217,119,6,0.3)',
+                boxShadow: '0 2px 6px rgba(217,119,6,0.35)',
                 transition: 'all 0.15s'
               }}
             >
@@ -1033,22 +1018,21 @@ export default function RealZooMap({
                 backgroundColor: '#059669',
                 color: '#ffffff',
                 border: 'none',
-                padding: '6px 13px',
+                padding: '9px 20px',
                 borderRadius: '8px',
-                fontSize: '11px',
-                fontWeight: '800',
+                fontSize: '14px',
+                fontWeight: '900',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '5px',
-                boxShadow: '0 2px 6px rgba(5,150,105,0.3)',
+                boxShadow: '0 2px 8px rgba(5,150,105,0.35)',
                 transition: 'all 0.15s'
               }}
             >
               <span>Đi Thử Từ Cổng Chính Vào 8 Điểm (Lần Lượt)</span>
             </button>
 
-            <span style={{ fontSize: '11px', color: '#b45309', fontWeight: '800' }}>
+            <span style={{ fontSize: '13px', color: '#b45309', fontWeight: '900', marginLeft: '4px' }}>
               Đi từ Cổng Chính đến:
             </span>
 
@@ -1066,16 +1050,16 @@ export default function RealZooMap({
                 title={`Người đi bộ từ Cổng Chính đến chuồng ${an.name}`}
                 style={{
                   backgroundColor: selectedAnimal?.id === an.id ? '#047857' : '#ffffff',
-                  color: selectedAnimal?.id === an.id ? '#ffffff' : '#1e293b',
-                  border: '1px solid #cbd5e1',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  fontWeight: 'bold',
+                  color: selectedAnimal?.id === an.id ? '#ffffff' : '#0f172a',
+                  border: selectedAnimal?.id === an.id ? '2px solid #047857' : '1.5px solid #cbd5e1',
+                  padding: '7px 14px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: '800',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                   transition: 'all 0.15s'
                 }}
               >
@@ -1100,8 +1084,8 @@ export default function RealZooMap({
         />
 
         {/* Quick Departure Point Picker */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Chọn nhanh điểm xuất phát:</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '13px', color: '#475569', fontWeight: '800' }}>Chọn nhanh điểm xuất phát:</span>
           {[
             { label: 'Cổng Chính (Nguyễn Bỉnh Khiêm)', lat: 10.7868, lon: 106.7040 },
             { label: 'Đền Thờ Vua Hùng & Bảo Tàng', lat: 10.7863, lon: 106.7046 },
@@ -1125,12 +1109,12 @@ export default function RealZooMap({
               }}
               style={{
                 backgroundColor: (userLocation.lat === pt.lat && userLocation.lon === pt.lon) ? '#059669' : '#f1f5f9',
-                color: (userLocation.lat === pt.lat && userLocation.lon === pt.lon) ? '#ffffff' : '#334155',
-                border: '1px solid #cbd5e1',
-                padding: '5px 12px',
-                borderRadius: '6px',
-                fontSize: '11px',
-                fontWeight: 'bold',
+                color: (userLocation.lat === pt.lat && userLocation.lon === pt.lon) ? '#ffffff' : '#1e293b',
+                border: '1.5px solid #cbd5e1',
+                padding: '7px 14px',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '800',
                 cursor: 'pointer',
                 transition: 'all 0.15s'
               }}
@@ -1146,10 +1130,10 @@ export default function RealZooMap({
               backgroundColor: '#0284c7',
               color: '#ffffff',
               border: 'none',
-              padding: '5px 12px',
-              borderRadius: '6px',
-              fontSize: '11px',
-              fontWeight: 'bold',
+              padding: '7px 16px',
+              borderRadius: '8px',
+              fontSize: '13px',
+              fontWeight: '800',
               cursor: isLocating ? 'wait' : 'pointer'
             }}
           >
@@ -1159,25 +1143,25 @@ export default function RealZooMap({
       </div>
 
       {/* Right Column: Selected Animal Info & Actions */}
-      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '20px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', position: 'sticky', top: '20px' }}>
-        <span style={{ backgroundColor: '#f1f5f9', color: '#334155', fontSize: '11px', padding: '3px 8px', borderRadius: '6px', fontWeight: 'bold' }}>
+      <div style={{ backgroundColor: '#ffffff', borderRadius: '16px', padding: '22px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.06)', position: 'sticky', top: '20px' }}>
+        <span style={{ backgroundColor: '#f1f5f9', color: '#1e293b', fontSize: '13px', padding: '5px 12px', borderRadius: '8px', fontWeight: '800' }}>
           {selectedAnimal.zone}
         </span>
 
-        <h3 style={{ margin: '8px 0 2px', fontSize: '18px', color: '#0f172a', fontWeight: '800' }}>
+        <h3 style={{ margin: '10px 0 3px', fontSize: '24px', color: '#0f172a', fontWeight: '900' }}>
           {selectedAnimal.name}
         </h3>
-        <p style={{ margin: '0 0 10px', fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>
+        <p style={{ margin: '0 0 12px', fontSize: '14px', color: '#64748b', fontStyle: 'italic', fontWeight: '500' }}>
           {selectedAnimal.scientificName}
         </p>
 
         <img
           src={selectedAnimal.imageUrl}
           alt={selectedAnimal.name}
-          style={{ width: '100%', height: '170px', objectFit: 'cover', borderRadius: '10px', marginBottom: '12px', border: '1px solid #e2e8f0' }}
+          style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '12px', marginBottom: '14px', border: '1px solid #e2e8f0' }}
         />
 
-        <div style={{ backgroundColor: '#f8fafc', padding: '12px', borderRadius: '10px', fontSize: '11px', color: '#475569', marginBottom: '12px', lineHeight: '1.6' }}>
+        <div style={{ backgroundColor: '#f8fafc', padding: '14px', borderRadius: '12px', fontSize: '13px', color: '#334155', marginBottom: '14px', lineHeight: '1.8' }}>
           <div><strong>Tọa độ GPS:</strong> {selectedAnimal.coordinates.lat}°N, {selectedAnimal.coordinates.lon}°E</div>
           <div><strong>Bán kính Geofence:</strong> {selectedAnimal.radius_meters}m</div>
           <div><strong>Sách Đỏ IUCN:</strong> {selectedAnimal.conservationStatus}</div>
@@ -1199,22 +1183,20 @@ export default function RealZooMap({
             width: '100%',
             backgroundColor: '#d97706',
             color: '#ffffff',
-            padding: '11px 14px',
+            padding: '13px 18px',
             borderRadius: '10px',
             border: 'none',
-            fontWeight: '800',
-            fontSize: '12px',
+            fontWeight: '900',
+            fontSize: '15px',
             cursor: 'pointer',
-            marginBottom: '8px',
+            marginBottom: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
             boxShadow: '0 3px 10px rgba(217, 119, 6, 0.3)',
             transition: 'all 0.15s'
           }}
         >
-          <span style={{ fontSize: '16px' }}>🚶</span>
           <span>Đi Từ Cổng Chính Đến {selectedAnimal.name}</span>
         </button>
 
@@ -1228,22 +1210,20 @@ export default function RealZooMap({
             width: '100%',
             backgroundColor: '#059669',
             color: '#ffffff',
-            padding: '12px 14px',
+            padding: '13px 18px',
             borderRadius: '10px',
             border: 'none',
-            fontWeight: '800',
-            fontSize: '13px',
+            fontWeight: '900',
+            fontSize: '15px',
             cursor: 'pointer',
             marginBottom: '10px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
             boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)',
             transition: 'all 0.15s'
           }}
         >
-          <span style={{ fontSize: '18px' }}>🚶</span>
           <span>Hình Người Đi Thử Đến {selectedAnimal.name}</span>
         </button>
 
@@ -1261,22 +1241,22 @@ export default function RealZooMap({
             width: '100%',
             backgroundColor: (navigationTarget && navigationTarget.id === selectedAnimal.id) ? '#dc2626' : '#2563eb',
             color: '#ffffff',
-            padding: '10px',
-            borderRadius: '8px',
+            padding: '12px 18px',
+            borderRadius: '10px',
             border: 'none',
-            fontWeight: 'bold',
-            fontSize: '13px',
+            fontWeight: '900',
+            fontSize: '15px',
             cursor: 'pointer',
-            marginBottom: '10px'
+            marginBottom: '12px'
           }}
         >
           {(navigationTarget && navigationTarget.id === selectedAnimal.id) ? 'Hủy Dẫn Đường' : 'Dẫn Đường Đến Chuồng Này'}
         </button>
 
         {/* Narration Description Text */}
-        <div style={{ fontSize: '12px', color: '#334155', lineHeight: '1.6', backgroundColor: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', marginBottom: '12px' }}>
+        <div style={{ fontSize: '14px', color: '#334155', lineHeight: '1.7', backgroundColor: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '12px' }}>
           <strong>Bài Thuyết Minh:</strong>
-          <p style={{ margin: '4px 0 0' }}>{selectedAnimal.descriptionVi}</p>
+          <p style={{ margin: '5px 0 0' }}>{selectedAnimal.descriptionVi}</p>
         </div>
 
         {/* Action: Nghe Thuyết Minh */}
@@ -1287,11 +1267,11 @@ export default function RealZooMap({
             width: '100%',
             backgroundColor: isSpeaking ? '#dc2626' : '#059669',
             color: '#ffffff',
-            padding: '10px',
-            borderRadius: '8px',
+            padding: '12px 18px',
+            borderRadius: '10px',
             border: 'none',
-            fontWeight: 'bold',
-            fontSize: '13px',
+            fontWeight: '900',
+            fontSize: '15px',
             cursor: 'pointer'
           }}
         >

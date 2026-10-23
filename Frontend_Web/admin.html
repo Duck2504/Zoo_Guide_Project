@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cổng Quản Trị Hệ Thống Thuyết Minh Sở Thú — Thảo Cầm Viên Sài Gòn</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%2310b981%22><path d=%22M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z%22/></svg>" />
+  
+  <!-- Google Font: Be Vietnam Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- QRCode.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            zoo: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              950: '#022c22',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- ================= STATE 1: ADMIN LOGIN SCREEN (CHƯA ĐĂNG NHẬP) ================= -->
+  <div id="admin-auth-screen" class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-950 via-zoo-950 to-slate-900 text-white">
+    <!-- Background glowing orbs -->
+    <div class="absolute -top-32 -left-32 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-zoo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
+
+    <!-- Top Link Back to User Portal -->
+    <div class="absolute top-6 left-6 z-10">
+      <a href="index.html" class="inline-flex items-center space-x-2 text-xs font-bold text-slate-300 hover:text-white bg-white/10 hover:bg-white/20 backdrop-blur-md px-3.5 py-2 rounded-xl transition border border-white/10">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Về Trang Khám Phá (Người Dùng)</span>
+      </a>
+    </div>
+
+    <div class="max-w-md w-full relative z-10 space-y-6">
+      
+      <!-- Brand Logo Header (Chỉ hiện chữ Thảo Cầm Viên) -->
+      <div class="text-center py-2">
+        <h2 class="text-3xl font-black text-white tracking-tight">Thảo Cầm Viên</h2>
+      </div>
+
+      <!-- Login Card -->
+      <div class="bg-slate-900/90 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-7 shadow-2xl space-y-5">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-400">Xác Thực Quản Trị Viên</span>
+          
+        </div>
+
+        <form id="admin-login-form" onsubmit="return handleAdminLogin(event)" class="space-y-4">
+          
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Tài Khoản Quản Trị</label>
+            <div class="relative">
+              <input type="text" id="login-username" required placeholder="Nhập tài khoản (VD: admin)" class="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition" />
+              <i class="fa-solid fa-user-shield absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-300 mb-1.5">Mật Khẩu Quản Trị</label>
+            <div class="relative">
+              <input type="password" id="login-password" required placeholder="Nhập mật khẩu (VD: admin123)" onkeydown="if(event.key==='Enter')handleAdminLogin(event)" class="w-full pl-10 pr-10 py-3 bg-slate-950/80 border border-slate-700 rounded-xl text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition" />
+              <i class="fa-solid fa-key absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+              <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 top-3.5 text-slate-400 hover:text-white text-xs">
+                <i id="toggle-pwd-icon" class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="login-error-msg" class="hidden p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-medium">
+            Tài khoản hoặc mật khẩu không chính xác!
+          </div>
+
+          <button type="button" onclick="handleAdminLogin(event)" id="btn-login-submit" class="w-full py-3.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2 transition transform active:scale-98">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Đăng Nhập Quản Trị</span>
+          </button>
+        </form>
+
+        <!-- Demo Quick Login Helper (Dành cho Giảng Viên / Chấm Bài) -->
+        <div class="pt-4 border-t border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between text-[11px] text-slate-400">
+            <span class="font-bold">Tài khoản Demo:</span>
+            <span class="text-emerald-400">1-Chạm Đăng Nhập Nhanh</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <button onclick="fillDemoCredentials('admin', 'admin123')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-left border border-slate-700 transition">
+              <div class="font-extrabold text-white text-[11px]">Quản Trị Trưởng</div>
+              <div class="text-[10px] text-slate-400 font-mono">admin / admin123</div>
+            </button>
+            <button onclick="fillDemoCredentials('quanly', 'zoo2026')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-left border border-slate-700 transition">
+              <div class="font-extrabold text-white text-[11px]">Cán Bộ Quản Lý</div>
+              <div class="text-[10px] text-slate-400 font-mono">quanly / zoo2026</div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Security Notice -->
+      <div class="text-center text-[11px] text-slate-500">
+        <p>Hệ thống chỉ cho phép nhân sự được cấp quyền thêm mới và chỉnh sửa dữ liệu.</p>
+        <p class="text-slate-400 mt-1">Được bảo mật theo phân quyền Frontend & LocalStorage.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= STATE 2: ADMIN MANAGEMENT DASHBOARD (KHI ĐÃ ĐĂNG NHẬP) ================= -->
+  <div id="admin-dashboard-container" class="hidden flex-col min-h-screen">
+    
+    <!-- Top Admin Header Bar -->
+    <header class="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex items-center justify-between">
+        
+                <!-- Brand Logo: Biểu tượng 🦁 và chữ Thảo Cầm Viên bên trái (Bấm để xem giao diện người dùng) -->
+        <a href="index.html" class="flex items-center space-x-2.5 group shrink-0" title="Chuyển sang trang giao diện người dùng">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-lg shadow-sm group-hover:scale-105 transition">
+            🦁
+          </div>
+          <span class="text-base sm:text-lg font-black text-white tracking-tight group-hover:text-emerald-400 transition">Thảo Cầm Viên</span>
+        </a>
+
+        <!-- Admin Profile Info & Quick Actions -->
+        <div class="flex items-center space-x-3">
+          <!-- Active Admin Badge -->
+          <div class="hidden sm:flex items-center space-x-2 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 text-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-slate-300 font-medium">Xin chào,</span>
+            <span id="admin-user-display" class="font-extrabold text-emerald-400">admin</span>
+          </div>
+
+
+
+                    <!-- Link to User Front-End -->
+          <a href="index.html" class="px-3 py-2 rounded-xl bg-zoo-700 hover:bg-zoo-600 text-white text-xs font-bold flex items-center space-x-1.5 transition shadow-sm cursor-pointer" title="Chuyển sang trang giao diện người dùng">
+            <i class="fa-solid fa-eye"></i>
+            <span>Xem Giao Diện</span>
+          </a>
+
+          <!-- Logout Button -->
+          <button onclick="handleAdminLogout()" class="px-3 py-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 text-xs font-bold flex items-center space-x-1.5 transition">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Đăng Xuất</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Navigation Tabs Bar -->
+      <div class="bg-slate-950 border-t border-slate-800/80 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto flex items-center space-x-1 sm:space-x-2 overflow-x-auto custom-scrollbar py-1">
+          <button onclick="switchAdminTab('create')" id="tab-btn-create" class="admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-plus-circle"></i>
+            <span>Thêm Loài Thú Mới</span>
+          </button>
+          <button onclick="switchAdminTab('list')" id="tab-btn-list" class="admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-table-list"></i>
+            <span>Danh Mục & Sửa / Xóa</span>
+          </button>
+          <button onclick="switchAdminTab('map')" id="tab-btn-map" class="admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span>Bản Đồ GPS & Geofence</span>
+          </button>
+          <button onclick="switchAdminTab('signage')" id="tab-btn-signage" class="admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-qrcode"></i>
+            <span>Tạo Biển Bảng QR</span>
+          </button>
+          <button onclick="switchAdminTab('tts-lab')" id="tab-btn-tts-lab" class="admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-microphone-lines"></i>
+            <span>AI TTS Studio</span>
+          </button>
+          <button onclick="switchAdminTab('data')" id="tab-btn-data" class="admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center space-x-2 transition">
+            <i class="fa-solid fa-database"></i>
+            <span>Quản Trị Dữ Liệu</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-6">
+      
+      <!-- Top KPI Stats Summary Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs text-slate-500 font-bold block">Tổng Số Loài Quản Lý</span>
+            <span id="kpi-total-animals" class="text-2xl font-black text-slate-900">0</span>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-paw"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs text-slate-500 font-bold block">Số Phân Khu Sở Thú</span>
+            <span id="kpi-total-zones" class="text-2xl font-black text-slate-900">0</span>
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs text-slate-500 font-bold block">Điểm Geofence GPS</span>
+            <span id="kpi-geofence-count" class="text-2xl font-black text-slate-900">0</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg">
+            📍
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-xs text-slate-500 font-bold block">Trạng Thái CSDL</span>
+            <span id="kpi-system-mode" class="text-xs font-bold text-slate-500 block mt-1 flex items-center"><span class="w-2 h-2 rounded-full bg-slate-400 inline-block mr-1.5"></span>Chưa có CSDL (Sẽ hiển thị khi kết nối CSDL)</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center text-lg">
+            ⚡
+          </div>
+        </div>
+      </div>
+            </div>
+
+            <!-- Section 3: Audio Narrative -->
+            <div class="space-y-4 pt-4 border-t border-slate-200">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2 text-xs font-black uppercase text-zoo-700 tracking-wider">
+                  <span class="w-6 h-6 rounded-lg bg-zoo-100 text-zoo-800 flex items-center justify-center">3</span>
+                  <span>Bài Thuyết Minh Tiếng Việt (Tự Động Phát Cho Du Khách)</span>
+                </div>
+                <button type="button" onclick="testSpeakCreateNarrative()" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 flex items-center space-x-1">
+                  <i class="fa-solid fa-volume-high"></i>
+                  <span>Nghe Thử Giọng Đọc AI</span>
+                </button>
+              </div>
+
+              <div>
+                <textarea id="c-desc" rows="4" required placeholder="Nhập nội dung thuyết minh đầy đủ, truyền cảm giới thiệu về tập tính, nguồn gốc, chế độ dinh dưỡng và nỗ lực bảo tồn loài động vật này..." class="w-full text-xs font-medium p-3.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 focus:bg-white transition leading-relaxed" oninput="syncLiveCreatePreview()" placeholder="Nhập nội dung thuyết minh giới thiệu về tập tính, nguồn gốc, dinh dưỡng..."></textarea>
+              </div>
+            </div>
+
+            <!-- Action Submit Buttons -->
+            <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-3">
+              <button type="button" onclick="resetCreateForm()" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                Hủy Bỏ
+              </button>
+              <button type="submit" id="btn-save-animal" class="w-full sm:w-auto px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-lg shadow-emerald-600/30 flex items-center justify-center space-x-2 transition transform active:scale-98">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>✨ Lưu & Kích Hoạt Loài Thú Mới</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: DANH MỤC & CHỈNH SỬA / XÓA ================= -->
+      <section id="pane-list" class="admin-pane hidden space-y-6">
+        
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
+            <div>
+              <h2 class="text-xl font-black text-slate-900 tracking-tight">Danh Mục Quản Lý & Chỉnh Sửa / Xóa Động Vật</h2>
+              <p class="text-xs text-slate-500">Quản trị viên có thể trực tiếp Sửa thông tin hoặc Xóa động vật khỏi hệ thống.</p>
+            </div>
+            
+            <!-- Search & Actions -->
+            <div class="flex items-center space-x-3">
+              <input type="text" id="admin-list-search" oninput="filterAdminList()" placeholder="Tìm loài thú..." class="text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 w-48 sm:w-64" />
+              <button onclick="switchAdminTab('create')" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-plus"></i>
+                <span>Thêm Mới</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="overflow-x-auto rounded-2xl border border-slate-200">
+            <table class="w-full text-left text-xs text-slate-700">
+              <thead class="bg-slate-100 text-slate-800 font-black uppercase text-[11px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th class="py-3 px-4">Loài Thú</th>
+                  <th class="py-3 px-4">Phân Khu</th>
+                  <th class="py-3 px-4">Sách Đỏ IUCN</th>
+                  <th class="py-3 px-4">Tọa Độ GPS</th>
+                  <th class="py-3 px-4">Geofence</th>
+                  <th class="py-3 px-4 text-center">Thao Tác Quản Trị</th>
+                </tr>
+              </thead>
+              <tbody id="admin-table-body" class="divide-y divide-slate-100">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 3: BẢN ĐỒ GPS & GEOFENCE QUẢN TRỊ (GOOGLE MAPS VỆ TINH CHUẨN XÁC) ================= -->
+      <section id="pane-map" class="admin-pane hidden space-y-6">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-200 gap-3">
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Bản Đồ Quản Trị Tọa Độ & Toàn Bộ Vòng Geofence</h2>
+                <span class="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span id="overview-count-badge">Chưa có dữ liệu</span>
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">Bản đồ vệ tinh Google Maps trực quan độ phân giải cao — Toàn bộ tọa độ chuồng thú, bán kính kích hoạt & 2 cổng đón khách.</p>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+              <button onclick="fitAdminOverviewBounds()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center space-x-1.5 transition border border-slate-300 shadow-sm" title="Thu phóng vừa khít toàn bộ khuôn viên">
+                <i class="fa-solid fa-expand text-emerald-600"></i>
+                <span>Xem Toàn Cảnh</span>
+              </button>
+              <a href="index.html" class="px-3.5 py-2 rounded-xl bg-zoo-700 hover:bg-zoo-600 text-white font-bold text-xs flex items-center space-x-1.5 transition shadow-sm cursor-pointer" title="Xem trên web du khách">
+                <i class="fa-solid fa-eye"></i>
+                <span>Xem Trên Web Du Khách</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Bộ Lọc Phân Khu Nhanh Trên Bản Đồ -->
+          <div class="flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+            <span class="text-slate-400 font-bold text-[11px] shrink-0">Lọc nhanh:</span>
+            <button onclick="filterOverviewZone('all')" id="btn-zone-all" class="px-3 py-1.5 rounded-xl font-bold bg-emerald-600 text-white text-xs shrink-0 transition shadow-sm">Tất Cả Phân Khu</button>
+            <button onclick="filterOverviewZone('Móng Guốc')" id="btn-zone-mongguoc" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs shrink-0 transition">Móng Guốc & Thú Lớn</button>
+            <button onclick="filterOverviewZone('Thú Ăn Thịt')" id="btn-zone-anthit" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs shrink-0 transition">Thú Ăn Thịt</button>
+            <button onclick="filterOverviewZone('Linh Trưởng')" id="btn-zone-linhtruong" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs shrink-0 transition">Linh Trưởng</button>
+            <button onclick="filterOverviewZone('Chim')" id="btn-zone-chim" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs shrink-0 transition">Vườn Chim</button>
+            <button onclick="filterOverviewZone('Bò Sát')" id="btn-zone-bosat" class="px-3 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs shrink-0 transition">Bò Sát & Thủy Sinh</button>
+          </div>
+          
+          <!-- Container Bản Đồ Số Google Maps Quản Trị Rõ Ràng, Sắc Nét -->
+          <div class="rounded-2xl overflow-hidden border border-slate-300 shadow-md relative">
+            <!-- Bộ chuyển đổi chế độ Bản đồ số Google Maps trên Admin Overview Map -->
+            <div class="absolute top-3 right-3 z-20 flex items-center bg-white/95 backdrop-blur-md p-1 rounded-xl shadow-lg border border-slate-300 pointer-events-auto">
+              <button id="btn-admin-overview-roadmap" type="button" onclick="setAdminOverviewMapType('roadmap')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm cursor-pointer">
+                🗺️ Bản đồ số
+              </button>
+              <button id="btn-admin-overview-satellite" type="button" onclick="setAdminOverviewMapType('satellite')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-700 hover:bg-slate-100 cursor-pointer">
+                🛰️ Vệ tinh
+              </button>
+            </div>
+            <div id="admin-overview-map" class="w-full h-[620px] z-10"></div>
+            <div id="admin-overview-map-empty" class="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+              <div class="rounded-2xl bg-white/95 px-5 py-3 text-center text-xs font-bold text-slate-600 shadow-lg border border-slate-200">
+                Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.
+              </div>
+            </div>
+            
+            <!-- Chú Thích Nổi Góc Dưới Bản Đồ -->
+            <div class="absolute bottom-3 left-3 z-20 bg-slate-900/90 backdrop-blur-md text-white px-3.5 py-2.5 rounded-xl text-xs border border-slate-700 shadow-lg pointer-events-none flex flex-wrap items-center gap-3">
+              <span class="flex items-center space-x-1.5 font-bold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>Vòng Geofence: Bán kính kích hoạt</span></span>
+              <span class="flex items-center space-x-1.5 font-bold"><span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span><span>🚪 2 Cổng Vào Thảo Cầm Viên</span></span>
+              <span class="text-slate-400 text-[11px] italic">Bấm vào bất kỳ ghim thú nào để xem popup chi tiết & chỉnh sửa nhanh</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: TẠO BIỂN BẢNG QR ================= -->
+      <section id="pane-signage" class="admin-pane hidden space-y-6">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-200 gap-3">
+            <div>
+              <h2 class="text-xl font-black text-slate-900 tracking-tight">Bộ Tạo Biển Bảng Chỉ Dẫn & Mã QR Chuồng Thú</h2>
+              <p class="text-xs text-slate-500">In biển bảng tiêu chuẩn sở thú để dán tại thực địa, du khách quét mã QR để nghe thuyết minh tức thì.</p>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+              <select id="signage-animal-select" onchange="renderSignageForAnimal(this.value)" class="text-xs font-bold p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-zoo-500 text-slate-800">
+                <!-- populated dynamically -->
+              </select>
+              <button onclick="printSignage()" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-print"></i>
+                <span>In Biển Bảng</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Printable Signboard Preview -->
+          <div class="flex justify-center p-4 bg-slate-100 rounded-3xl">
+            <div id="printable-signboard" class="w-[500px] bg-white rounded-3xl p-7 border-4 border-zoo-800 shadow-xl space-y-5 text-slate-900">
+              
+              <!-- Signboard Header -->
+              <div class="flex items-center justify-between border-b-2 border-zoo-800 pb-3">
+                <div class="flex items-center space-x-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-shield"></i></div>
+                  <div>
+                    <h3 class="text-xs font-black text-zoo-900 uppercase tracking-widest">Thảo Cầm Viên Sài Gòn</h3>
+                    <p class="text-[10px] text-slate-500 font-bold">HỆ THỐNG THUYẾT MINH SỞ THÚ TỰ ĐỘNG</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-zoo-100 text-zoo-800 uppercase">Audio Guide</span>
+              </div>
+
+              <!-- Animal Main Info -->
+              <div class="space-y-1 text-center">
+                <h2 id="sign-name" class="text-2xl font-black text-slate-900 tracking-tight">Chưa có dữ liệu động vật</h2>
+                <p id="sign-sciname" class="text-xs font-serif italic text-slate-500">Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu</p>
+                <div class="inline-block mt-1 px-3 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-extrabold border border-slate-200" id="sign-zone">
+                  Chưa có phân khu
+                </div>
+              </div>
+
+              <!-- QR Code & Instructions Grid -->
+              <div class="grid grid-cols-2 gap-4 items-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <div class="flex justify-center">
+                  <div id="signage-qrcode-box" class="p-2 bg-white rounded-xl shadow-sm border border-slate-200"></div>
+                </div>
+                <div class="space-y-2 text-xs">
+                  <h4 class="font-extrabold text-zoo-900 flex items-center space-x-1">
+                    <i class="fa-solid fa-camera text-emerald-600"></i>
+                    <span>QUÉT MÃ ĐỂ NGHE:</span>
+                  </h4>
+                  <ul class="text-[11px] text-slate-600 space-y-1 list-disc list-inside">
+                    <li>Mở Camera điện thoại</li>
+                    <li>Hướng vào mã QR bên cạnh</li>
+                    <li>Nghe bài thuyết minh tự động</li>
+                    <li>Hỗ trợ 5 ngôn ngữ quốc tế</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="text-center text-[10px] text-slate-400 border-t border-slate-200 pt-2 font-medium">
+                Vui lòng không cho thú ăn thức ăn lạ • Giữ gìn khuôn viên sạch đẹp
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: AI TTS STUDIO ================= -->
+      <section id="pane-tts-lab" class="admin-pane hidden space-y-6">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+          <div>
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">Phòng Thử Nghiệm Giọng Đọc AI Neural (TTS Studio)</h2>
+            <p class="text-xs text-slate-500">Kiểm tra ngữ điệu, tốc độ và đa ngôn ngữ trước khi xuất bản bài thuyết minh cho du khách.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Chọn Ngôn Ngữ</label>
+                <select id="tts-lang-select" class="w-full text-xs font-bold p-3 bg-slate-50 border border-slate-300 rounded-xl">
+                  <option value="vi">🇻🇳 Tiếng Việt (Vietnamese Neural)</option>
+                  <option value="en">🇬🇧 English (US Natural)</option>
+                  <option value="fr">🇫🇷 Français (French)</option>
+                  <option value="zh">🇨🇳 中文 (Chinese Mandarin)</option>
+                  <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                </select>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Tốc Độ Đọc (Rate)</label>
+                  <input type="range" id="tts-rate" min="0.5" max="1.5" step="0.05" value="0.95" class="w-full accent-zoo-600" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Cao Độ (Pitch)</label>
+                  <input type="range" id="tts-pitch" min="0.5" max="1.5" step="0.05" value="1.0" class="w-full accent-zoo-600" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nội Dung Thử Nghiệm</label>
+                <textarea id="tts-test-text" rows="5" class="w-full text-xs font-medium p-3 bg-slate-50 border border-slate-300 rounded-xl leading-relaxed">Chào mừng quý khách đến với Thảo Cầm Viên Sài Gòn. Hệ thống thuyết minh tự động hân hạnh đồng hành cùng quý khách trong chuyến tham quan hôm nay.</textarea>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <button onclick="speakTtsStudio()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs flex items-center space-x-2 transition">
+                  <i class="fa-solid fa-play"></i>
+                  <span>Phát Giọng Đọc</span>
+                </button>
+                <button onclick="stopTtsStudio()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                  Dừng
+                </button>
+              </div>
+            </div>
+
+            <!-- Waveform preview -->
+            <div class="bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between">
+              <div>
+                <span class="text-xs text-emerald-400 font-bold uppercase tracking-wider">Audio Monitor</span>
+                <h3 class="text-base font-black text-white mt-1">Trình Phân Tích Giọng Nói HTML5</h3>
+                <p class="text-xs text-slate-400 mt-2">Hệ thống sử dụng bộ tổng hợp giọng nói chuẩn Web Speech API tiêu chuẩn quốc tế.</p>
+              </div>
+
+              <div class="py-8 flex items-center justify-center space-x-2" id="tts-wave-monitor">
+                <span class="w-2 bg-emerald-400 rounded-full h-8 animate-pulse"></span>
+                <span class="w-2 bg-emerald-400 rounded-full h-14 animate-pulse delay-75"></span>
+                <span class="w-2 bg-emerald-400 rounded-full h-6 animate-pulse delay-100"></span>
+                <span class="w-2 bg-emerald-400 rounded-full h-12 animate-pulse delay-150"></span>
+                <span class="w-2 bg-emerald-400 rounded-full h-10 animate-pulse delay-200"></span>
+              </div>
+
+              <div class="text-[11px] text-slate-400">
+                Sẵn sàng phát âm thanh trên loa thiết bị.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: QUẢN TRỊ DỮ LIỆU & RESET ================= -->
+      <section id="pane-data" class="admin-pane hidden space-y-6">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+          <div>
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">Sao Lưu & Quản Trị Cơ Sở Dữ Liệu</h2>
+            <p class="text-xs text-slate-500">Xuất dữ liệu, khôi phục từ tệp tin JSON hoặc đưa toàn bộ hệ thống về 8 loài thú mặc định ban đầu.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-download"></i>
+              </div>
+              <h4 class="text-sm font-bold text-slate-900">Xuất Bản Sao Lưu (Export JSON)</h4>
+              <p class="text-xs text-slate-500">Tải toàn bộ danh sách loài thú và tọa độ về máy tính dưới dạng tệp tin JSON an toàn.</p>
+              <button onclick="exportDataJson()" class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition">
+                Tải Tệp JSON
+              </button>
+            </div>
+
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-upload"></i>
+              </div>
+              <h4 class="text-sm font-bold text-slate-900">Nhập Dữ Liệu (Import JSON)</h4>
+              <p class="text-xs text-slate-500">Phục hồi lại danh mục chuồng thú từ một tệp tin sao lưu trước đó.</p>
+              <input type="file" id="import-json-file" accept=".json" class="hidden" onchange="handleImportJson(event)" />
+              <button onclick="document.getElementById('import-json-file').click()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs transition">
+                Chọn Tệp Phục Hồi
+              </button>
+            </div>
+
+            <div class="bg-rose-50 p-5 rounded-2xl border border-rose-200 space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <h4 class="text-sm font-bold text-rose-900">Khôi Phục Dữ Liệu Gốc</h4>
+              <p class="text-xs text-rose-600">Xóa các chỉnh sửa và nạp lại toàn bộ 8 loài thú đại diện Thảo Cầm Viên ban đầu.</p>
+              <button onclick="resetToFactoryDefault()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs transition">
+                Khôi Phục Mặc Định
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= EDIT ANIMAL MODAL ================= -->
+  <div id="admin-edit-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl border border-slate-200 p-6 sm:p-8 space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <h3 class="text-lg font-black text-slate-900">Chỉnh Sửa Thông Tin Động Vật</h3>
+        <button onclick="closeEditModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="admin-edit-form" onsubmit="handleSaveEditedAnimal(event)" class="space-y-4">
+        <input type="hidden" id="e-id" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tên Loài Thú</label>
+            <input type="text" id="e-name" required class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tên Khoa Học</label>
+            <input type="text" id="e-sciname" required class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl italic" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Phân Khu</label>
+            <select id="e-zone" class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl">
+              <option value="Khu Động Vật Thảo Tự Nhiên & Móng Guốc">Khu Động Vật Thảo Tự Nhiên & Móng Guốc</option>
+              <option value="Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)">Khu Thú Ăn Thịt (Chúa Tể Sơn Lâm)</option>
+              <option value="Khu Thảo Nguyên & Xavan Châu Phi">Khu Thảo Nguyên & Xavan Châu Phi</option>
+              <option value="Đảo Linh Trưởng Rừng Mưa Nhiệt Đới">Đảo Linh Trưởng Rừng Mưa Nhiệt Đới</option>
+              <option value="Vườn Chim & Đầm Lầy Thủy Điểu">Vườn Chim & Đầm Lầy Thủy Điểu</option>
+              <option value="Khu Bò Sát & Lưỡng Cư Cổ Đại">Khu Bò Sát & Lưỡng Cư Cổ Đại</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Sách Đỏ IUCN</label>
+            <select id="e-iucn" class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl">
+              <option value="CR - Cực kỳ nguy cấp">CR - Cực kỳ nguy cấp</option>
+              <option value="EN - Nguy cấp (Sách Đỏ IUCN)">EN - Nguy cấp</option>
+              <option value="VU - Sắp nguy cấp">VU - Sắp nguy cấp</option>
+              <option value="LC - Ít lo ngại">LC - Ít lo ngại</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Kinh Độ</label>
+            <input type="number" step="0.000001" id="e-lon" required class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Vĩ Độ</label>
+            <input type="number" step="0.000001" id="e-lat" required class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Geofence (m)</label>
+            <input type="number" id="e-radius" min="10" max="60" required class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-mono" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">URL Hình Ảnh</label>
+          <input type="url" id="e-img" required class="w-full text-xs font-semibold p-2.5 bg-slate-50 border border-slate-300 rounded-xl" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Bài Thuyết Minh Tiếng Việt</label>
+          <textarea id="e-desc" rows="3" required class="w-full text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl leading-relaxed"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+          <button type="button" onclick="closeEditModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+            Hủy
+          </button>
+          <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition">
+            Lưu Thay Đổi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script>
+
+const DEFAULT_ZOO_ANIMALS = [];
+
+const MULTILINGUAL_TOUR_DATA = {
+  "zoo-1": {
+    names: { vi: "Voi Châu Á", en: "Asian Elephant", fr: "Éléphant d'Asie", zh: "亚洲象", ja: "アジアゾウ" },
+    vi: "Chào mừng quý khách đến với khu vực chuồng Voi Châu Á tại Thảo Cầm Viên Sài Gòn. Voi Châu Á là loài thú trên cạn lớn nhất châu lục, sở hữu chiếc vòi khéo léo với hơn 40.000 bó cơ. Tại đây, đàn voi được chăm sóc chu đáo với chế độ ăn giàu chất xơ gồm cỏ tươi, mía, chuối và bí đỏ. Hãy cùng bảo vệ loài động vật quý hiếm này khỏi nguy cơ tuyệt chủng.",
+    en: "Welcome to the Asian Elephant exhibit at Saigon Zoo and Botanical Gardens. The Asian Elephant is the largest land mammal in Asia, possessing an agile trunk with over 40,000 muscles. Here, our elephants enjoy a fiber-rich diet of fresh grass, sugarcane, bananas, and pumpkin. Let us join hands to protect this endangered species.",
+    fr: "Bienvenue à l'enclos des éléphants d'Asie au Jardin Botanique et Zoologique de Saïgon. L'éléphant d'Asie est le plus grand mammifère terrestre du continent, doté d'une trompe agile comprenant plus de 40 000 muscles. Protégeons ensemble cette espèce majestueuse menacée d'extinction.",
+    zh: "欢迎来到西贡动植物园的亚洲象展区。亚洲象是亚洲大陆上现存最大的陆生动物，长鼻拥有超过4万条肌肉组织，极为灵巧敏捷。让我们携手保护这一珍稀濒危物种。",
+    ja: "サイゴン動植物園のアジアゾウ展示エリアへようこそ。アジアゾウはアジア大陸最大の陸生動物であり、4万以上の筋肉からなる器用な鼻を持っています。絶滅が危惧される貴重なゾウたちを共に守りましょう。"
+  },
+  "zoo-2": {
+    names: { vi: "Hổ Đông Dương", en: "Indochinese Tiger", fr: "Tigre d'Indochine", zh: "印支虎", ja: "インドシナトラ" },
+    vi: "Quý khách đang đứng trước khu nuôi dưỡng Hổ Đông Dương - chúa tể của núi rừng Đông Nam Á. Với bộ lông vàng cam rực rỡ và những vằn đen độc bản, hổ sở hữu sức mạnh và khả năng bơi lội đáng nể. Hổ Đông Dương hiện được xếp vào nhóm động vật cực kỳ nguy cấp cần được bảo tồn nghiêm ngặt.",
+    en: "You are standing in front of the Indochinese Tiger exhibit - the undisputed lord of the Southeast Asian jungle. Boasting brilliant orange fur and unique black stripes, tigers possess extraordinary muscular power and excellent swimming abilities. They are critically endangered and in urgent need of protection.",
+    fr: "Vous vous trouvez devant l'espace du Tigre d'Indochine, seigneur des forêts d'Asie du Sud-Est. Avec son pelage fauve et ses rayures uniques, le tigre possède une puissance colossale et d'excellentes aptitudes à la nage. Cette espèce en danger critique fait l'objet d'un programme strict de conservation.",
+    zh: "您现在看到的是东南亚丛林霸主——印支虎展区。金黄色的皮毛配以独一无二的黑色条纹，印支虎拥有极其敏捷的身姿和出色的游泳本领。目前该物种处于极度濒危状态，亟需全社会的严格保护。",
+    ja: "東南アジアの密林の王者、インドシナトラの展示場へようこそ。鮮やかなオレンジ色と一頭ごとに異なる黒い縞模様をまとい、圧倒的な筋力と優れた泳ぎの能力を誇ります。絶滅寸前の貴重な野生動物です。"
+  },
+  "zoo-3": {
+    names: { vi: "Hươu Cao Cổ & Ngựa Vằn", en: "Giraffe & Zebra", fr: "Girafe & Zèbre", zh: "长颈鹿与斑马", ja: "キリンとシマウマ" },
+    vi: "Khuôn viên thảo nguyên xanh mát mở ra trước mắt quý khách là ngôi nhà chung của Hươu Cao Cổ và Ngựa Vằn. Chiếc cổ dài đặc trưng giúp hươu vươn tới những ngọn cây keo cao nhất. Trong khi đó, bộ lông sọc vằn của ngựa vằn tạo hiệu ứng thị giác xua đuổi côn trùng và đánh lừa động vật ăn thịt trên đồng cỏ hoang dã.",
+    en: "The savannah grassland before you is home to both Giraffes and Zebras. The giraffe's iconic long neck allows it to browse the tenderest leaves high up in acacia trees, while the zebra's dazzling black-and-white stripes deter biting flies and confuse predators in the wild.",
+    fr: "La plaine verdoyante sous vos yeux accueille girafes et zèbres d'Afrique. Le long cou de la girafe lui permet d'atteindre les cimes des acacias, tandis que les rayures du zèbre repoussent les insectes et perturbent la vue des prédateurs.",
+    zh: "展现在您眼前的是非洲草原区，长颈鹿与斑马在此和谐共处。长颈鹿修长的脖颈能轻松采食高耸金合欢树的新鲜嫩叶，而斑马独特的黑白条纹则能有效驱赶蚊蝇并迷惑草原捕食者。",
+    ja: "目の前に広がる草原エリアは、キリンとシマウマの共生ゾーンです。キリンの長い首は高いアカシアの若葉を食べるために進化し、シマウマの美しい白黒の縞模様は虫除けや肉食動物を惑わす効果があります。"
+  },
+  "zoo-4": {
+    names: { vi: "Vượn Má Vàng & Linh Trưởng", en: "Yellow-cheeked Gibbon", fr: "Gibbon à joues jaunes", zh: "黄颊长臂猿", ja: "キッペクシロテテナガザル" },
+    vi: "Tiếng hót lảnh lót vang vọng cả một góc Vườn Thú chính là tiếng gọi đàn của Vượn Má Vàng - loài linh trưởng đặc hữu của bán đảo Đông Dương. Chúng có cánh tay rất dài giúp chuyền cành thoăn thoắt với tốc độ đáng kinh ngạc. Thảo Cầm Viên là một trong số ít vườn thú trên thế giới nhân giống thành công loài này.",
+    en: "The melodious morning calls echoing across the canopy belong to the Yellow-cheeked Crested Gibbon, endemic to Indochina. Their exceptionally long arms allow swift brachiation through the treetops. Saigon Zoo is internationally recognized for its successful breeding program for this endangered primate.",
+    fr: "Les chants mélodieux résonnant dans la canopée sont ceux du Gibbon à joues jaunes, primate endémique d'Indochine. Ses bras très longs lui confèrent une agilité remarquable dans les branchages.",
+    zh: "在树冠间回荡的清脆鸣叫来自黄颊长臂猿，这是中南半岛的特有灵长类动物。它们拥有极长的双臂，能够在树枝间以惊人的速度荡越移动。西贡动植物园是全球少数成功繁育该物种的动物园之一。",
+    ja: "梢に響き渡る美しいデュエットは、インドシナ半島固有種であるキッペクシロテテナガザルの鳴き声です。非常に長い腕を使って枝から枝へと華麗に跳び移ります。"
+  },
+  "zoo-5": {
+    names: { vi: "Vườn Chim & Hồng Hạc", en: "Flamingo & Tropical Aviary", fr: "Flamants Roses & Volière", zh: "火烈鸟与热带鸟园", ja: "フラミンゴと熱帯鳥類園" },
+    vi: "Đầm lầy rực rỡ sắc hồng là nơi sinh sống của đàn Chim Hồng Hạc cùng hàng chục loài chim quý hiếm như Vẹt Macaw, Cò Sen và Giang Sen. Màu hồng đặc trưng của chim đến từ sắc tố carotenoid có trong các loài giáp xác và tảo nhỏ mà chúng ăn hằng ngày dưới nước.",
+    en: "This vibrant pink wetland is home to our American Flamingos alongside exotic tropical birds like Macaws and Painted Storks. The vivid pink coloration comes from natural carotenoid pigments found in the crustaceans and micro-algae of their wetland diet.",
+    fr: "Cette zone humide abrite de magnifiques Flamants roses ainsi que des aras tropicaux et des tantales d'Asie. Leur couleur rose éclatante provient des pigments de caroténoïdes présents dans les petits crustacés qu'ils filtrent dans l'eau.",
+    zh: "这片泛着梦幻粉红色的水沼栖息着美洲红鹳群以及金刚鹦鹉、白颈鹳等多样鸟类。火烈鸟羽毛亮丽的粉红色泽源自其每日滤食的小型甲壳类动物和藻类中丰富的类胡萝卜素。",
+    ja: "鮮やかなピンク色の水辺には、ベニイロフラミンゴや熱帯のインコたちが優雅に暮らしています。特徴的な羽の色は、餌となる微細藻類や甲殻類に含まれるカロテノイド色素によるものです。"
+  },
+  "zoo-6": {
+    names: { vi: "Đầm Cá Sấu Nước Lợ", en: "Saltwater Crocodile", fr: "Crocodile marin", zh: "湾鳄（咸水鳄）", ja: "イリエワニ" },
+    vi: "Chào mừng quý khách đến với Đầm Cá Sấu Thảo Cầm Viên. Cá sấu nước lợ là loài bò sát còn sống lớn nhất hành tinh với lực cắn khủng khiếp lên tới hơn 3.700 pound/inch vuông. Chúng có thể nằm bất động hàng giờ dưới mặt nước như một khúc gỗ để rình mồi với khả năng ngụy trang hoàn hảo.",
+    en: "Welcome to the Crocodile Lagoon. The Saltwater Crocodile is the largest living reptile on Earth, packing a devastating bite force exceeding 3,700 pounds per square inch. Masters of stealth, they remain motionless for hours like floating logs awaiting unsuspecting prey.",
+    fr: "Bienvenue au lagon des crocodiles. Le crocodile marin est le plus grand reptile vivant sur Terre, doté d'une force de morsure herculéenne dépassant 3 700 livres par pouce carré. Prédateur suprême, il se camoufle parfaitement au ras de l'eau.",
+    zh: "欢迎来到鳄鱼池。湾鳄是现存体型最大的爬行动物，咬合力超过3700磅每平方英寸，堪称自然界的生物机械奇迹。它们擅长像浮木一样在水中静止潜伏数小时以伏击猎物。",
+    ja: "ワニ池へようこそ。イリエワニは地球上で最大の現生爬虫類であり、3,700ポンド/平方インチを超える圧倒的な咬合力を誇ります。水面に丸太のように擬態して獲物を待ち伏せします。"
+  },
+  "zoo-7": {
+    names: { vi: "Tê Giác Một Sừng", en: "Greater One-Horned Rhino", fr: "Rhinocéros indien", zh: "独角犀牛", ja: "インドサイ" },
+    vi: "Tê giác là một trong những loài thú to lớn cổ xưa còn tồn tại đến ngày nay với lớp da dầy xếp nếp như áo giáp chiến binh. Chiếc sừng đặc trưng được cấu tạo từ keratin giống như móng tay con người. Chúng đóng vai trò cực kỳ quan trọng trong việc cân bằng hệ sinh thái đồng cỏ.",
+    en: "The Greater One-horned Rhino is a prehistoric megaherbivore sporting armor-plated skin folds. Its iconic single horn consists of dense keratin, identical to human hair and fingernails. Rhinos play an indispensable keystone role in shaping grassland ecosystems.",
+    fr: "Le Rhinocéros unicorne d'Asie est un titan préhistorique doté d'une peau épaisse formant des replis semblables à une armure de chevalier. Sa corne unique est faite de kératine pure, semblable à nos ongles.",
+    zh: "独角犀牛是极其古老的巨型植食动物，厚实坚硬的皮肤褶皱犹如披挂的重装铠甲。标志性的独角完全由角蛋白纤维紧密构成。它们是维护草地森林健康的关键基石物种。",
+    ja: "鎧のような分厚い皮膚のひだを持つインドサイは、古代から姿を変えずに生き残った巨大草食獣です。角は骨ではなく人間の爪と同じケラチンでできています。"
+  },
+  "zoo-8": {
+    names: { vi: "Gấu Ngựa Đông Dương", en: "Asian Black Bear", fr: "Ours noir d'Asie", zh: "亚洲黑熊（月熊）", ja: "ツキノワグマ" },
+    vi: "Gấu ngựa sở hữu vệt lông màu vàng hình chữ Y hoặc chữ V đặc trưng trước ngực, nổi bật trên nền lông đen bóng. Chúng là những vận động viên leo trèo cừ khôi và có thói quen làm tổ trên các chảng cây cao để nghỉ ngơi và ăn trái cây rừng.",
+    en: "The Asian Black Bear is famously known for the striking cream-colored V-shaped patch across its chest. Master climbers with powerful curved claws, they often build feeding platforms high up in tree canopies to feast on wild fruits, nuts, and forest honey.",
+    fr: "L'Ours noir d'Asie se distingue par sa marque pectorale en forme de croissant blanc ou doré. Grimpeur exceptionnel, il aime confectionner des nids végétaux au sommet des arbres pour se nourrir de baies et de miel.",
+    zh: "亚洲黑熊以胸前醒目的乳白色月牙形V字斑纹闻名，因此常被称为月熊。它们是出色的爬树高手，经常在茂密的高树上筑巢以享用野果和蜂蜜。",
+    ja: "ツキノワグマは胸元にある三日月型の白い斑紋が特徴です。鋭い爪を活かした木登りが得意で、高木の上に棚のような座を作って果実や木の実、蜂蜜を食べます。"
+  }
+};
+
+
+        function getAnimalIcon(name, index = 0) {
+      const n = (name || '').toLowerCase();
+      if (n.includes('voi')) return '🐘';
+      if (n.includes('hổ') || n.includes('cọp')) return '🐅';
+      if (n.includes('hươu') || n.includes('ngựa vằn') || n.includes('ngựa')) return '🦒';
+      if (n.includes('vượn') || n.includes('khỉ') || n.includes('linh trưởng')) return '🐒';
+      if (n.includes('hồng hạc') || n.includes('chim') || n.includes('vẹt')) return '🦩';
+      if (n.includes('cá sấu')) return '🐊';
+      if (n.includes('tê giác')) return '🦏';
+      if (n.includes('gấu')) return '🐻';
+      if (n.includes('báo')) return '🐆';
+      if (n.includes('sư tử')) return '🦁';
+      if (n.includes('rùa')) return '🐢';
+      if (n.includes('rắn')) return '🐍';
+      const defaultIcons = ['🐾', '🦁', '🌿', '🐘', '🦒', '🐅', '🦩', '🐊'];
+      return defaultIcons[index % defaultIcons.length];
+    }
+
+const STORAGE_KEY = 'ZOO_ANIMALS_DATA_V2';
+    const SESSION_KEY = 'ZOO_ADMIN_SESSION';
+
+    function getZooAnimals() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (err) {}
+      return [];
+    }
+
+    let ZOO_ANIMALS = getZooAnimals();
+
+    // Map objects
+    let adminPickerMap = null;
+    let adminPickerMarker = null;
+    let adminPickerCircle = null;
+    let adminOverviewMap = null;
+    let qrcodeInstance = null;
+
+    // Check Auth State on Load
+    // Lắng nghe sự kiện storage để đồng bộ hai chiều với index.html
+    window.addEventListener('storage', (e) => {
+      if (!e.key || e.key === STORAGE_KEY) {
+        ZOO_ANIMALS = getZooAnimals();
+        updateKpis();
+        renderAdminTable();
+        populateSignageAnimalSelect();
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAdminAuthState();
+    });
+
+    // ================= AUTHENTICATION LOGIC =================
+    let isMemorySessionActive = false;
+    let memoryAdminUser = 'admin';
+    let initialLoginResetDone = false;
+
+    function checkAdminAuthState() {
+      // Chỉ reset phiên đăng nhập 1 lần duy nhất khi vừa tải trang nếu URL có ?view=login
+      if (!initialLoginResetDone) {
+        initialLoginResetDone = true;
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('view') === 'login' || window.location.hash === '#login') {
+            sessionStorage.removeItem(SESSION_KEY);
+            sessionStorage.removeItem('ZOO_ADMIN_USER');
+            isMemorySessionActive = false;
+          }
+        } catch (err) {}
+      }
+
+      let isSessionActive = isMemorySessionActive;
+      let currentUser = memoryAdminUser || 'admin';
+
+      try {
+        const stored = sessionStorage.getItem(SESSION_KEY);
+        if (stored === 'true' || stored === 'ACTIVE') {
+          isSessionActive = true;
+          currentUser = sessionStorage.getItem('ZOO_ADMIN_USER') || currentUser;
+        }
+      } catch (err) {}
+
+      if (isSessionActive) {
+        revealAdminDashboard(currentUser);
+      } else {
+        hideAdminDashboard();
+      }
+    }
+
+    function revealAdminDashboard(username = 'admin') {
+      const authScreen = document.getElementById('admin-auth-screen');
+      const dashContainer = document.getElementById('admin-dashboard-container');
+      const userDisplay = document.getElementById('admin-user-display');
+
+      if (authScreen) authScreen.classList.add('hidden');
+      if (dashContainer) {
+        dashContainer.classList.remove('hidden');
+        dashContainer.classList.add('flex');
+      }
+      if (userDisplay) {
+        userDisplay.innerText = username;
+      }
+
+      initAdminDashboard();
+    }
+
+    function hideAdminDashboard() {
+      const authScreen = document.getElementById('admin-auth-screen');
+      const dashContainer = document.getElementById('admin-dashboard-container');
+
+      if (authScreen) authScreen.classList.remove('hidden');
+      if (dashContainer) {
+        dashContainer.classList.add('hidden');
+        dashContainer.classList.remove('flex');
+      }
+    }
+
+    function handleAdminLogin(e) {
+      if (e) {
+        try { e.preventDefault(); } catch (err) {}
+        try { e.stopPropagation(); } catch (err) {}
+      }
+
+      const userInp = document.getElementById('login-username');
+      const pwdInp = document.getElementById('login-password');
+      const errBox = document.getElementById('login-error-msg');
+
+      const user = (userInp ? userInp.value : '').trim();
+      const pwd = (pwdInp ? pwdInp.value : '').trim();
+
+      // Chấp nhận: admin/admin123, quanly/zoo2026, hoặc tài khoản bất kỳ có độ dài >= 2
+      const isValid = (user.toLowerCase() === 'admin' && pwd === 'admin123') ||
+                      (user.toLowerCase() === 'quanly' && pwd === 'zoo2026') ||
+                      (user.length >= 2 && pwd.length >= 2);
+
+      if (isValid) {
+        if (errBox) errBox.classList.add('hidden');
+
+        isMemorySessionActive = true;
+        memoryAdminUser = user || 'admin';
+
+        try {
+          sessionStorage.setItem(SESSION_KEY, 'ACTIVE');
+          sessionStorage.setItem('ZOO_ADMIN_USER', memoryAdminUser);
+        } catch (err) {}
+
+        try {
+          if (typeof confetti === 'function') {
+            confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
+          }
+        } catch (err) {}
+
+        revealAdminDashboard(memoryAdminUser);
+      } else {
+        if (errBox) {
+          errBox.classList.remove('hidden');
+          errBox.innerText = 'Tài khoản hoặc mật khẩu không chính xác! Hãy dùng admin / admin123 hoặc bấm nút 1-Chạm bên dưới.';
+        }
+      }
+      return false;
+    }
+
+    function handleAdminLogout() {
+      if (confirm("Bạn có chắc chắn muốn đăng xuất khỏi Cổng Quản Trị?")) {
+        isMemorySessionActive = false;
+        try {
+          sessionStorage.removeItem(SESSION_KEY);
+          sessionStorage.removeItem('ZOO_ADMIN_USER');
+        } catch (err) {}
+        hideAdminDashboard();
+      }
+    }
+
+    function fillDemoCredentials(u, p) {
+      const uInp = document.getElementById('login-username');
+      const pInp = document.getElementById('login-password');
+      if (uInp) uInp.value = u;
+      if (pInp) pInp.value = p;
+      handleAdminLogin(null);
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('login-password');
+      const icon = document.getElementById('toggle-pwd-icon');
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash';
+      } else {
+        pwdInput.type = 'password';
+        icon.className = 'fa-solid fa-eye';
+      }
+    }
+
+    // ================= DASHBOARD INITIALIZATION =================
+    function initAdminDashboard() {
+      ZOO_ANIMALS = getZooAnimals();
+      updateKpis();
+      renderAdminTable();
+      populateSignageAnimalSelect();
+      setTimeout(initAdminPickerMap, 200);
+      renderSignageForAnimal(null);
+    }
+
+    function updateKpis() {
+      const count = ZOO_ANIMALS ? ZOO_ANIMALS.length : 0;
+      const elAnimals = document.getElementById('kpi-total-animals');
+      if (elAnimals) elAnimals.innerText = count;
+
+      const elGeofence = document.getElementById('kpi-geofence-count');
+      if (elGeofence) elGeofence.innerText = count;
+
+      const zones = new Set((ZOO_ANIMALS || []).map(a => a.zone).filter(Boolean));
+      const elZones = document.getElementById('kpi-total-zones');
+      if (elZones) elZones.innerText = zones.size;
+
+      const elMode = document.getElementById('kpi-system-mode');
+      if (elMode) {
+        if (count > 0) {
+          elMode.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1.5 animate-pulse"></span>' + count + ' loài trong hệ thống';
+        } else {
+          elMode.innerHTML = '<span class="w-2 h-2 rounded-full bg-slate-400 inline-block mr-1.5"></span>Chưa có CSDL (0 dữ liệu)';
+        }
+      }
+    }
+
+    // ================= TAB NAVIGATION =================
+    function switchAdminTab(tabKey) {
+      document.querySelectorAll('.admin-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.className = "admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center space-x-2 transition";
+      });
+
+      const pane = document.getElementById('pane-' + tabKey);
+      const btn = document.getElementById('tab-btn-' + tabKey);
+      if (pane) pane.classList.remove('hidden');
+      if (btn) btn.className = "admin-tab-btn py-2.5 px-3.5 rounded-xl text-xs font-black bg-emerald-500 text-slate-950 flex items-center space-x-2 transition";
+
+      if (tabKey === 'create') {
+        setTimeout(() => {
+          initAdminPickerMap();
+          if (adminPickerMap) adminPickerMap.invalidateSize();
+        }, 150);
+      }
+      if (tabKey === 'map') {
+        setTimeout(() => {
+          initAdminOverviewMap();
+          if (adminOverviewMap) {
+            adminOverviewMap.invalidateSize();
+            renderAdminOverviewLayers();
+          }
+        }, 150);
+      }
+      if (tabKey === 'signage') {
+        renderSignageForAnimal(ZOO_ANIMALS[0]?.id);
+      }
+    }
+
+    // ================= LEAFLET PICKER MAP (GOOGLE SATELLITE HYBRID) =================
+
+    let adminPickerTileLayer = null;
+    let adminOverviewTileLayer = null;
+
+    function setAdminPickerMapType(type) {
+      if (!adminPickerTileLayer) return;
+      const lyrs = (type === 'satellite') ? 'y' : 'm';
+      adminPickerTileLayer.setUrl(`https://mt{s}.google.com/vt/lyrs=${lyrs}&hl=vi&x={x}&y={y}&z={z}`);
+      const btnRoad = document.getElementById('btn-picker-roadmap');
+      const btnSat = document.getElementById('btn-picker-sat');
+      if (type === 'roadmap') {
+        if (btnRoad) btnRoad.className = "px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-600 text-white transition";
+        if (btnSat) btnSat.className = "px-2 py-1 rounded-lg text-[10px] font-bold text-slate-700 hover:bg-slate-100 transition";
+      } else {
+        if (btnSat) btnSat.className = "px-2 py-1 rounded-lg text-[10px] font-black bg-emerald-600 text-white transition";
+        if (btnRoad) btnRoad.className = "px-2 py-1 rounded-lg text-[10px] font-bold text-slate-700 hover:bg-slate-100 transition";
+      }
+    }
+
+    function setAdminOverviewMapType(type) {
+      if (!adminOverviewTileLayer) return;
+      const lyrs = (type === 'satellite') ? 'y' : 'm';
+      adminOverviewTileLayer.setUrl(`https://mt{s}.google.com/vt/lyrs=${lyrs}&hl=vi&x={x}&y={y}&z={z}`);
+      const btnRoad = document.getElementById('btn-admin-overview-roadmap');
+      const btnSat = document.getElementById('btn-admin-overview-satellite');
+      if (type === 'roadmap') {
+        if (btnRoad) btnRoad.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm cursor-pointer";
+        if (btnSat) btnSat.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-700 hover:bg-slate-100 cursor-pointer";
+      } else {
+        if (btnSat) btnSat.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-sm cursor-pointer";
+        if (btnRoad) btnRoad.className = "px-2.5 py-1 rounded-lg text-xs font-bold transition text-slate-700 hover:bg-slate-100 cursor-pointer";
+      }
+    }
+
+    function initAdminPickerMap() {
+      if (adminPickerMap) {
+        adminPickerMap.invalidateSize();
+        return;
+      }
+      const zooCenter = [10.7872, 106.7056];
+      adminPickerMap = L.map('admin-picker-map', {
+        center: zooCenter,
+        zoom: 18,
+        zoomControl: true
+      });
+
+      // Lớp Bản Đồ Số Google Maps (Mặc định) sắc nét, rõ ràng từng chi tiết
+      adminPickerTileLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=vi&x={x}&y={y}&z={z}', {
+        subdomains: ['0', '1', '2', '3'],
+        maxZoom: 20,
+        attribution: '&copy; Google Maps | Bản Đồ Số Thảo Cầm Viên'
+      }).addTo(adminPickerMap);
+
+      const pinIcon = L.divIcon({
+        className: 'picker-pin',
+        html: `
+          <div style="background:#059669;color:white;width:34px;height:34px;border-radius:50%;border:3px solid white;box-shadow:0 4px 10px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:16px;">
+            📍
+          </div>
+        `,
+        iconSize: [34, 34],
+        iconAnchor: [17, 34]
+      });
+
+      adminPickerMarker = L.marker(zooCenter, { draggable: true, icon: pinIcon }).addTo(adminPickerMap);
+      adminPickerCircle = L.circle(zooCenter, {
+        color: '#059669',
+        fillColor: '#059669',
+        fillOpacity: 0.2,
+        weight: 2,
+        dashArray: '4, 4',
+        radius: 25
+      }).addTo(adminPickerMap);
+
+      adminPickerMarker.on('dragend', function (e) {
+        const latlng = e.target.getLatLng();
+        setCreateCoordinates(latlng.lng, latlng.lat);
+      });
+
+      adminPickerMap.on('click', (e) => {
+        setCreateCoordinates(e.latlng.lng, e.latlng.lat);
+      });
+
+      setTimeout(() => {
+        if (adminPickerMap) adminPickerMap.invalidateSize();
+      }, 200);
+    }
+
+    function resetPickerToDefaultCenter() {
+      setCreateCoordinates(106.705600, 10.787200);
+      if (adminPickerMap) adminPickerMap.setView([10.7872, 106.7056], 18);
+    }
+
+    function setCreateCoordinates(lon, lat) {
+      lon = parseFloat(lon.toFixed(6));
+      lat = parseFloat(lat.toFixed(6));
+      document.getElementById('c-lon').value = lon;
+      document.getElementById('c-lat').value = lat;
+
+      if (adminPickerMarker) adminPickerMarker.setLatLng([lat, lon]);
+      if (adminPickerCircle) adminPickerCircle.setLatLng([lat, lon]);
+      if (adminPickerMap) adminPickerMap.panTo([lat, lon]);
+    }
+
+    function syncPickerMapFromInputs() {
+      const lon = parseFloat(document.getElementById('c-lon').value);
+      const lat = parseFloat(document.getElementById('c-lat').value);
+      if (!isNaN(lon) && !isNaN(lat)) {
+        if (adminPickerMarker) adminPickerMarker.setLatLng([lat, lon]);
+        if (adminPickerCircle) adminPickerCircle.setLatLng([lat, lon]);
+        if (adminPickerMap) adminPickerMap.panTo([lat, lon]);
+      }
+    }
+
+    function updateCreateRadiusSlider(val) {
+      document.getElementById('c-radius-badge').innerText = val + ' mét';
+      if (adminPickerCircle) adminPickerCircle.setRadius(parseInt(val));
+    }
+
+    function getCurrentDeviceGPSForCreate() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            setCreateCoordinates(pos.coords.longitude, pos.coords.latitude);
+            alert("Đã lấy thành công tọa độ GPS từ thiết bị của bạn!");
+          },
+          () => alert("Không thể lấy GPS. Bạn có thể nhấp chọn điểm bất kỳ trên bản đồ.")
+        );
+      }
+    }
+
+    function setCreateImage(url) {
+      document.getElementById('c-img').value = url;
+    }
+
+    function syncLiveCreatePreview() {}
+
+    function testSpeakCreateNarrative() {
+      const text = document.getElementById('c-desc').value.trim();
+      if (!text || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const ut = new SpeechSynthesisUtterance(text);
+      ut.lang = 'vi-VN';
+      window.speechSynthesis.speak(ut);
+    }
+
+    // ================= CREATE ANIMAL SUBMIT =================
+    function handleCreateAnimal(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('c-name').value.trim();
+      const sciname = document.getElementById('c-sciname').value.trim();
+      const zone = document.getElementById('c-zone').value;
+      const iucn = document.getElementById('c-iucn').value;
+      const diet = document.getElementById('c-diet').value.trim();
+      const color = document.getElementById('c-color').value;
+      const lon = parseFloat(document.getElementById('c-lon').value);
+      const lat = parseFloat(document.getElementById('c-lat').value);
+      const radius = parseInt(document.getElementById('c-radius').value);
+      const img = document.getElementById('c-img').value.trim();
+      const desc = document.getElementById('c-desc').value.trim();
+
+      const newAnimal = {
+        id: "zoo-" + Date.now(),
+        name,
+        scientificName: sciname,
+        zone,
+        conservationStatus: iucn,
+        diet,
+        coordinates: [lon, lat],
+        radius_meters: radius,
+        color: color || '#059669',
+        icon: getAnimalIcon(name),
+        imageUrl: img,
+        descriptionVi: desc,
+        audioLength: "01:20"
+      };
+
+      ZOO_ANIMALS.unshift(newAnimal);
+      saveZooAnimals();
+
+      try { confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } }); } catch (err) {}
+      alert(`Đã thêm thành công loài thú "${newAnimal.name}" vào hệ thống!\nDữ liệu đã được đồng bộ với trang Người Dùng.`);
+
+      resetCreateForm();
+      switchAdminTab('list');
+    }
+
+    function resetCreateForm() {
+      document.getElementById('admin-create-form').reset();
+      document.getElementById('c-lon').value = "106.705600";
+      document.getElementById('c-lat').value = "10.787200";
+      document.getElementById('c-radius').value = 25;
+      document.getElementById('c-radius-badge').innerText = "25 mét";
+      if (adminPickerMarker) adminPickerMarker.setLatLng([10.7872, 106.7056]);
+      if (adminPickerCircle) {
+        adminPickerCircle.setLatLng([10.7872, 106.7056]);
+        adminPickerCircle.setRadius(25);
+      }
+    }
+
+    // Save to LocalStorage
+    function saveZooAnimals() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(ZOO_ANIMALS));
+      updateKpis();
+      renderAdminTable();
+      populateSignageAnimalSelect();
+      try {
+        if (adminOverviewMap) renderAdminOverviewLayers();
+      } catch (err) {}
+    }
+
+    // ================= TABLE LIST & EDIT / DELETE =================
+    function renderAdminTable(filterQuery = "") {
+      const tbody = document.getElementById('admin-table-body');
+      tbody.innerHTML = '';
+
+      let list = ZOO_ANIMALS;
+      if (filterQuery) {
+        const q = filterQuery.toLowerCase();
+        list = list.filter(an => an.name.toLowerCase().includes(q) || an.scientificName.toLowerCase().includes(q) || an.zone.toLowerCase().includes(q));
+      }
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-bold text-xs bg-slate-50/50">Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.</td></tr>`;
+        return;
+      }
+
+      list.forEach((an, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            <div class="flex items-center space-x-3">
+              <img src="${an.imageUrl}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shrink-0" />
+              <div>
+                <div class="font-black text-slate-900">${an.name}</div>
+                <div class="text-[11px] text-slate-400 italic">${an.scientificName}</div>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-xs font-semibold text-slate-600">${an.zone}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 text-slate-800 border border-slate-200">
+              ${an.conservationStatus.split('-')[0].trim()}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-mono text-[11px] text-slate-500">${an.coordinates[1].toFixed(5)}, ${an.coordinates[0].toFixed(5)}</td>
+          <td class="py-3 px-4 font-mono text-[11px] font-bold text-emerald-600">${an.radius_meters || 25}m</td>
+          <td class="py-3 px-4 text-center">
+            <div class="flex items-center justify-center space-x-1.5">
+              <a href="index.html?select=${an.id}" class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition flex items-center space-x-1" title="Xem trực tiếp trên Google Maps của du khách">
+                <i class="fa-solid fa-eye"></i>
+                <span class="hidden xl:inline">Xem map</span>
+              </a>
+              <button onclick="openEditModal('${an.id}')" class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs transition" title="Chỉnh sửa">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="handleDeleteAnimal('${an.id}', '${an.name}')" class="px-2.5 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs transition" title="Xóa loài thú">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterAdminList() {
+      const q = document.getElementById('admin-list-search').value.trim();
+      renderAdminTable(q);
+    }
+
+    function handleDeleteAnimal(id, name) {
+      if (confirm(`Bạn có chắc chắn muốn xóa loài thú "${name}" khỏi hệ thống? Du khách sẽ không còn thấy loài thú này trên bản đồ.`)) {
+        ZOO_ANIMALS = ZOO_ANIMALS.filter(x => x.id !== id);
+        saveZooAnimals();
+        alert(`Đã xóa thành công "${name}".`);
+      }
+    }
+
+    // ================= EDIT MODAL =================
+    function openEditModal(id) {
+      const an = ZOO_ANIMALS.find(x => x.id === id);
+      if (!an) return;
+
+      document.getElementById('e-id').value = an.id;
+      document.getElementById('e-name').value = an.name;
+      document.getElementById('e-sciname').value = an.scientificName;
+      document.getElementById('e-zone').value = an.zone;
+      document.getElementById('e-iucn').value = an.conservationStatus;
+      document.getElementById('e-lon').value = an.coordinates[0];
+      document.getElementById('e-lat').value = an.coordinates[1];
+      document.getElementById('e-radius').value = an.radius_meters || 25;
+      document.getElementById('e-img').value = an.imageUrl;
+      document.getElementById('e-desc').value = an.descriptionVi;
+
+      const modal = document.getElementById('admin-edit-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditModal() {
+      const modal = document.getElementById('admin-edit-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function handleSaveEditedAnimal(e) {
+      e.preventDefault();
+      const id = document.getElementById('e-id').value;
+      const an = ZOO_ANIMALS.find(x => x.id === id);
+      if (!an) return;
+
+      an.name = document.getElementById('e-name').value.trim();
+      an.scientificName = document.getElementById('e-sciname').value.trim();
+      an.zone = document.getElementById('e-zone').value;
+      an.conservationStatus = document.getElementById('e-iucn').value;
+      an.coordinates = [
+        parseFloat(document.getElementById('e-lon').value),
+        parseFloat(document.getElementById('e-lat').value)
+      ];
+      an.radius_meters = parseInt(document.getElementById('e-radius').value);
+      an.imageUrl = document.getElementById('e-img').value.trim();
+      an.descriptionVi = document.getElementById('e-desc').value.trim();
+
+      saveZooAnimals();
+      closeEditModal();
+      alert(`Đã cập nhật thành công thông tin cho loài "${an.name}"!`);
+    }
+
+    // ================= OVERVIEW MAP (TAB 3 - GOOGLE SATELLITE HYBRID CHUẨN XÁC) =================
+    let overviewMarkers = [];
+    let overviewCircles = [];
+    let overviewGateMarkers = [];
+    let currentOverviewZoneFilter = 'all';
+
+    function initAdminOverviewMap() {
+      if (!adminOverviewMap) {
+        const zooCenter = [10.7876, 106.7056];
+        adminOverviewMap = L.map('admin-overview-map', {
+          center: zooCenter,
+          zoom: 17,
+          zoomControl: true
+        });
+
+        // Lớp Bản Đồ Số Google Maps (Mặc định) toàn cảnh sắc nét
+        adminOverviewTileLayer = L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=vi&x={x}&y={y}&z={z}', {
+          subdomains: ['0', '1', '2', '3'],
+          maxZoom: 20,
+          attribution: '&copy; Google Maps | Bản Đồ Số Thảo Cầm Viên'
+        }).addTo(adminOverviewMap);
+
+        // Đánh dấu 2 Cổng vào Thảo Cầm Viên
+        const gates = [
+          { name: "Cổng 1 (Nguyễn Bỉnh Khiêm)", coords: [10.7876, 106.7042] },
+          { name: "Cổng 2 (Nguyễn Thị Minh Khai)", coords: [10.7887, 106.7058] }
+        ];
+        gates.forEach(g => {
+          const gateIcon = L.divIcon({
+            className: 'admin-gate-pin',
+            html: `<div style="background:#1e293b;color:#f8fafc;padding:4px 9px;border-radius:12px;font-size:11px;font-weight:800;border:2px solid #38bdf8;box-shadow:0 3px 8px rgba(0,0,0,0.4);white-space:nowrap;display:flex;align-items:center;gap:4px;">🚪 ${g.name}</div>`,
+            iconSize: [140, 26],
+            iconAnchor: [70, 13]
+          });
+          const gm = L.marker(g.coords, { icon: gateIcon }).addTo(adminOverviewMap)
+            .bindPopup(`<b>${g.name}</b><br><span style="font-size:11px;color:#64748b;">Cổng đón khách Thảo Cầm Viên Sài Gòn</span>`);
+          overviewGateMarkers.push(gm);
+        });
+      }
+
+      setTimeout(() => {
+        if (adminOverviewMap) adminOverviewMap.invalidateSize();
+      }, 150);
+
+      renderAdminOverviewLayers();
+    }
+
+    function renderAdminOverviewLayers() {
+      if (!adminOverviewMap) return;
+      const emptyOverlay = document.getElementById('admin-overview-map-empty');
+      if (emptyOverlay) {
+        emptyOverlay.classList.toggle('hidden', ZOO_ANIMALS && ZOO_ANIMALS.length > 0);
+      }
+
+      // Xóa ghim và vòng tròn cũ
+      overviewMarkers.forEach(m => {
+        try { adminOverviewMap.removeLayer(m); } catch (e) {}
+      });
+      overviewMarkers = [];
+
+      overviewCircles.forEach(c => {
+        try { adminOverviewMap.removeLayer(c); } catch (e) {}
+      });
+      overviewCircles = [];
+
+      let list = ZOO_ANIMALS;
+      if (currentOverviewZoneFilter !== 'all') {
+        const filterStr = currentOverviewZoneFilter.toLowerCase();
+        list = list.filter(an => (an.zone || '').toLowerCase().includes(filterStr));
+      }
+
+      const countBadge = document.getElementById('overview-count-badge');
+      if (countBadge) {
+        countBadge.innerText = (ZOO_ANIMALS && ZOO_ANIMALS.length > 0) ? `${list.length} / ${ZOO_ANIMALS.length} loài` : 'Chưa có dữ liệu';
+      }
+
+      list.forEach((an, idx) => {
+        let lat = an.coordinates[1];
+        let lon = an.coordinates[0];
+        if (lon < 50 && lat > 50) {
+          const t = lon; lon = lat; lat = t;
+        }
+
+        const icon = an.icon || getAnimalIcon(an.name, idx);
+        const color = an.color || '#059669';
+        const radius = parseInt(an.radius_meters || an.radius || 25);
+
+        // Vòng tròn Geofence chính xác bán kính
+        const circle = L.circle([lat, lon], {
+          radius: radius,
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.18,
+          weight: 2,
+          dashArray: '4, 4'
+        }).addTo(adminOverviewMap);
+        overviewCircles.push(circle);
+
+        // Marker Ghim chuẩn Google Maps
+        const pinIcon = L.divIcon({
+          className: 'admin-gmap-pin',
+          html: `
+            <div style="background:${color};color:white;padding:5px 10px;border-radius:18px;font-size:11px;font-weight:900;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,0.5);border:2px solid white;display:flex;align-items:center;gap:4px;cursor:pointer;">
+              <span>${icon}</span> <span>${an.name}</span>
+            </div>
+          `,
+          iconSize: [110, 32],
+          iconAnchor: [55, 16]
+        });
+
+        const marker = L.marker([lat, lon], { icon: pinIcon }).addTo(adminOverviewMap);
+        
+        // Popup chi tiết khi bấm vào từng marker
+        const popupContent = `
+          <div style="width:230px;font-family:inherit;line-height:1.4;">
+            <div style="height:90px;overflow:hidden;border-radius:10px;margin-bottom:8px;">
+              <img src="${an.imageUrl}" style="width:100%;height:100%;object-fit:cover;" />
+            </div>
+            <div style="font-weight:900;font-size:13px;color:#0f172a;display:flex;align-items:center;gap:4px;">
+              <span>${icon}</span> <span>${an.name}</span>
+            </div>
+            <div style="font-size:11px;color:#64748b;font-style:italic;">${an.scientificName}</div>
+            <div style="margin-top:6px;font-size:11px;background:#f1f5f9;padding:4px 7px;border-radius:8px;">
+              <div><b>Khu vực:</b> ${an.zone}</div>
+              <div><b>Tọa độ:</b> ${lat.toFixed(5)}, ${lon.toFixed(5)}</div>
+              <div><b>Bán kính:</b> <span style="color:${color};font-weight:bold;">${radius} mét</span></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;">
+              <button onclick="openEditModal('${an.id}')" style="background:#2563eb;color:white;padding:5px;border-radius:8px;font-size:11px;font-weight:bold;border:none;cursor:pointer;">
+                <i class="fa-solid fa-pen"></i> Sửa
+              </button>
+              <a href="index.html?select=${an.id}" style="background:#059669;color:white;padding:5px;border-radius:8px;font-size:11px;font-weight:bold;text-align:center;text-decoration:none;display:block;">
+                <i class="fa-solid fa-eye"></i> Xem Web
+              </a>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupContent);
+        overviewMarkers.push(marker);
+      });
+    }
+
+    function fitAdminOverviewBounds() {
+      if (!adminOverviewMap) return;
+      if (overviewMarkers.length > 0) {
+        const group = L.featureGroup(overviewMarkers);
+        adminOverviewMap.fitBounds(group.getBounds().pad(0.15));
+      } else {
+        adminOverviewMap.setView([10.7876, 106.7056], 17);
+      }
+    }
+
+    function filterOverviewZone(zoneKey) {
+      currentOverviewZoneFilter = zoneKey;
+      
+      const buttons = [
+        { id: 'btn-zone-all', key: 'all' },
+        { id: 'btn-zone-mongguoc', key: 'Móng Guốc' },
+        { id: 'btn-zone-anthit', key: 'Thú Ăn Thịt' },
+        { id: 'btn-zone-linhtruong', key: 'Linh Trưởng' },
+        { id: 'btn-zone-chim', key: 'Chim' },
+        { id: 'btn-zone-bosat', key: 'Bò Sát' }
+      ];
+
+      buttons.forEach(b => {
+        const el = document.getElementById(b.id);
+        if (el) {
+          if (b.key === zoneKey) {
+            el.className = "px-3 py-1.5 rounded-xl font-bold bg-emerald-600 text-white text-xs shrink-0 transition shadow-sm";
+          } else {
+            el.className = "px-3 py-1.5 rounded-xl font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs shrink-0 transition";
+          }
+        }
+      });
+
+      renderAdminOverviewLayers();
+    }
+
+    // ================= QR SIGNAGE GENERATOR (TAB 4) =================
+    function populateSignageAnimalSelect() {
+      const sel = document.getElementById('signage-animal-select');
+      if (!sel) return;
+      sel.innerHTML = '';
+      if (!ZOO_ANIMALS || ZOO_ANIMALS.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.innerText = "Chưa có loài thú nào";
+        sel.appendChild(opt);
+        return;
+      }
+      ZOO_ANIMALS.forEach(an => {
+        const opt = document.createElement('option');
+        opt.value = an.id;
+        opt.innerText = an.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderSignageForAnimal(id) {
+      const an = id ? ZOO_ANIMALS.find(x => x.id === id) : (ZOO_ANIMALS && ZOO_ANIMALS.length > 0 ? ZOO_ANIMALS[0] : null);
+      if (!an) {
+        const signName = document.getElementById('sign-name');
+        if (signName) signName.innerText = "Chưa có dữ liệu động vật";
+        const signSci = document.getElementById('sign-sciname');
+        if (signSci) signSci.innerText = "Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu";
+        const signZone = document.getElementById('sign-zone');
+        if (signZone) signZone.innerText = "Chưa có phân khu";
+        const signDesc = document.getElementById('sign-desc');
+        if (signDesc) signDesc.innerText = "Chưa có dữ liệu bài thuyết minh. Hãy kết nối cơ sở dữ liệu.";
+        const signDiet = document.getElementById('sign-diet');
+        if (signDiet) signDiet.innerText = "—";
+        const signIucn = document.getElementById('sign-iucn');
+        if (signIucn) signIucn.innerText = "—";
+        const signCoords = document.getElementById('sign-coords');
+        if (signCoords) signCoords.innerText = "10.78760, 106.70560";
+        const signRadius = document.getElementById('sign-radius');
+        if (signRadius) signRadius.innerText = "0m";
+        const qrBox = document.getElementById('signage-qrcode-box');
+        if (qrBox) {
+          qrBox.innerHTML = '<div class="w-32 h-32 flex flex-col items-center justify-center text-center p-2 text-slate-400 text-[10px] font-bold"><i class="fa-solid fa-qrcode text-3xl mb-1 text-slate-300"></i>Chưa có mã QR</div>';
+        }
+        return;
+      }
+
+      document.getElementById('sign-name').innerText = an.name;
+      document.getElementById('sign-sciname').innerText = an.scientificName;
+      document.getElementById('sign-zone').innerText = an.zone;
+
+      // Generate QR Code
+      const qrBox = document.getElementById('signage-qrcode-box');
+      qrBox.innerHTML = '';
+      const qrData = `https://thaocamvien.org.vn/audio-guide?id=${an.id}`;
+
+      new QRCode(qrBox, {
+        text: qrData,
+        width: 130,
+        height: 130,
+        colorDark: "#064e3b",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function printSignage() {
+      window.print();
+    }
+
+    // ================= AI TTS STUDIO (TAB 5) =================
+    function speakTtsStudio() {
+      const text = document.getElementById('tts-test-text').value.trim();
+      const lang = document.getElementById('tts-lang-select').value;
+      const rate = parseFloat(document.getElementById('tts-rate').value);
+      const pitch = parseFloat(document.getElementById('tts-pitch').value);
+
+      if (!text || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+
+      const ut = new SpeechSynthesisUtterance(text);
+      const langCodes = { vi: 'vi-VN', en: 'en-US', fr: 'fr-FR', zh: 'zh-CN', ja: 'ja-JP' };
+      ut.lang = langCodes[lang] || 'vi-VN';
+      ut.rate = rate;
+      ut.pitch = pitch;
+
+      window.speechSynthesis.speak(ut);
+    }
+
+    function stopTtsStudio() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    // ================= DATA MANAGEMENT (TAB 6) =================
+    function exportDataJson() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ZOO_ANIMALS, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `zoo_animals_backup_${Date.now()}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function handleImportJson(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            ZOO_ANIMALS = parsed;
+            saveZooAnimals();
+            alert("Đã phục hồi dữ liệu thành công từ tệp tin JSON!");
+            switchAdminTab('list');
+          } else {
+            alert("Tệp tin JSON không hợp lệ.");
+          }
+        } catch (err) {
+          alert("Lỗi khi đọc tệp tin JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetToFactoryDefault() {
+      if (confirm("Bạn có chắc chắn muốn khôi phục lại 8 loài thú mặc định ban đầu của Thảo Cầm Viên? Mọi thay đổi bạn đã thêm sẽ được làm mới.")) {
+        ZOO_ANIMALS = [...DEFAULT_ZOO_ANIMALS];
+        saveZooAnimals();
+        alert("Đã khôi phục dữ liệu gốc thành công!");
+        switchAdminTab('list');
+      }
+    }
+
+  </script>
+</body>
+</html>
