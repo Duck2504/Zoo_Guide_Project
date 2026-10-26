@@ -41,8 +41,8 @@ jobs:
       if: github.event_name == 'push'
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
       with:
-        server: ${{ win8214.site4now.net }}
-        username: ${{ zooaudioguide-001 }}
-        password: ${{ @ZooAudio123 }}
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./Backend_core/ZooAudioGuide.API/publish/
         server-dir: /ZooAudioGuide/
