@@ -1,4 +1,4 @@
-name: Core Backend CI
+name: Core Backend CI/CD
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - 'Backend_core/**'
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     defaults:
@@ -32,3 +32,17 @@ jobs:
 
     - name: Biên dịch
       run: dotnet build --no-restore --configuration Release
+
+    - name: Đóng gói dự án (Publish)
+      if: github.event_name == 'push'
+      run: dotnet publish --no-build --configuration Release -o ./publish
+
+    - name: Triển khai FTP lên SmarterASP
+      if: github.event_name == 'push'
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ win8214.site4now.net }}
+        username: ${{ zooaudioguide-001 }}
+        password: ${{ @ZooAudio123 }}
+        local-dir: ./Backend_core/ZooAudioGuide.API/publish/
+        server-dir: /ZooAudioGuide/
