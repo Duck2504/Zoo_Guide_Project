@@ -34,10 +34,7 @@ var app = builder.Build();
 app.UseCors("AllowFE");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
     app.MapOpenApi();
-}
 
 // 2. Kích hoạt định tuyến cho các Controller (Zones, Animals...)
 app.MapControllers();
