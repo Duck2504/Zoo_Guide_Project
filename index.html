@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thảo Cầm Viên — Bản Đồ Google Maps</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>" />
+  <title>Thảo Cầm Viên Sài Gòn — Hệ Thống Thuyết Minh Tự Động (QR & GPS)</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐯</text></svg>" />
   
   <!-- Google Font: Be Vietnam Pro -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,14 +13,6 @@
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Leaflet Map CSS & JS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Font Awesome 6 Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
   <script>
     tailwind.config = {
       theme: {
@@ -45,742 +37,364 @@
           }
         }
       }
-    }
+    };
   </script>
+  
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <style>
-    body {
-      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 9999px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-    /* Google Maps Pin Style */
-    .gmap-pin {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: pointer;
-    }
-    .gmap-pin:hover {
-      transform: scale(1.1) translateY(-2px);
-      box-shadow: 0 6px 14px rgba(0,0,0,0.45);
-    }
-
-    /* Đảm bảo map tiles load mượt không bị vỡ */
-    .leaflet-container {
-      background-color: #1e293b !important;
-      font-family: inherit;
-    }
-  </style>
+  <!-- Separated Stylesheets -->
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/visitor.css">
 </head>
-<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-100 text-slate-800 flex flex-col h-screen overflow-hidden">
 
-  <!-- ================= PHẦN HEADER GỌN: LOGO CHỈ CÓ CHỮ THẢO CẦM VIÊN ================= -->
-  <header class="bg-white sticky top-0 z-40 border-b border-slate-200 shadow-sm h-14 sm:h-16 flex items-center">
-    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 flex items-center justify-between">
-      
-      <!-- Logo: Chỉ có biểu tượng và chữ Thảo Cầm Viên -->
-      <a href="index.html" class="flex items-center space-x-2.5 group shrink-0">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white text-lg shadow-sm group-hover:scale-105 transition">
-          🦁
-        </div>
-        <span class="text-base sm:text-lg font-black text-slate-900 tracking-tight">Thảo Cầm Viên</span>
+  <!-- ================= TOP HEADER (MATCHING SCREENSHOT) ================= -->
+  <header class="h-16 sm:h-20 bg-white border-b border-slate-200 shadow-md shrink-0 z-40 px-3 sm:px-6 flex items-center justify-between">
+    
+    <!-- Brand Logo -->
+    <a href="index.html" class="flex items-center group">
+      <span class="font-black text-slate-900 group-hover:text-zoo-700 text-xl sm:text-2xl tracking-tight transition">Thảo Cầm Viên</span>
+    </a>
+
+    <!-- Center Navigation Links (Matching Screenshot: Bản đồ sở thú & Trang Chủ) -->
+    <nav class="flex items-center gap-1 sm:gap-2">
+      <!-- 1. Trang Chủ (Active mặc định khi vào web) -->
+      <button type="button" id="nav-btn-home" onclick="switchMainTab('home')"
+              class="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-zoo-700 bg-zoo-50 font-bold text-xs sm:text-sm transition cursor-pointer shadow-xs">
+        <i class="fa-solid fa-house"></i>
+        <span id="nav-text-home">Trang Chủ</span>
+      </button>
+
+      <!-- 2. Bản đồ sở thú -->
+      <button type="button" id="nav-btn-map" onclick="switchMainTab('map')"
+              class="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-bold text-xs sm:text-sm transition cursor-pointer">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span id="nav-text-map">Bản đồ sở thú</span>
+      </button>
+
+      <!-- 3. Mã QR -->
+      <a href="qr.html"
+         class="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-bold text-xs sm:text-sm transition cursor-pointer">
+        <i class="fa-solid fa-qrcode"></i>
+        <span>Mã QR</span>
       </a>
+    </nav>
 
-      <!-- Thanh Menu Điều Hướng: Bản đồ sở thú & Mô phỏng di động -->
-      <nav class="flex items-center space-x-1 sm:space-x-3">
-        <a href="#section-map" onclick="scrollToMap(event)" class="px-3 py-2 rounded-xl font-extrabold text-xs sm:text-sm text-slate-800 hover:text-emerald-700 hover:bg-emerald-50 transition flex items-center space-x-1.5 border border-transparent hover:border-emerald-200 shadow-none">
-          <i class="fa-solid fa-map-location-dot text-emerald-600"></i>
-          <span id="nav-text-map">Bản đồ sở thú</span>
-        </a>
-        <a href="#section-mobile" onclick="scrollToMobile(event)" class="px-3 py-2 rounded-xl font-extrabold text-xs sm:text-sm text-slate-800 hover:text-emerald-700 hover:bg-emerald-50 transition flex items-center space-x-1.5 border border-transparent hover:border-emerald-200 shadow-none">
-          <i class="fa-solid fa-mobile-screen text-emerald-600"></i>
-          <span id="nav-text-mobile">Mô phỏng di động</span>
-        </a>
-      </nav>
-
-      <!-- Các phần cần thiết: Chọn ngôn ngữ & Nút Quản trị -->
-      <div class="flex items-center space-x-2 sm:space-x-2.5 shrink-0">
-        <!-- Bộ chọn ngôn ngữ gọn gàng -->
-        <select id="header-lang-select" class="text-xs font-bold py-1.5 px-2.5 bg-slate-100 border border-slate-300 rounded-xl text-slate-700 cursor-not-allowed opacity-75" disabled aria-label="Lựa chọn ngôn ngữ, chỉ hiển thị">
-          <option value="vi">🇻🇳 Tiếng Việt</option>
-          <option value="en">🇬🇧 English</option>
-          <option value="fr">🇫🇷 Français</option>
-          <option value="zh">🇨🇳 中文</option>
-          <option value="ja">🇯🇵 日本語</option>
+    <!-- Right Actions: Language Selector & Linked Account Button (Bên cạnh) -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <!-- Language Selector Dropdown Pill (Matching Screenshot: VN Tiếng Việt ⌵) -->
+      <div class="relative inline-block">
+        <select id="header-lang-select"
+                class="bg-white border border-slate-300 text-slate-800 text-xs sm:text-sm font-bold rounded-full py-1.5 sm:py-2 pl-2.5 sm:pl-3.5 pr-6 sm:pr-8 focus:outline-hidden focus:border-zoo-500 shadow-sm cursor-pointer">
+          <option value="vi">🇻🇳 VN Tiếng Việt</option>
+          <option value="en">🇬🇧 EN English</option>
+          <option value="ko">🇰🇷 KO 한국어</option>
+          <option value="ja">🇯🇵 JA 日本語</option>
+          <option value="zh">🇨🇳 ZH 中文</option>
         </select>
-
-        <!-- Mở giao diện quản trị tĩnh -->
-        <a href="admin.html" class="inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm py-1.5 sm:py-2 px-3 sm:px-4 rounded-xl shadow-sm transition cursor-pointer" title="Mở giao diện quản trị">
-          <i class="fa-solid fa-lock text-amber-300 text-xs"></i>
-          <span id="nav-text-admin">Đăng Nhập Quản Trị</span>
-        </a>
       </div>
-
     </div>
+
   </header>
 
-  <!-- ================= KHU VỰC BẢN ĐỒ GOOGLE MAPS RÕ RÀNG, SẮC NÉT ================= -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-4 md:p-6 space-y-5">
+  <!-- ================= TAB 1: BẢN ĐỒ SỞ THÚ (MATCHING SCREENSHOT) ================= -->
+  <main id="view-tab-map" class="visitor-main-viewport hidden">
+    
+    <!-- LEAFLET REAL MAP CANVAS (Google Maps Roadmap & Satellite) -->
+    <div id="google-maps-view"></div>
 
-    <!-- BẢN ĐỒ GOOGLE MAPS TOÀN CẢNH (RÕ RÀNG, KHÔNG BỊ CHE KHUẤT) -->
-    <div id="section-map" class="relative bg-slate-900 scroll-mt-20 rounded-3xl border border-slate-200 shadow-xl overflow-hidden h-[620px] sm:h-[680px] lg:h-[720px]">
+    <!-- TOP-LEFT FLOATING PANEL: SEARCH BOX & ENTRANCE GATES -->
+    <div class="map-top-left-panel">
       
-      <!-- Bản đồ nền, chưa hiển thị dữ liệu động vật khi chưa kết nối cơ sở dữ liệu. -->
-      <div id="google-maps-view" class="w-full h-full z-10"></div>
-      <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-        <div id="map-empty-text" class="rounded-2xl bg-white/95 px-5 py-3 text-center text-xs font-bold text-slate-600 shadow-lg border border-slate-200">
-          Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.
-        </div>
+      <!-- Search Input Card -->
+      <div class="map-search-card">
+        <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs mr-2.5"></i>
+        <input type="text" id="gmap-search-input" oninput="filterAnimalsSearch(this.value)"
+               placeholder="Tìm chuồng thú trên bản đồ..."
+               class="w-full bg-transparent border-none text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-hidden" />
+        <button type="button" id="gmap-search-clear" onclick="clearSearch()" class="hidden text-slate-400 hover:text-slate-600 ml-2">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
       </div>
 
-      <!-- THANH TÌM KIẾM NỔI GOOGLE MAPS (TOP-LEFT) -->
-      <div class="absolute top-4 left-4 right-4 sm:right-auto z-20 sm:w-96 space-y-2 pointer-events-auto">
-        <!-- Khung Tìm Kiếm -->
-        <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200 p-2.5 flex items-center space-x-2">
-          <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
-            <i class="fa-solid fa-magnifying-glass text-xs"></i>
-          </div>
-          <input type="text" id="gmap-search-input" onkeyup="filterAnimalsSearch(this.value)" placeholder="Tìm chuồng thú trên bản đồ..." class="w-full text-xs font-semibold text-slate-800 placeholder-slate-400 bg-transparent focus:outline-none pr-2" />
-          <button onclick="clearSearch()" class="text-slate-400 hover:text-slate-600 px-1 text-xs" title="Xóa">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-
-        <!-- Các Chip Thao Tác Nhanh (Pills) -->
-        <div class="flex items-center space-x-1.5 overflow-x-auto custom-scrollbar pb-1">
-          <button id="pill-gate1" onclick="jumpToGate(10.7876, 106.7042, 'gate1')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition cursor-pointer">
-            🚪 Cổng 1
-          </button>
-          <button id="pill-gate2" onclick="jumpToGate(10.7887, 106.7058, 'gate2')" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/90 backdrop-blur-md text-slate-800 shadow-md border border-slate-200/80 hover:bg-white shrink-0 transition cursor-pointer">
-            🚪 Cổng 2
-          </button>
-        </div>
+      <!-- Entrance Gate Quick-Jump Pills -->
+      <div class="gate-pills-row">
+        <button type="button" onclick="jumpToGate(10.7878, 106.7040, 'gate1')" class="gate-pill-btn">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <span>Cổng 1</span>
+        </button>
+        <button type="button" onclick="jumpToGate(10.7895, 106.7058, 'gate2')" class="gate-pill-btn">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <span>Cổng 2</span>
+        </button>
       </div>
 
-      <!-- BỘ CHUYỂN ĐỔI CHẾ ĐỘ BẢN ĐỒ SỐ GOOGLE MAPS (TOP-RIGHT) -->
-      <div class="absolute top-4 right-4 z-20 flex items-center bg-white/95 backdrop-blur-md p-1 rounded-2xl shadow-xl border border-slate-200 pointer-events-auto">
-        <button id="btn-map-roadmap" type="button" onclick="setGoogleMapType('roadmap')" class="px-3 py-1.5 rounded-xl text-xs font-black flex items-center space-x-1.5 transition bg-emerald-600 text-white shadow-sm cursor-pointer" title="Bản đồ số Google Maps">
-          <i class="fa-solid fa-map-location-dot"></i>
+    </div>
+
+    <!-- TOP-RIGHT FLOATING PANEL: CAPSULE SWITCHER (Bản đồ số / Vệ tinh) -->
+    <div class="map-top-right-panel">
+      <div class="map-capsule-switcher">
+        <button type="button" id="btn-capsule-roadmap" onclick="setGoogleMapType('roadmap')" class="map-capsule-btn active">
+          <i class="fa-solid fa-map"></i>
           <span id="text-map-digital">Bản đồ số</span>
         </button>
-        <button id="btn-map-satellite" type="button" onclick="setGoogleMapType('satellite')" class="px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center space-x-1.5 transition text-slate-700 hover:text-emerald-700 hover:bg-slate-100 cursor-pointer" title="Bản đồ ảnh vệ tinh Google Maps">
-          <i class="fa-solid fa-earth-americas"></i>
+
+        <button type="button" id="btn-capsule-satellite" onclick="setGoogleMapType('satellite')" class="map-capsule-btn">
+          <i class="fa-solid fa-globe"></i>
           <span id="text-map-satellite">Vệ tinh</span>
         </button>
-      </div>
 
-      <!-- THẺ THÔNG TIN ĐIỂM THAM QUAN (POPUP GỌN GÀNG, BẤM VÀO THÚ MỚI HIỆN, CÓ NÚT TẮT X) -->
-      <div id="gmap-place-card" class="absolute bottom-4 left-4 z-20 w-[92%] sm:w-96 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden transition-all duration-300 hidden pointer-events-auto">
-        <div class="relative h-32 bg-slate-900">
-          <img id="card-animal-img" src="" alt="" class="w-full h-full object-cover" />
-          <button onclick="closePlaceCard()" class="absolute top-2.5 right-2.5 w-7 h-7 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full flex items-center justify-center text-xs backdrop-blur-sm transition" title="Đóng thẻ">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-          <span id="card-animal-zone" class="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-lg text-[10px] font-black bg-emerald-600 text-white shadow-sm"></span>
-        </div>
-
-        <div class="p-3.5 space-y-2.5">
-          <div>
-            <div class="flex items-center justify-between">
-              <h3 id="card-animal-name" class="text-base font-black text-slate-900"></h3>
-              <span id="card-animal-iucn" class="text-[10px] font-black px-1.5 py-0.5 rounded bg-red-100 text-red-700"></span>
-            </div>
-            <p id="card-animal-sciname" class="text-xs text-slate-400 italic"></p>
-            <div class="flex items-center space-x-1.5 text-[11px] text-amber-500 font-bold mt-1">
-              <span>⭐⭐⭐⭐⭐ 4.9</span>
-              <span class="text-slate-400 font-normal">(Saigon Zoo Exhibit)</span>
-            </div>
-          </div>
-
-          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2 flex items-center justify-between text-xs">
-            <div class="flex items-center space-x-1.5 text-emerald-800 font-bold">
-              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span id="card-animal-geofence"></span>
-            </div>
-            <span id="card-auto-detect-text" class="text-[10px] text-emerald-600 font-bold bg-white px-1.5 py-0.5 rounded">Tự động nhận diện</span>
-          </div>
-
-          <!-- Khung Audio Mô Phỏng (Giao diện hiển thị, các nút chỉ để vậy) -->
-          <div class="bg-slate-900 text-white rounded-xl p-2.5 space-y-2">
-            <div class="flex items-center justify-between text-[11px]">
-              <span class="font-bold text-slate-200 text-xs flex items-center space-x-1.5">
-                <i class="fa-solid fa-headphones text-emerald-400"></i>
-                <span id="card-audio-title">Bài Thuyết Minh</span>
-              </span>
-              <span id="card-lang-tag" class="text-[10px] font-black text-emerald-300">🇻🇳 VIỆT NAM</span>
-            </div>
-
-            <p id="card-animal-narrative" class="text-[11px] text-slate-300 line-clamp-3 leading-relaxed"></p>
-
-            <!-- CÁC NÚT BẤM AUDIO (CHỈ LÀ GIAO DIỆN ĐỂ VẬY, CHƯA CÓ CHỨC NĂNG GÌ) -->
-            <div class="grid grid-cols-2 gap-2 pt-1">
-              <button type="button" class="py-1.5 px-2.5 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center space-x-1 shadow-sm">
-                <i class="fa-solid fa-play"></i>
-                <span id="card-btn-listen-text">Nghe Thuyết Minh</span>
-              </button>
-              <button type="button" class="py-1.5 px-2.5 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs flex items-center justify-center space-x-1 border border-slate-700">
-                <i class="fa-solid fa-stop"></i>
-                <span id="card-btn-stop-text">Dừng</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- BỘ NÚT ĐIỀU KHIỂN GOOGLE MAPS (BOTTOM-RIGHT) -->
-      <div class="absolute bottom-4 right-4 z-20 flex flex-col space-y-2 pointer-events-auto">
-        <button onclick="locateTouristGMap()" class="w-10 h-10 bg-white/95 backdrop-blur-md hover:bg-white text-blue-600 rounded-xl shadow-xl border border-slate-200 flex items-center justify-center text-base transition" title="Định vị của tôi">
-          <i class="fa-solid fa-crosshairs"></i>
-        </button>
-
-        <div class="bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
-          <button onclick="map.zoomIn()" class="w-10 h-10 hover:bg-white text-slate-700 flex items-center justify-center text-sm font-bold border-b border-slate-100 transition" title="Phóng to">
-            <i class="fa-solid fa-plus"></i>
-          </button>
-          <button onclick="map.zoomOut()" class="w-10 h-10 hover:bg-white text-slate-700 flex items-center justify-center text-sm font-bold transition" title="Thu nhỏ">
-            <i class="fa-solid fa-minus"></i>
-          </button>
-        </div>
-
-        <button onclick="resetMapView()" class="w-10 h-10 bg-white/95 backdrop-blur-md hover:bg-white text-slate-700 rounded-xl shadow-xl border border-slate-200 flex items-center justify-center text-sm transition" title="Xem toàn cảnh">
-          <i class="fa-solid fa-expand"></i>
-        </button>
-      </div>
-
-    </div>
-
-    <!-- ================= DANH MỤC ĐIỂM THAM QUAN ================= -->
-    <div class="space-y-4 pt-2">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 id="grid-heading-title" class="text-lg font-black text-slate-900">Danh Sách Động Vật</h2>
-          <p id="grid-heading-desc" class="text-xs text-slate-500">Dữ liệu sẽ hiển thị sau khi kết nối cơ sở dữ liệu.</p>
-        </div>
-        <span id="grid-heading-badge" class="text-xs font-bold text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-          Chưa có dữ liệu
-        </span>
-      </div>
-
-      <!-- Lưới Thẻ Thú Gọn Gàng (Chưa có dữ liệu động vật) -->
-      <div id="animals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs font-bold text-slate-500">
-          Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ================= SECTION: MÔ PHỎNG DI ĐỘNG (CHUẨN HÌNH ẢNH MOCKUP) ================= -->
-    <section id="section-mobile" class="pt-6 pb-4 scroll-mt-20">
-      <div class="bg-[#0b1329] rounded-[36px] p-6 sm:p-12 border border-slate-800 shadow-2xl text-white relative overflow-hidden">
         
-        <!-- Glowing background decoration -->
-        <div class="absolute -top-32 -left-32 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-32 -right-32 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      </div>
+    </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center relative z-10">
-          
-          <!-- Cột Trái: Thông tin thuyết minh di động -->
-          <div class="lg:col-span-7 space-y-6">
-            
-            <!-- Badge chuẩn ảnh -->
-            <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 text-xs font-bold tracking-wider">
-              <i class="fa-solid fa-mobile-screen text-xs"></i>
-              <span id="mobile-badge-text">TRẢI NGHIỆM ĐIỆN THOẠI DU KHÁCH</span>
+    <!-- BOTTOM-RIGHT FLOATING ACTION CONTROLS -->
+    <div class="map-bottom-right-controls">
+      <button type="button" onclick="locateTouristGMap()" class="map-action-fab" title="Vị trí của tôi (GPS)">
+        <i class="fa-solid fa-crosshairs text-blue-600"></i>
+      </button>
+      <button type="button" onclick="zoomInMap()" class="map-action-fab" title="Phóng to">
+        <i class="fa-solid fa-plus font-bold"></i>
+      </button>
+      <button type="button" onclick="zoomOutMap()" class="map-action-fab" title="Thu nhỏ">
+        <i class="fa-solid fa-minus font-bold"></i>
+      </button>
+      <button type="button" onclick="resetMapView()" class="map-action-fab" title="Khôi phục vị trí tâm">
+        <i class="fa-solid fa-rotate-right"></i>
+      </button>
+      <button type="button" onclick="toggleFullscreen()" class="map-action-fab" title="Toàn màn hình">
+        <i class="fa-solid fa-expand"></i>
+      </button>
+    </div>
+
+    <!-- BOTTOM HORIZONTAL QUICK-DRAWER (CAROUSEL OF ANIMAL EXHIBITS) -->
+    <div id="map-carousel-container" class="map-bottom-carousel custom-scrollbar">
+      <!-- Injected dynamically via JS: 8 canonical animals -->
+    </div>
+
+    <!-- FLOATING DETAILED PLACE CARD / AUDIO PLAYER HUD (BOTTOM-LEFT POPUP) -->
+    <div id="gmap-place-card" class="hidden slide-down-toast">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center space-x-3.5">
+          <img id="card-animal-img" src="" class="w-14 h-14 rounded-2xl object-cover border-2 border-zoo-500 shadow-md shrink-0" alt="Animal Thumbnail" />
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span id="card-animal-zone" class="px-2 py-0.5 rounded-full bg-zoo-100 text-zoo-800 text-[10px] font-extrabold truncate">--</span>
+              <span id="card-lang-tag" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">🇻🇳 VIỆT NAM</span>
             </div>
-
-            <!-- Tiêu đề lớn chuẩn ảnh -->
-            <h2 id="mobile-title-text" class="text-3xl sm:text-4xl lg:text-[42px] font-black tracking-tight leading-[1.2] text-white">
-              Sử Dụng Trực Tiếp Trên Điện Thoại Di Động
-            </h2>
-
-            <!-- Đoạn mô tả chuẩn ảnh -->
-            <p id="mobile-desc-text" class="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              Hệ thống tương thích 100% với trình duyệt trên mọi dòng điện thoại thông minh (iOS Safari, Android Chrome). Du khách chỉ cần mở trang web hoặc quét mã QR gắn tại chuồng thú là có thể nghe thuyết minh trực tiếp mà không cần cài đặt ứng dụng phức tạp.
-            </p>
-
-            <!-- 3 Tính năng chuẩn ảnh -->
-            <div class="space-y-4 pt-1">
-              
-              <!-- Tính năng 1: Quét mã QR -->
-              <div class="flex items-start space-x-3.5">
-                <div class="w-10 h-10 rounded-2xl bg-emerald-950/90 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0 text-base shadow-sm mt-0.5">
-                  <i class="fa-solid fa-qrcode"></i>
-                </div>
-                <div>
-                  <h4 id="feature-1-title" class="text-sm sm:text-base font-bold text-white">Quét Mã QR Chuồng Thú</h4>
-                  <p id="feature-1-desc" class="text-xs text-slate-400 mt-0.5 leading-relaxed">Gặp chuồng thú nào, mở camera quét mã là bài thuyết minh tương ứng tự động phát ngay lập tức.</p>
-                </div>
-              </div>
-
-              <!-- Tính năng 2: Định vị GPS Geofence -->
-              <div class="flex items-start space-x-3.5">
-                <div class="w-10 h-10 rounded-2xl bg-teal-950/90 border border-teal-500/30 text-teal-400 flex items-center justify-center shrink-0 text-base shadow-sm mt-0.5">
-                  <i class="fa-solid fa-location-crosshairs"></i>
-                </div>
-                <div>
-                  <h4 id="feature-2-title" class="text-sm sm:text-base font-bold text-white">Định Vị GPS Geofence Tự Động</h4>
-                  <p id="feature-2-desc" class="text-xs text-slate-400 mt-0.5 leading-relaxed">Tự động phát hiện khi bạn đi dạo đến gần chuồng thú (bán kính 20 – 30 mét).</p>
-                </div>
-              </div>
-
-              <!-- Tính năng 3: Hỗ trợ khách quốc tế -->
-              <div class="flex items-start space-x-3.5">
-                <div class="w-10 h-10 rounded-2xl bg-amber-950/90 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 text-base shadow-sm mt-0.5">
-                  <i class="fa-solid fa-language"></i>
-                </div>
-                <div>
-                  <h4 id="feature-3-title" class="text-sm sm:text-base font-bold text-white">Hỗ Trợ Khách Quốc Tế</h4>
-                  <p id="feature-3-desc" class="text-xs text-slate-400 mt-0.5 leading-relaxed">Dễ dàng chuyển đổi giữa 5 ngôn ngữ: Tiếng Việt, Tiếng Anh, Tiếng Pháp, Tiếng Trung, Tiếng Nhật.</p>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- 2 Nút bấm hành động chuẩn ảnh -->
-            <div class="pt-4 flex flex-wrap gap-3.5">
-              <button onclick="openQrScannerModal()" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-emerald-500/30 flex items-center space-x-2 transition transform active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-camera"></i>
-                <span id="btn-try-qr-text">Quét Thử Mã QR Chuồng Thú</span>
-              </button>
-              
-              <a href="admin.html" class="px-5 py-3 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 font-bold text-xs sm:text-sm flex items-center space-x-2 transition shadow-md">
-                <i class="fa-solid fa-print text-amber-400"></i>
-                <span id="btn-admin-qr-text">Tạo Biển Bảng QR (Dành Cho Admin)</span>
-              </a>
-            </div>
-
+            <h3 id="card-animal-name" class="font-black text-slate-900 text-base leading-tight truncate">--</h3>
+            <p id="card-animal-sciname" class="text-[11px] text-slate-400 italic truncate">--</p>
           </div>
+        </div>
+        <button type="button" onclick="closePlaceCard()" class="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition shrink-0 cursor-pointer">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
 
-          <!-- Cột Phải: Mockup Smartphone chuẩn ảnh -->
-          <div class="lg:col-span-5 flex justify-center">
-            <div class="w-[310px] sm:w-[340px] bg-slate-950 rounded-[50px] p-4 border-[5px] border-slate-800 shadow-2xl relative shadow-emerald-950/70">
-              
-              <!-- Loa thoại trên cùng -->
-              <div class="w-28 h-3.5 bg-slate-800 rounded-full mx-auto mb-3.5"></div>
+      <!-- Conservation status & Geofence trigger radius -->
+      <div class="flex items-center justify-between text-[11px] text-slate-500 font-semibold mt-3 pt-2 border-t border-slate-100">
+        <span id="card-animal-iucn" class="text-zoo-700 font-bold">--</span>
+        <span>Bán kính nhận diện: <strong id="card-animal-geofence" class="text-slate-700">25m</strong></span>
+      </div>
 
-              <!-- Màn hình điện thoại -->
-              <div class="bg-[#0f172a] rounded-[38px] p-4 text-white space-y-4 border border-slate-800 flex flex-col justify-between">
-                
-                <!-- Thanh trạng thái điện thoại -->
-                <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-800/80">
-                  <div class="flex items-center space-x-1.5">
-                    <span class="text-sm">🦁</span>
-                    <span class="font-bold text-[11px] text-emerald-400">Zoo Audio Mobile</span>
-                  </div>
-                  <span class="text-[10px] text-slate-400 font-mono">4G • 98%</span>
-                </div>
+      <!-- Rich narrative text -->
+      <p id="card-animal-narrative" class="text-xs text-slate-600 line-clamp-3 mt-2 leading-relaxed">--</p>
 
-                <!-- Thẻ thông tin bài phát thanh (Spotlight) -->
-                <div class="space-y-3">
-                  
-                  <!-- Hình ảnh chuồng thú có nhãn phân khu (Chưa có dữ liệu) -->
-                  <div class="relative rounded-2xl overflow-hidden h-40 bg-slate-800 border border-slate-700/60 shadow-inner">
-                    <div class="flex h-full items-center justify-center text-center text-xs font-bold text-slate-400">
-                      Chưa có dữ liệu động vật
-                    </div>
-                  </div>
+      <!-- Audio Player Control Hub -->
+      <div class="mt-3.5 pt-3 border-t border-slate-100 space-y-2">
+        <div class="flex items-center justify-between text-[10px] font-mono text-slate-400">
+          <span class="flex items-center gap-1 text-zoo-600 font-bold">
+            <span class="equalizer-bar"></span>
+            <span class="equalizer-bar"></span>
+            <span class="equalizer-bar"></span>
+            <span class="equalizer-bar"></span>
+            <span class="equalizer-bar"></span>
+            <span class="ml-1 text-[11px]">Âm thanh thuyết minh</span>
+          </span>
+          <span id="audio-time-display">00:00 / 01:20</span>
+        </div>
 
-                  <!-- Tên loài thú & Tên khoa học -->
-                  <div>
-                    <h4 id="mobile-mockup-name" class="text-lg font-black text-white">Chưa có dữ liệu</h4>
-                    <p id="mobile-mockup-sciname" class="text-xs text-slate-400 italic">Nội dung sẽ được cập nhật khi kết nối cơ sở dữ liệu</p>
-                  </div>
+        <input type="range" id="audio-progress-bar" min="0" max="100" value="0" class="w-full audio-slider" />
 
-                  <!-- Thanh thời lượng âm thanh -->
-                  <div class="space-y-1.5 pt-1">
-                    <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                      <div class="bg-emerald-400 h-1.5 rounded-full w-2/5 shadow-sm shadow-emerald-400/50"></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                      <span>00:35</span>
-                      <span id="mobile-mockup-duration">01:25</span>
-                    </div>
-                  </div>
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <button type="button" id="card-btn-listen" onclick="playCurrentSelectedAnimalNarration()"
+                  class="flex-1 py-2.5 px-4 rounded-xl bg-zoo-600 hover:bg-zoo-700 text-white font-extrabold text-xs flex items-center justify-center gap-2 transition shadow-md shadow-zoo-600/30 cursor-pointer">
+            <i id="card-listen-icon" class="fa-solid fa-headphones text-xs"></i>
+            <span id="card-btn-listen-text">Nghe Thuyết Minh</span>
+            <span id="card-btn-stop-text" class="hidden">Tạm Dừng</span>
+          </button>
 
-                  <!-- Cụm nút điều khiển Media thuần giao diện -->
-                  <div class="flex items-center justify-center space-x-4 pt-1">
-                    <button type="button" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition">
-                      <i class="fa-solid fa-backward-step"></i>
-                    </button>
-                    <button type="button" class="w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center text-base shadow-lg shadow-emerald-500/50 transition">
-                      <i class="fa-solid fa-play ml-0.5"></i>
-                    </button>
-                    <button type="button" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition">
-                      <i class="fa-solid fa-forward-step"></i>
-                    </button>
-                  </div>
-
-                </div>
-
-                <!-- Nút bấm quét QR dưới đáy điện thoại chuẩn ảnh -->
-                <div class="pt-1">
-                  <button type="button" onclick="openQrScannerModal()" class="w-full py-2.5 px-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-emerald-400 font-bold text-xs flex items-center justify-center space-x-2 transition shadow-sm">
-                    <i class="fa-solid fa-qrcode text-sm"></i>
-                    <span id="mobile-mockup-btn-qr">Quét QR tại chuồng</span>
-                  </button>
-                </div>
-
-              </div>
-
-              <!-- Thanh Home Bar dưới cùng -->
-              <div class="w-20 h-1 bg-slate-700 rounded-full mx-auto mt-3"></div>
-
-            </div>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="zooAudio.setPlaybackRate(1.0)" class="speed-pill active">1.0x</button>
+            <button type="button" onclick="zooAudio.setPlaybackRate(1.25)" class="speed-pill">1.25x</button>
+            <button type="button" onclick="zooAudio.setPlaybackRate(1.5)" class="speed-pill">1.5x</button>
           </div>
-
         </div>
       </div>
-    </section>
+
+    </div>
 
   </main>
 
-  <!-- ================= FOOTER GỌN ================= -->
-  <footer class="bg-white border-t border-slate-200 text-slate-500 text-xs py-5 mt-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div id="footer-address">
-        <strong>Thảo Cầm Viên</strong> — Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1, TP.HCM
-      </div>
-      <div class="flex items-center space-x-4">
-        <span id="footer-satellite">Bản đồ vệ tinh Google Maps</span>
-        <a href="admin.html" class="text-emerald-700 font-bold hover:underline flex items-center space-x-1" title="Mở giao diện quản trị">
-          <i class="fa-solid fa-lock text-[10px]"></i>
-          <span id="footer-admin">Cổng Quản Trị</span>
-        </a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- ================= GIAO DIỆN BẢN ĐỒ VÀ DỮ LIỆU TĨNH (CHƯA CÓ DATABASE) ================= -->
-  <script>
-    const UI_TRANSLATIONS = {
-      vi: {
-        navMap: "Bản đồ sở thú",
-        navMobile: "Mô phỏng di động",
-        navAdmin: "Đăng Nhập Quản Trị",
-        searchPlaceholder: "Tìm chuồng thú trên bản đồ...",
-        pillGate1: "🚪 Cổng 1",
-        pillGate2: "🚪 Cổng 2",
-        gate1Name: "Cổng 1 (Nguyễn Bỉnh Khiêm)",
-        gate2Name: "Cổng 2 (Nguyễn Thị Minh Khai)",
-        gateDesc: "Cổng đón khách Thảo Cầm Viên",
-        satelliteBadge: "Google Maps Vệ Tinh",
-        mapDigital: "Bản đồ số",
-        mapSatellite: "Vệ tinh",
-        autoDetect: "Tự động nhận diện",
-        audioGuideHeading: "Bài Thuyết Minh",
-        btnListen: "Nghe Thuyết Minh",
-        btnStop: "Dừng",
-        btnViewOnMap: "Xem Trên Google Maps",
-        geofenceRadiusLabel: "Bán kính Geofence",
-        gridHeading: "Danh Sách Động Vật",
-        gridSubheading: "Dữ liệu sẽ hiển thị sau khi kết nối cơ sở dữ liệu.",
-        gridBadge: "Chưa có dữ liệu",
-        noAnimalData: "Chưa có dữ liệu động vật. Nội dung sẽ hiển thị sau khi kết nối cơ sở dữ liệu.",
-        mobileBadge: "TRẢI NGHIỆM ĐIỆN THOẠI DU KHÁCH",
-        mobileTitle: "Sử Dụng Trực Tiếp Trên Điện Thoại Di Động",
-        mobileDesc: "Hệ thống tương thích 100% với trình duyệt trên mọi dòng điện thoại thông minh (iOS Safari, Android Chrome). Du khách chỉ cần mở trang web hoặc quét mã QR gắn tại chuồng thú là có thể nghe thuyết minh trực tiếp mà không cần cài đặt ứng dụng phức tạp.",
-        feature1Title: "Quét Mã QR Chuồng Thú",
-        feature1Desc: "Gặp chuồng thú nào, mở camera quét mã là bài thuyết minh tương ứng tự động phát ngay lập tức.",
-        feature2Title: "Định Vị GPS Geofence Tự Động",
-        feature2Desc: "Tự động phát hiện khi bạn đi dạo đến gần chuồng thú (bán kính 20 – 30 mét).",
-        feature3Title: "Hỗ Trợ Khách Quốc Tế",
-        feature3Desc: "Dễ dàng chuyển đổi giữa 5 ngôn ngữ: Tiếng Việt, Tiếng Anh, Tiếng Pháp, Tiếng Trung, Tiếng Nhật.",
-        btnTryQr: "Quét Thử Mã QR Chuồng Thú",
-        btnAdminQr: "Tạo Biển Bảng QR (Dành Cho Admin)",
-        phoneSubtitle: "Hệ Thống Thuyết Minh GPS",
-        phoneScanBtn: "Quét QR tại chuồng",
-        qrModalTitle: "Quét Mã QR Chuồng Thú",
-        qrModalDetecting: "Chưa có dữ liệu QR để hiển thị.",
-        qrModalClose: "Đóng",
-        footerAddress: "Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Quận 1, TP.HCM",
-        footerSatellite: "Bản đồ vệ tinh Google Maps",
-        footerAdmin: "Cổng Quản Trị",
-        langCardTag: "🇻🇳 VIỆT NAM"
-      }
-    };
-
-    let currentLanguage = 'vi';
-
-    // Dữ liệu động vật rỗng theo yêu cầu (Chưa có cơ sở dữ liệu động vật nào hết)
-    let zooAnimals = [];
-    let currentSelectedAnimal = null;
-    let map = null;
-    let currentMapType = 'roadmap';
-    let googleMapLayer = null;
-    let markers = [];
-    let circles = [];
-    let touristMarker = null;
-    let gateMarkers = [];
-
-    function getAnimalLocalizedName(animal, lang = currentLanguage) {
-      if (!animal) return '';
-      return animal.name || '';
-    }
-
-    function getAnimalLocalizedZone(animal, lang = currentLanguage) {
-      if (!animal) return '';
-      return animal.zone || '';
-    }
-
-    function getAnimalLocalizedNarrative(animal, lang = currentLanguage) {
-      if (!animal) return '';
-      return animal.narrative || animal.descriptionVi || '';
-    }
-
-    function getGoogleMapTileUrl(mapType, lang) {
-      const lyrs = (mapType === 'satellite') ? 'y' : 'm';
-      return `https://mt{s}.google.com/vt/lyrs=${lyrs}&hl=vi&x={x}&y={y}&z={z}`;
-    }
-
-    function setGoogleMapType(type) {
-      currentMapType = type;
-      if (googleMapLayer && map) {
-        googleMapLayer.setUrl(getGoogleMapTileUrl(currentMapType, currentLanguage));
-      }
-
-      const btnRoad = document.getElementById('btn-map-roadmap');
-      const btnSat = document.getElementById('btn-map-satellite');
-      if (type === 'roadmap') {
-        if (btnRoad) btnRoad.className = "px-3 py-1.5 rounded-xl text-xs font-black flex items-center space-x-1.5 transition bg-emerald-600 text-white shadow-sm cursor-pointer";
-        if (btnSat) btnSat.className = "px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center space-x-1.5 transition text-slate-700 hover:text-emerald-700 hover:bg-slate-100 cursor-pointer";
-      } else {
-        if (btnSat) btnSat.className = "px-3 py-1.5 rounded-xl text-xs font-black flex items-center space-x-1.5 transition bg-emerald-600 text-white shadow-sm cursor-pointer";
-        if (btnRoad) btnRoad.className = "px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center space-x-1.5 transition text-slate-700 hover:text-emerald-700 hover:bg-slate-100 cursor-pointer";
-      }
-    }
-
-    function renderGateMarkers() {
-      if (!map) return;
-      gateMarkers.forEach(m => {
-        try { map.removeLayer(m); } catch (e) {}
-      });
-      gateMarkers = [];
-
-      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
-      const gates = [
-        { name: t.gate1Name, coords: [10.7876, 106.7042] },
-        { name: t.gate2Name, coords: [10.7887, 106.7058] }
-      ];
-      gates.forEach(g => {
-        const gateIcon = L.divIcon({
-          className: 'gate-pin',
-          html: `<div style="background:#1e293b;color:#f8fafc;padding:4px 9px;border-radius:12px;font-size:11px;font-weight:800;border:2px solid #38bdf8;box-shadow:0 3px 8px rgba(0,0,0,0.4);white-space:nowrap;display:flex;align-items:center;gap:4px;">🚪 ${g.name}</div>`,
-          iconSize: [140, 26],
-          iconAnchor: [70, 13]
-        });
-        const m = L.marker(g.coords, { icon: gateIcon }).addTo(map).bindPopup(`<b>${g.name}</b><br>${t.gateDesc}`);
-        gateMarkers.push(m);
-      });
-    }
-
-    function renderMapAnimals(animals) {
-      if (!map) return;
-      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
-      const emptyMessage = document.getElementById('map-empty-text');
-      if (emptyMessage) emptyMessage.classList.toggle('hidden', animals && animals.length > 0);
-
-      markers.forEach(m => {
-        try { map.removeLayer(m); } catch (e) {}
-      });
-      markers = [];
-
-      circles.forEach(c => {
-        try { map.removeLayer(c); } catch (e) {}
-      });
-      circles = [];
-
-      animals.forEach(animal => {
-        const localizedName = getAnimalLocalizedName(animal, currentLanguage);
-        const circle = L.circle(animal.coords, {
-          radius: animal.radius || 25,
-          color: animal.color || '#059669',
-          fillColor: animal.color || '#059669',
-          fillOpacity: 0.15,
-          weight: 2,
-          dashArray: '4, 4'
-        }).addTo(map);
-        circles.push(circle);
-
-        const pinIcon = L.divIcon({
-          className: 'gmap-pin',
-          html: `
-            <div style="background:${animal.color || '#059669'};color:white;padding:5px 10px;border-radius:18px;font-size:11px;font-weight:900;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,0.4);border:2px solid white;display:flex;align-items:center;gap:4px;">
-              <span>${animal.icon || '🐾'}</span> <span>${localizedName}</span>
-            </div>
-          `,
-          iconSize: [110, 32],
-          iconAnchor: [55, 16]
-        });
-
-        const marker = L.marker(animal.coords, { icon: pinIcon }).addTo(map);
-        marker.on('click', () => selectAnimal(animal));
-        markers.push(marker);
-      });
-    }
-
-    function renderAnimalsGrid(animals) {
-      const grid = document.getElementById('animals-grid');
-      if (!grid) return;
-      const t = UI_TRANSLATIONS[currentLanguage] || UI_TRANSLATIONS['vi'];
-      const badge = document.getElementById('grid-heading-badge');
-      if (badge) badge.innerText = animals && animals.length ? `${animals.length} mục` : t.gridBadge;
-
-      if (!animals || animals.length === 0) {
-        grid.innerHTML = `<div class="col-span-full rounded-2xl border border-slate-200 bg-white p-6 text-center text-xs font-bold text-slate-500">${t.noAnimalData}</div>`;
-        return;
-      }
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      // 1. Tạo Map trung tâm Thảo Cầm Viên
-      map = L.map('google-maps-view', {
-        center: [10.7876, 106.7056],
-        zoom: 17,
-        zoomControl: false
-      });
-
-      // 2. LỚP BẢN ĐỒ SỐ GOOGLE MAPS SẮC NÉT
-      googleMapLayer = L.tileLayer(getGoogleMapTileUrl(currentMapType, currentLanguage), {
-        subdomains: ['0', '1', '2', '3'],
-        maxZoom: 20,
-        attribution: '&copy; Google Maps | Bản Đồ Số Thảo Cầm Viên'
-      }).addTo(map);
-
-      setTimeout(() => {
-        if (map) map.invalidateSize();
-      }, 150);
-
-      // 3. Đánh dấu các Cổng vào
-      renderGateMarkers();
-
-      // 4. Ghim Vị Trí Du Khách (Google Blue Dot Marker)
-      const touristIcon = L.divIcon({
-        className: 'tourist-pin',
-        html: `<div style="background:#1a73e8;color:white;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 6px rgba(26,115,232,0.3);border:2.5px solid white;font-size:14px;">📍</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-      });
-      touristMarker = L.marker([10.7876, 106.7042], { icon: touristIcon }).addTo(map);
-
-      // 5. Khởi tạo danh sách động vật rỗng (Chưa có database)
-      renderMapAnimals(zooAnimals);
-      renderAnimalsGrid(zooAnimals);
-
-      map.on('click', (e) => {
-        if (touristMarker) touristMarker.setLatLng([e.latlng.lat, e.latlng.lng]);
-      });
-    });
-
-    function selectAnimal(animal) {
-      currentSelectedAnimal = animal;
-      const card = document.getElementById('gmap-place-card');
-      if (card) card.classList.remove('hidden');
-      if (map && animal.coords) map.flyTo(animal.coords, 18);
-    }
-
-    function closePlaceCard() {
-      currentSelectedAnimal = null;
-      const card = document.getElementById('gmap-place-card');
-      if (card) card.classList.add('hidden');
-    }
-
-    function jumpToGate(lat, lng, gateKey) {
-      if (map) {
-        map.flyTo([lat, lng], 18, { duration: 1 });
-      }
-      if (touristMarker) {
-        touristMarker.setLatLng([lat, lng]);
-      }
-    }
-
-    function resetMapView() {
-      if (map) {
-        map.flyTo([10.7876, 106.7056], 17, { duration: 1 });
-      }
-    }
-
-    function locateTouristGMap() {
-      jumpToGate(10.7876, 106.7042, 'gate1');
-    }
-
-    function filterAnimalsSearch(query) {
-      renderAnimalsGrid(zooAnimals);
-    }
-
-    function clearSearch() {
-      const inp = document.getElementById('gmap-search-input');
-      if (inp) inp.value = '';
-      renderAnimalsGrid(zooAnimals);
-    }
-
-    function scrollToMap(e) {
-      if(e) e.preventDefault();
-      const el = document.getElementById('section-map');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function scrollToMobile(e) {
-      if(e) e.preventDefault();
-      const el = document.getElementById('section-mobile');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function openQrScannerModal() {
-      const modal = document.getElementById('qr-scan-modal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-      }
-    }
-
-    function closeQrScannerModal() {
-      const modal = document.getElementById('qr-scan-modal');
-      if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-    }
-  </script>
-
-  <!-- ================= MODAL QUÉT QR MÔ PHỎNG ================= -->
-  <div id="qr-scan-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-sm w-full p-6 text-white space-y-4 shadow-2xl relative">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-qrcode text-emerald-400"></i>
-          <span id="qr-modal-title" class="text-sm font-black">Quét Mã QR Chuồng Thú</span>
+  <!-- ================= TAB 2: TRANG CHỦ (HOME OVERVIEW PORTAL) ================= -->
+  <section id="view-tab-home" class="flex-1 overflow-y-auto custom-scrollbar bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      
+      <!-- HERO BANNER -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-zoo-900 via-zoo-800 to-emerald-950 text-white p-8 sm:p-12 shadow-xl border border-zoo-700/50">
+        <div class="max-w-2xl space-y-4 relative z-10">
+          <span class="px-3.5 py-1 rounded-full text-xs font-black bg-zoo-600 text-white shadow-sm inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-headphones-simple"></i> Hệ Thống Thuyết Minh Tự Động
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">Thảo Cầm Viên Sài Gòn</h2>
+          <p class="text-sm sm:text-base text-emerald-100/90 leading-relaxed">
+            Trải nghiệm hệ thống thuyết minh tự động đa ngôn ngữ thông minh. Du khách chỉ cần quét mã QR tại chuồng thú hoặc bật định vị GPS để tự động nghe audio thuyết minh sinh động.
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button onclick="switchMainTab('map')" class="px-5 py-2.5 rounded-xl bg-zoo-500 hover:bg-zoo-600 text-white font-extrabold text-xs shadow-lg shadow-zoo-600/40 flex items-center gap-2 transition cursor-pointer">
+              <i class="fa-solid fa-map-location-dot"></i> Khám Phá Bản Đồ
+            </button>
+            <button onclick="openQrScannerModal()" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 flex items-center gap-2 transition cursor-pointer">
+              <i class="fa-solid fa-qrcode"></i> Quét Mã QR Chuồng Thú
+            </button>
+          </div>
         </div>
-        <button onclick="closeQrScannerModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs transition">
-          <i class="fa-solid fa-xmark"></i>
+      </div>
+
+      <!-- HIGHLIGHT STATS -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-zoo-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-paw"></i>
+          </div>
+          <div>
+            <div id="home-animal-count" class="text-2xl font-black text-slate-900">8</div>
+            <div class="text-xs text-slate-500 font-semibold">Loài thú chủ lực</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <div id="home-zone-count" class="text-2xl font-black text-slate-900">4</div>
+            <div class="text-xs text-slate-500 font-semibold">Phân khu sinh thái</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-language"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-slate-900">5</div>
+            <div class="text-xs text-slate-500 font-semibold">Ngôn ngữ Audio</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-location-crosshairs"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-slate-900">100%</div>
+            <div class="text-xs text-slate-500 font-semibold">GPS Geofencing</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANIMAL EXHIBITS CATALOG -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-black text-slate-900">Danh Mục Các Loài Thú</h3>
+            <p class="text-xs text-slate-500">Bấm nghe thuyết minh hoặc xem vị trí chính xác trên bản đồ.</p>
+          </div>
+          <span class="text-xs font-bold text-zoo-700 bg-zoo-50 px-3 py-1 rounded-full flex items-center gap-1.5"><i class="fa-solid fa-paw text-[11px]"></i><span id="home-animal-count-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-zoo-100 text-zoo-800">0 loài thú</span> loài thú</span>
+        </div>
+
+        <div id="home-animals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Injected dynamically by renderHomeAnimalsGrid() -->
+        </div>
+      </div>
+
+      <!-- PRACTICAL ZOO INFO -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+        <h3 class="text-lg font-black text-slate-900">Thông Tin Tham Quan & Tiện Ích</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-600">
+          <div class="space-y-1.5">
+            <div class="font-bold text-slate-800 flex items-center gap-2 text-sm text-zoo-700">
+              <i class="fa-solid fa-clock"></i> Giờ Mở Cửa
+            </div>
+            <p>Từ 07:00 đến 18:30 tất cả các ngày trong tuần (kể cả Lễ, Tết).</p>
+          </div>
+          <div class="space-y-1.5">
+            <div class="font-bold text-slate-800 flex items-center gap-2 text-sm text-amber-700">
+              <i class="fa-solid fa-door-open"></i> Cổng Đón Khách
+            </div>
+            <p>Cổng 1: Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Q.1.</p>
+            <p>Cổng 2: Đường Nguyễn Thị Minh Khai (gần Bảo tàng Lịch sử).</p>
+          </div>
+          <div class="space-y-1.5">
+            <div class="font-bold text-slate-800 flex items-center gap-2 text-sm text-blue-700">
+              <i class="fa-solid fa-shield-halved"></i> Quyền Riêng Tư GPS
+            </div>
+            <p>Tọa độ vị trí chỉ xử lý trên trình duyệt thiết bị du khách, tuyệt đối không lưu trữ máy chủ (PRD 4.4).</p>
+          </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="pt-4 pb-8 text-center text-xs text-slate-400 space-y-1">
+        <p class="font-bold text-slate-600">Thảo Cầm Viên Sài Gòn — Hệ Thống Thuyết Minh Tự Động Đa Ngôn Ngữ</p>
+        
+      </footer>
+
+    </div>
+  </section>
+
+  <!-- ================= QR CODE SCANNER MODAL SIMULATOR ================= -->
+  <div id="qr-scan-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 text-white rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-qrcode text-zoo-400 text-lg"></i>
+          <h3 class="font-bold text-sm">Quét Mã QR Tại Chuồng Thú</h3>
+        </div>
+        <button onclick="closeQrScannerModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center cursor-pointer">
+          <i class="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
 
-      <!-- Khu vực QR chờ dữ liệu từ cơ sở dữ liệu -->
-      <div class="relative h-60 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex flex-col items-center justify-center p-4 text-center">
-        <i class="fa-solid fa-qrcode text-4xl text-slate-600" aria-hidden="true"></i>
-        <p id="qr-modal-detecting-text" class="text-[11px] text-slate-400 mt-3">Chưa có dữ liệu QR để hiển thị.</p>
+      <!-- Camera Viewport Mockup -->
+      <div class="relative w-full h-44 rounded-2xl overflow-hidden bg-black/60 border-2 border-dashed border-zoo-500/60 flex items-center justify-center">
+        <div class="laser-line"></div>
+        <div class="text-center space-y-1 text-slate-400 pointer-events-none">
+          <i class="fa-solid fa-camera text-2xl text-zoo-400 mb-1"></i>
+          <p class="text-xs">Hướng camera về phía mã QR trên biển thông tin chuồng thú</p>
+        </div>
       </div>
 
-      <div class="text-center space-y-2 pt-1">
-        <button onclick="closeQrScannerModal()" class="w-full py-2 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700 transition">
-          <span id="qr-modal-close-text">Đóng</span>
-        </button>
+      <div>
+        <p class="text-xs text-slate-400 mb-2 font-medium">Hoặc bấm chọn nhanh mã QR mô phỏng:</p>
+        <div id="qr-sample-buttons" class="grid grid-cols-2 gap-2 max-h-44 overflow-y-auto custom-scrollbar p-1">
+          <!-- Injected dynamically via JS -->
+        </div>
       </div>
+
+      <button onclick="closeQrScannerModal()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer">
+        Đóng
+      </button>
     </div>
   </div>
+
+  <!-- ================= MODULAR JAVASCRIPT ================= -->
+  <script src="js/data.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/gps.js"></script>
+  <script src="js/visitor.js"></script>
 </body>
 </html>

@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#064e3b">
+  <title>Mã QR Thuyết Minh — Thảo Cầm Viên Sài Gòn</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐯</text></svg>">
+
+  <!-- Google Fonts: Be Vietnam Pro -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6.5.1 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            zoo: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              200: '#a7f3d0',
+              300: '#6ee7b7',
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/common.css">
+  <style>
+    .scanner-laser {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #10b981, transparent);
+      box-shadow: 0 0 15px #10b981;
+      animation: scanLaser 2.2s infinite ease-in-out;
+    }
+    @keyframes scanLaser {
+      0% { top: 5%; opacity: 0.2; }
+      50% { top: 90%; opacity: 1; }
+      100% { top: 5%; opacity: 0.2; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- ================= TOP HEADER (100% IDENTICAL TO INDEX.HTML) ================= -->
+  <header class="h-16 sm:h-20 bg-white border-b border-slate-200 shadow-md shrink-0 z-40 px-3 sm:px-6 flex items-center justify-between sticky top-0">
+    
+    <!-- Brand Logo -->
+    <a href="index.html" class="flex items-center group">
+      <span class="font-black text-slate-900 group-hover:text-zoo-700 text-xl sm:text-2xl tracking-tight transition">Thảo Cầm Viên</span>
+    </a>
+
+    <!-- Center Navigation Links: Trang Chủ -> Bản đồ sở thú -> Mã QR -->
+    <nav class="flex items-center gap-1 sm:gap-2">
+      <!-- 1. Trang Chủ -->
+      <a href="index.html"
+         class="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-bold text-xs sm:text-sm transition cursor-pointer">
+        <i class="fa-solid fa-house"></i>
+        <span>Trang Chủ</span>
+      </a>
+
+      <!-- 2. Bản đồ sở thú -->
+      <a href="index.html"
+         class="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-bold text-xs sm:text-sm transition cursor-pointer">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span>Bản đồ sở thú</span>
+      </a>
+
+      <!-- 3. Mã QR (ACTIVE) -->
+      <a href="qr.html"
+         class="flex items-center gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-zoo-700 bg-zoo-50 font-bold text-xs sm:text-sm transition cursor-pointer shadow-xs">
+        <i class="fa-solid fa-qrcode"></i>
+        <span>Mã QR</span>
+      </a>
+    </nav>
+
+    <!-- Right Actions: Language Selector & Linked Account Button (Bên cạnh) -->
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <!-- Language Selector Dropdown Pill -->
+      <div class="relative inline-block">
+        <select id="header-lang-select"
+                class="bg-white border border-slate-300 text-slate-800 text-xs sm:text-sm font-bold rounded-full py-1.5 sm:py-2 pl-2.5 sm:pl-3.5 pr-6 sm:pr-8 focus:outline-hidden focus:border-zoo-500 shadow-sm cursor-pointer">
+          <option value="vi">🇻🇳 VN Tiếng Việt</option>
+          <option value="en">🇬🇧 EN English</option>
+          <option value="ko">🇰🇷 KO 한국어</option>
+          <option value="ja">🇯🇵 JA 日本語</option>
+          <option value="zh">🇨🇳 ZH 中文</option>
+        </select>
+      </div>
+    </div>
+
+  </header>
+
+  <!-- ================= MAIN CONTENT (100% IDENTICAL BỐ CỤC) ================= -->
+  <main class="flex-1 overflow-y-auto custom-scrollbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+      <!-- HERO BANNER (100% MATCHING HERO DESIGN) -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-zoo-900 via-zoo-800 to-emerald-950 text-white p-8 sm:p-12 shadow-xl border border-zoo-700/50">
+        <div class="max-w-2xl space-y-4 relative z-10">
+          <span class="px-3.5 py-1 rounded-full text-xs font-black bg-zoo-600 text-white shadow-sm inline-flex items-center gap-1.5">
+            <i class="fa-solid fa-qrcode"></i> Hệ Thống Quét Mã QR Thông Minh
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">Mã QR Thuyết Minh Chuồng Thú</h2>
+          <p class="text-sm sm:text-base text-emerald-100/90 leading-relaxed">
+            Mỗi khu vực chuồng thú tại Thảo Cầm Viên Sài Gòn đều được gắn biển thông tin có mã QR riêng biệt. Du khách chỉ cần mở camera điện thoại hoặc Zalo để quét mã và tự động lắng nghe audio thuyết minh đa ngôn ngữ.
+          </p>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <a href="#camera-scanner-section" class="px-5 py-2.5 rounded-xl bg-zoo-500 hover:bg-zoo-600 text-white font-extrabold text-xs shadow-lg shadow-zoo-600/40 flex items-center gap-2 transition cursor-pointer">
+              <i class="fa-solid fa-camera"></i> Quét Mã Bằng Camera
+            </a>
+            <a href="index.html" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md border border-white/20 flex items-center gap-2 transition cursor-pointer">
+              <i class="fa-solid fa-map-location-dot"></i> Mở Bản Đồ Vị Trí
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- HIGHLIGHT STATS (100% MATCHING STAT CARDS) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-zoo-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+          <div>
+            <div id="stat-qr-count" class="text-2xl font-black text-slate-900">8</div>
+            <div class="text-xs text-slate-500 font-semibold">Điểm gắn mã QR</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-slate-900">&lt; 1s</div>
+            <div class="text-xs text-slate-500 font-semibold">Tốc độ kích hoạt</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-language"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-slate-900">5</div>
+            <div class="text-xs text-slate-500 font-semibold">Ngôn ngữ Audio</div>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center gap-4 hover:shadow-md transition">
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-black text-slate-900">100%</div>
+            <div class="text-xs text-slate-500 font-semibold">Không cần cài App</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAMERA SCANNER TERMINAL -->
+      <div id="camera-scanner-section" class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-camera text-zoo-600"></i> Quét Mã Trực Tiếp
+            </h3>
+            <p class="text-xs text-slate-500">Hướng ống kính máy ảnh vào mã QR trên biển thông tin để nghe audio.</p>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sẵn sàng
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          
+          <!-- Viewport Khung Ngắm Camera -->
+          <div class="relative w-full aspect-video sm:aspect-4/3 max-h-72 rounded-2xl overflow-hidden bg-slate-950 border-2 border-dashed border-zoo-500/80 flex items-center justify-center shadow-inner group">
+            <div class="scanner-laser"></div>
+            
+            <div class="text-center p-6 space-y-2 pointer-events-none">
+              <div class="w-16 h-16 rounded-full bg-zoo-500/10 text-zoo-400 mx-auto flex items-center justify-center text-2xl mb-1 border border-zoo-500/20">
+                <i class="fa-solid fa-expand"></i>
+              </div>
+              <p class="text-white text-xs font-bold">Đặt mã QR vào giữa khung ngắm</p>
+              <p class="text-slate-400 text-[11px]">Hệ thống sẽ tự nhận diện và tự động mở bài thuyết minh</p>
+            </div>
+
+            <!-- Nút bật máy ảnh mô phỏng -->
+            <button type="button" onclick="triggerSimulatedScan('zoo-1')"
+                    class="absolute bottom-4 px-4 py-2 bg-zoo-600 hover:bg-zoo-500 text-white rounded-xl text-xs font-black shadow-lg transition flex items-center gap-2 cursor-pointer">
+              <i class="fa-solid fa-play"></i> Quét Thử Mã "Voi Châu Á"
+            </button>
+          </div>
+
+          <!-- Mã QR Mở Trang Chủ Website -->
+          <div class="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-zoo-100 text-zoo-800 flex items-center justify-center text-base font-black">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <h4 class="font-extrabold text-slate-900 text-sm">Mã QR Mở Cổng Thuyết Minh (Website)</h4>
+            <p class="text-xs text-slate-500 max-w-sm">Mã QR này được dán tại các Cổng Đón Khách để du khách quét mở trang chủ trực tiếp.</p>
+            
+            <div class="p-3 bg-white rounded-2xl border border-slate-200 shadow-xs">
+              <div id="website-qr-canvas" class="flex items-center justify-center"></div>
+            </div>
+            <span class="text-[11px] font-mono text-slate-400 break-all" id="website-qr-url"></span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CATALOG OF 8 EXHIBIT QR PLATES -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-black text-slate-900">Danh Mục Mã QR Biển Bảng 8 Chuồng Thú</h3>
+            <p class="text-xs text-slate-500">Mã QR định danh cho từng loài thú. Bấm để nghe trực tiếp hoặc tải ảnh mã về máy.</p>
+          </div>
+          <span class="text-xs font-bold text-zoo-700 bg-zoo-50 px-3 py-1 rounded-full flex items-center gap-1.5">
+            <i class="fa-solid fa-paw text-[11px]"></i> 8 Mã Chuồng Thú
+          </span>
+        </div>
+
+        <!-- 8 Cards Grid -->
+        <div id="qr-animals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </div>
+
+      <!-- PRACTICAL ZOO INFO (100% IDENTICAL FOOTNOTE) -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
+        <h3 class="text-lg font-black text-slate-900">Hướng Dẫn Quét Mã QR Tham Quan</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-600">
+          <div class="space-y-1.5">
+            <div class="font-bold text-slate-800 flex items-center gap-2 text-sm text-zoo-700">
+              <i class="fa-solid fa-camera"></i> Bước 1: Mở Camera
+            </div>
+            <p>Mở ứng dụng Camera điện thoại, Zalo hoặc trình duyệt quét mã QR mặc định trên điện thoại của bạn.</p>
+          </div>
+          <div class="space-y-1.5">
+            <div class="font-bold text-slate-800 flex items-center gap-2 text-sm text-amber-700">
+              <i class="fa-solid fa-qrcode"></i> Bước 2: Hướng Vào Mã
+            </div>
+            <p>Hướng camera về phía mã QR in trên biển bảng mica đặt cạnh chuồng thú hoặc hàng rào quan sát.</p>
+          </div>
+          <div class="space-y-1.5">
+            <div class="font-bold text-slate-800 flex items-center gap-2 text-sm text-blue-700">
+              <i class="fa-solid fa-headphones"></i> Bước 3: Tự Động Nghe
+            </div>
+            <p>Chạm vào liên kết hiển thị trên màn hình để ngay lập tức lắng nghe bài thuyết minh tự động bằng ngôn ngữ bạn chọn.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER (100% IDENTICAL TO INDEX.HTML) -->
+      <footer class="pt-4 pb-8 text-center text-xs text-slate-400 space-y-1">
+        <p class="font-bold text-slate-600">Thảo Cầm Viên Sài Gòn — Hệ Thống Thuyết Minh Tự Động Đa Ngôn Ngữ</p>
+      </footer>
+
+    </div>
+  </main>
+
+  <!-- QRCode.js Library & Zoo Data -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+    // 1. Tạo mã QR mở website chính
+    document.addEventListener('DOMContentLoaded', () => {
+      const baseUrl = new URL('./index.html', window.location.href).href;
+      const qrCanvas = document.getElementById('website-qr-canvas');
+      const qrUrlText = document.getElementById('website-qr-url');
+
+      if (qrUrlText) qrUrlText.textContent = baseUrl;
+
+      if (qrCanvas && typeof QRCode !== 'undefined') {
+        new QRCode(qrCanvas, {
+          text: baseUrl,
+          width: 140,
+          height: 140,
+          colorDark: '#064e3b',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      }
+
+      // 2. Render danh sách 8 mã QR chuồng thú
+      renderAnimalQrCatalog();
+    });
+
+    function renderAnimalQrCatalog() {
+      const container = document.getElementById('qr-animals-grid');
+      if (!container) return;
+
+      const animals = (typeof getZooAnimals === 'function') ? getZooAnimals() : ((typeof DEFAULT_ZOO_ANIMALS !== 'undefined') ? DEFAULT_ZOO_ANIMALS : []);
+
+      const countEl = document.getElementById('qr-stat-count');
+      if (countEl) countEl.textContent = animals.length;
+
+      if (!animals || animals.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 text-center text-slate-500 bg-white rounded-3xl border border-slate-200/90 p-8 shadow-xs">
+            <div class="w-14 h-14 rounded-2xl bg-zoo-50 text-zoo-600 flex items-center justify-center mx-auto text-2xl mb-3 shadow-xs">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+                        <h4 class="text-base font-extrabold text-slate-900">Danh mục mã QR chuồng thú đang được cập nhật</h4>
+            <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+              Dữ liệu biển bảng mã QR các chuồng thú đang được chuẩn bị. Du khách vui lòng khám phá khuôn viên trên bản đồ hoặc quét mã trực tiếp tại chuồng thú.
+            </p>
+            <div class="pt-4 flex justify-center gap-3">
+              <a href="index.html" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zoo-600 hover:bg-zoo-700 text-white font-bold text-xs transition shadow-sm cursor-pointer">
+                <i class="fa-solid fa-map-location-dot text-xs"></i><span>Khám Phá Bản Đồ Sở Thú</span>
+              </a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = animals.map((a) => {
+        const directUrl = new URL(`./index.html?animalId=${a.id}`, window.location.href).href;
+        const qrId = `qr-box-${a.id}`;
+
+        return `
+          <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-zoo-500/50 transition-all duration-300 flex flex-col justify-between group">
+            <div>
+              <div class="relative overflow-hidden rounded-2xl mb-4 h-40 bg-slate-100">
+                <img src="${a.imageUrl}" alt="${a.name}"
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                     onerror="this.src='https://images.unsplash.com/photo-1534188753412-3e26d0d618d6?w=600'" />
+                <span class="absolute top-3 left-3 px-3 py-1 bg-black/60 backdrop-blur-md text-white text-xs font-semibold rounded-full flex items-center gap-1.5">
+                  <i class="fa-solid fa-paw text-[10px]"></i>
+                  <span class="truncate max-w-[130px]">${a.zone || 'Khu bảo tồn'}</span>
+                </span>
+                <span class="absolute bottom-3 right-3 px-2 py-0.5 bg-zoo-600 text-white text-[10px] font-bold rounded-md shadow-xs">
+                  ${a.radius_meters || 25}m
+                </span>
+              </div>
+
+              <div class="flex items-start justify-between gap-2 mb-2">
+                <div>
+                  <h3 class="font-extrabold text-slate-900 text-base group-hover:text-zoo-600 transition-colors">${a.name}</h3>
+                  <p class="text-xs text-slate-400 italic">${a.scientificName || ''}</p>
+                </div>
+              </div>
+
+              <!-- QR Code Box -->
+              <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center my-3">
+                <div id="${qrId}" class="flex items-center justify-center"></div>
+                <span class="text-[10px] font-mono text-slate-400 mt-2 truncate w-full text-center">ID: ${a.id}</span>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 flex gap-2">
+              <a href="index.html?animalId=${a.id}"
+                 class="flex-1 py-2.5 px-3 rounded-xl bg-zoo-600 hover:bg-zoo-700 text-white text-xs font-bold text-center shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-play text-[10px]"></i> Nghe Audio
+              </a>
+              <button type="button" onclick="downloadAnimalQr('${qrId}', '${a.name}')"
+                      class="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center justify-center cursor-pointer" title="Tải ảnh QR">
+                <i class="fa-solid fa-download"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Generate QR codes
+      animals.forEach((a) => {
+        const qrId = `qr-box-${a.id}`;
+        const el = document.getElementById(qrId);
+        const directUrl = new URL(`./index.html?animalId=${a.id}`, window.location.href).href;
+
+        if (el && typeof QRCode !== 'undefined') {
+          new QRCode(el, {
+            text: directUrl,
+            width: 120,
+            height: 120,
+            colorDark: '#064e3b',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        }
+      });
+    }
+
+    function triggerSimulatedScan(animalId) {
+      window.location.href = `index.html?animalId=${animalId}`;
+    }
+
+    function downloadAnimalQr(qrContainerId, animalName) {
+      const container = document.getElementById(qrContainerId);
+      if (!container) return;
+      const img = container.querySelector('img') || container.querySelector('canvas');
+      if (!img) return;
+
+      const link = document.createElement('a');
+      link.download = `QR_${animalName.replace(/\s+/g, '_')}.png`;
+      link.href = img.src || (img.toDataURL ? img.toDataURL('image/png') : '#');
+      link.click();
+    }
+  </script>
+</body>
+</html>
