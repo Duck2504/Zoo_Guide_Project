@@ -9,8 +9,36 @@ export default function AdminLayout() {
           <h2 className="font-black text-xl text-zoo-400">Zoo Admin</h2>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <NavLink to="/admin" className="block px-4 py-2 rounded-xl bg-zoo-600 font-bold text-sm">
+          {/* Nút Dashboard (Thêm thuộc tính 'end' để URL khớp chính xác, không bị đè màu) */}
+          <NavLink
+            to="/admin"
+            end
+            className={({ isActive }) => `block px-4 py-2 rounded-xl font-bold text-sm transition ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
             <i className="fa-solid fa-chart-pie mr-2"></i> Dashboard
+          </NavLink>
+
+          {/* Nút Động vật */}
+          <NavLink
+            to="/admin/animals"
+            className={({ isActive }) => `block px-4 py-2 rounded-xl font-bold text-sm transition ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <i className="fa-solid fa-hippo mr-2"></i> Động vật
+          </NavLink>
+          
+          {/* Nút Zones */}
+          <NavLink
+            to="/admin/zones"
+            className={({ isActive }) => `block px-4 py-2 rounded-xl font-bold text-sm transition ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <i className="fa-solid fa-hippo mr-2"></i> Khu Động Vật
+          </NavLink>
+
+          <NavLink
+            to="/admin/audios"
+            className={({ isActive }) => `block px-4 py-2 rounded-xl font-bold text-sm transition ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+          >
+            <i className="fa-solid fa-hippo mr-2"></i> Tùy chỉnh Audio
           </NavLink>
         </nav>
       </aside>
@@ -21,4 +49,4 @@ export default function AdminLayout() {
       </main>
     </div>
   );
-}
+} 

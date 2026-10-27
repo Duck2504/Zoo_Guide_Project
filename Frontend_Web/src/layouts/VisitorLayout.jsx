@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
+import GeofenceController from '../components/GeofenceController'; // Thêm dòng này
 
 export default function VisitorLayout() {
   const { language, setLanguage } = useVisitor();
@@ -53,6 +54,7 @@ export default function VisitorLayout() {
 
       {/* VÙNG HIỂN THỊ NỘI DUNG ĐỘNG (Trang Chủ hoặc Bản Đồ sẽ render ở đây) */}
       <div className="flex-1 relative">
+        <GeofenceController />
         <Outlet />
       </div>
     </div>
