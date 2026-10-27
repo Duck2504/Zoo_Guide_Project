@@ -17,6 +17,7 @@ builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 builder.Services.AddScoped<IAnimalService, AnimalService>();
 builder.Services.AddScoped<IScanLogRepository, ScanLogRepository>();
 builder.Services.AddScoped<IScanLogService, ScanLogService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
