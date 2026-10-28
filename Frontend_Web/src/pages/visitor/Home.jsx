@@ -4,53 +4,56 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="h-full overflow-y-auto custom-scrollbar bg-slate-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
-        {/* HERO BANNER */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-zoo-900 via-zoo-800 to-emerald-950 text-white p-8 sm:p-12 shadow-xl">
-          <div className="max-w-2xl space-y-4 relative z-10">
-            <span className="px-3 py-1 rounded-full text-xs font-black bg-zoo-600 shadow-sm inline-flex items-center gap-1.5">
-              <i className="fa-solid fa-headphones-simple"></i> Hệ Thống Thuyết Minh Tự Động
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tight leading-tight">Thảo Cầm Viên Sài Gòn</h2>
-            <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed">
-              Trải nghiệm hệ thống thuyết minh tự động đa ngôn ngữ thông minh. Du khách chỉ cần quét mã QR tại chuồng thú hoặc bật định vị GPS để tự động nghe audio.
-            </p>
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button onClick={() => navigate('/map')} className="px-5 py-2.5 rounded-xl bg-zoo-500 hover:bg-zoo-600 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
-                <i className="fa-solid fa-map-location-dot"></i> Khám Phá Bản Đồ
-              </button>
-            </div>
-          </div>
+    <div className="h-full flex flex-col p-5 space-y-6">
+      
+      {/* Thẻ Chào Mừng */}
+      <div className="bg-emerald-900 rounded-3xl p-6 relative overflow-hidden shadow-xl shadow-emerald-900/20">
+        <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-emerald-800 rounded-full opacity-50 blur-2xl"></div>
+        <div className="relative z-10 text-white">
+          <h2 className="text-2xl font-extrabold mb-2">Xin chào 👋</h2>
+          <p className="text-emerald-100 text-sm font-medium leading-relaxed mb-6 opacity-90">
+            Hệ thống thuyết minh đa ngôn ngữ. Quét mã QR tại chuồng thú hoặc bật định vị để nghe tự động.
+          </p>
+          <button onClick={() => navigate('/map')} className="bg-white text-emerald-900 px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm flex items-center gap-2 hover:bg-gray-100 transition">
+            Mở Bản Đồ Vị Trí <i className="fa-solid fa-arrow-right text-xs"></i>
+          </button>
         </div>
-
-        {/* THÔNG TIN THAM QUAN */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-          <h3 className="text-lg font-black text-slate-900">Thông Tin Tham Quan & Tiện Ích</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-600">
-            <div className="space-y-1.5">
-              <div className="font-bold text-zoo-700 flex items-center gap-2 text-sm">
-                <i className="fa-solid fa-clock"></i> Giờ Mở Cửa
-              </div>
-              <p>Từ 07:00 đến 18:30 tất cả các ngày trong tuần (kể cả Lễ, Tết).</p>
-            </div>
-            <div className="space-y-1.5">
-              <div className="font-bold text-amber-700 flex items-center gap-2 text-sm">
-                <i className="fa-solid fa-door-open"></i> Cổng Đón Khách
-              </div>
-              <p>Cổng 1: Số 2 Nguyễn Bỉnh Khiêm, P. Bến Nghé, Q.1.</p>
-            </div>
-            <div className="space-y-1.5">
-              <div className="font-bold text-blue-700 flex items-center gap-2 text-sm">
-                <i className="fa-solid fa-shield-halved"></i> Quyền Riêng Tư GPS
-              </div>
-              <p>Tọa độ vị trí chỉ xử lý trên trình duyệt, tuyệt đối không lưu trữ máy chủ.</p>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      {/* Lối tắt (Quick Actions) */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center gap-3 active:bg-gray-50 transition cursor-pointer">
+          <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl">
+            <i className="fa-solid fa-location-arrow"></i>
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-800 text-sm">Tự động phát</h3>
+            <p className="text-[10px] font-medium text-gray-400 mt-1">Dựa trên GPS</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center gap-3 active:bg-gray-50 transition cursor-pointer" onClick={() => document.querySelector('.fa-qrcode').closest('button').click()}>
+          <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl">
+            <i className="fa-solid fa-expand"></i>
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-800 text-sm">Quét mã QR</h3>
+            <p className="text-[10px] font-medium text-gray-400 mt-1">Tại chuồng thú</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Thông tin thêm */}
+      <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm mt-auto">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-500 flex items-center justify-center"><i className="fa-solid fa-clock"></i></div>
+          <div>
+            <h4 className="text-sm font-bold text-gray-800">Giờ mở cửa</h4>
+            <p className="text-xs text-gray-500">07:00 - 18:30 (Mọi ngày)</p>
+          </div>
+        </div>
+      </div>
+      
     </div>
   );
 }
