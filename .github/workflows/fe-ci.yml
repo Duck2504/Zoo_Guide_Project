@@ -38,4 +38,4 @@ jobs:
           # Thư mục chứa file sau khi build của React (bắt buộc có dấu / ở cuối)
           local-dir: ./Frontend_Web/dist/
           # Thư mục trên hosting SmarterASP (thường là /site1/wwwroot/)
-          server-dir: /site1/wwwroot/
+          server-dir: /ZooAudioGuide/
