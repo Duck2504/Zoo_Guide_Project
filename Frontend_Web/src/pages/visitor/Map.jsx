@@ -1,4 +1,4 @@
-import { useVisitor } from '../context/VisitorContext';
+import { useVisitor } from '../../context/VisitorContext';
 
 const translations = {
   vi: 'Bản đồ Leaflet đang được tích hợp...',

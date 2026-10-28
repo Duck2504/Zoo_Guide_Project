@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useVisitor } from '../context/VisitorContext';
+import { useVisitor } from '../../context/VisitorContext';
 
 const translations = {
   vi: {
