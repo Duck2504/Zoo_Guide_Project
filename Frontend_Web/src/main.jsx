@@ -8,6 +8,7 @@ import { VisitorProvider } from './context/VisitorContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <BrowserRouter basename="/ZooAudioGuide"></BrowserRouter>
     {/* 2. Bọc VisitorProvider ra ngoài cùng */}
     <VisitorProvider>
       <BrowserRouter>
