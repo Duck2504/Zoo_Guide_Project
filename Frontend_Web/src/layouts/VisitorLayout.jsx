@@ -4,6 +4,35 @@ import { useState } from 'react';
 import GeofenceController from '../components/GeofenceController';
 import QRScannerModal from '../components/QRScannerModal'; 
 
+// 1. Tạo bộ từ điển tĩnh cho các text trên Layout
+const translations = {
+  vi: {
+    title: 'Thảo Cầm Viên',
+    home: 'Trang chủ',
+    map: 'Bản đồ',
+  },
+  en: {
+    title: 'Saigon Zoo',
+    home: 'Home',
+    map: 'Map',
+  },
+  ko: {
+    title: '사이공 동물원',
+    home: '홈',
+    map: '지도',
+  },
+  ja: {
+    title: 'サイゴン動植物園',
+    home: 'ホーム',
+    map: 'マップ',
+  },
+  zh: {
+    title: '西贡动植物园',
+    home: '首页',
+    map: '地图',
+  }
+};
+
 export default function VisitorLayout() {
   const { language, setLanguage } = useVisitor();
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
@@ -12,21 +41,27 @@ export default function VisitorLayout() {
 
   const isDetailPage = location.pathname.startsWith('/a/');
 
+  // 2. Lấy bộ từ vựng tương ứng với ngôn ngữ đang chọn (mặc định 'vi' nếu lỗi)
+  const t = translations[language] || translations['vi'];
+
+  // Cập nhật danh sách 5 ngôn ngữ theo PRD
   const languages = [
     { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
     { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'ko', label: '한국어', flag: '🇰🇷' }
+    { code: 'ko', label: '한국어', flag: '🇰🇷' },
+    { code: 'ja', label: '日本語', flag: '🇯🇵' },
+    { code: 'zh', label: '中文', flag: '🇨🇳' }
   ];
 
   return (
     <div className="bg-gray-50 flex flex-col h-[100dvh] w-full max-w-md mx-auto relative shadow-2xl overflow-hidden ring-1 ring-gray-200">
       
-      {/* Header tối giản (Chỉ hiện nếu không phải trang chi tiết) */}
       {!isDetailPage && (
         <header className="h-14 bg-white/80 backdrop-blur-md shrink-0 px-4 flex items-center justify-between z-30 absolute top-0 left-0 right-0 border-b border-gray-100">
           <div className="font-bold text-lg text-emerald-800 tracking-tight flex items-center gap-2">
             <span className="bg-emerald-100 p-1.5 rounded-lg text-emerald-600"><i className="fa-solid fa-leaf text-sm"></i></span>
-            Thảo Cầm Viên
+            {/* Gọi text từ bộ từ điển */}
+            {t.title}
           </div>
 
           <div className="relative">
@@ -48,18 +83,16 @@ export default function VisitorLayout() {
         </header>
       )}
 
-      {/* Vùng nội dung chính */}
       <div className={`flex-1 overflow-y-auto hide-scrollbar relative z-10 ${!isDetailPage ? 'pt-14 pb-20' : 'pb-0'}`}>
         <GeofenceController />
         <Outlet />
       </div>
 
-      {/* Bottom Navigation (Thanh điều hướng dưới cùng) */}
       {!isDetailPage && (
         <nav className="h-20 bg-white border-t border-gray-100 shrink-0 z-40 absolute bottom-0 left-0 right-0 flex justify-around items-center px-2 pb-safe shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
           <NavLink to="/" className={({ isActive }) => `flex flex-col items-center gap-1 w-16 transition-colors ${isActive ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'}`}>
             <i className="fa-solid fa-house text-xl"></i>
-            <span className="text-[10px] font-bold">Trang chủ</span>
+            <span className="text-[10px] font-bold">{t.home}</span>
           </NavLink>
 
           <div className="relative -top-6">
@@ -70,7 +103,7 @@ export default function VisitorLayout() {
 
           <NavLink to="/map" className={({ isActive }) => `flex flex-col items-center gap-1 w-16 transition-colors ${isActive ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'}`}>
             <i className="fa-solid fa-map-location-dot text-xl"></i>
-            <span className="text-[10px] font-bold">Bản đồ</span>
+            <span className="text-[10px] font-bold">{t.map}</span>
           </NavLink>
         </nav>
       )}
