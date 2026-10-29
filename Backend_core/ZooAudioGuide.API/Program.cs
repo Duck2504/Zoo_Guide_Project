@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ZooAudioGuide.API.Data;
 using ZooAudioGuide.API.Repositories;
 using ZooAudioGuide.API.Services;
+using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ZooDbContext>(options =>
     options.UseSqlServer(
@@ -32,15 +33,18 @@ builder.Services.AddCors(options =>
     });
 });
 var app = builder.Build();
-app.UseDeveloperExceptionPage();
+app.UseDeveloperExceptionPage(); 
+
 // 1. KÍCH HOẠT CORS
-app.UseCors("AllowFE");
+app.UseCors("AllowFE"); //[cite: 3]
 
-// Configure the HTTP request pipeline.
-    app.MapOpenApi();
+// 2. CẤU HÌNH API DOCS & GIAO DIỆN SCALAR (Tương tự Swagger)
+app.MapOpenApi(); //[cite: 3]
+app.MapScalarApiReference(); // Thêm dòng này để có UI đẹp test API
 
-// 2. Kích hoạt định tuyến cho các Controller (Zones, Animals...)
-app.MapControllers();
+// 3. Kích hoạt định tuyến cho các Controller (Zones, Animals...)
+app.MapControllers(); //[cite: 3]
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Run($"http://0.0.0.0:{port}");
+// 4. Lắng nghe Port của Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080"; //[cite: 3]
+app.Run($"http://0.0.0.0:{port}"); //[cite: 3]
