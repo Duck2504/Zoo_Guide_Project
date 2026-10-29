@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 
 const translations = {
@@ -13,12 +13,52 @@ const translations = {
 export default function AnimalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  // Thêm useSearchParams để lấy query string từ URL
+  const [searchParams] = useSearchParams();
+  const source = searchParams.get('source') || 'web'; 
+
   const { language } = useVisitor();
   const [animal, setAnimal] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   
   const t = translations[language] || translations['vi'];
 
+  // 1. Tự động ghi log khi người dùng truy cập trang
+  useEffect(() => {
+    const logScan = async () => {
+      if (!id) return;
+
+      // Lấy hoặc tạo SessionId trong máy khách để định danh phiên
+      let sessionId = sessionStorage.getItem('zoo_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        sessionStorage.setItem('zoo_session_id', sessionId);
+      }
+
+      const logData = {
+        animalId: parseInt(id),
+        source: source,
+        languageCode: language, // Lấy theo ngôn ngữ khách đang chọn
+        sessionId: sessionId
+      };
+
+      try {
+        await fetch(`https://backend-zooaudio.onrender.com/api/scan-logs`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(logData)
+        });
+      } catch (error) {
+        console.error("Lỗi khi ghi nhận log:", error);
+      }
+    };
+
+    logScan();
+  }, [id, source, language]); // Cập nhật log nếu ID động vật hoặc ngôn ngữ thay đổi
+
+  // 2. Fetch data động vật (giữ nguyên logic mock data của cậu hiện tại)
   useEffect(() => {
     setIsLoading(true);
     // Lưu ý: Sau này em sẽ thay bằng fetch(`http://localhost:5000/api/animals/${id}?lang=${language}`)
