@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       // Nhớ đổi port 5000 thành port Backend thật của em
-      const res = await fetch('http://localhost:5000/api/admin/stats/overview'); 
+      const res = await fetch('import.meta.env.VITE_API_URL/api/admin/stats/overview'); 
       if (res.ok) {
         const data = await res.json();
         // Format lại ngày tháng cho biểu đồ

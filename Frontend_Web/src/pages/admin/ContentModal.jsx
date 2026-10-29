@@ -17,7 +17,7 @@ export default function ContentModal({ animalId, animalName, onClose }) {
     setIsLoading(true);
     try {
       // API lấy danh sách bài thuyết minh của 1 con vật (Em cần viết API này ở Core Backend)
-      const res = await fetch(`http://localhost:5000/api/animals/${animalId}/contents`);
+      const res = await fetch(`import.meta.env.VITE_API_URL/api/animals/${animalId}/contents`);
       if (res.ok) {
         const data = await res.json();
         setContents(data);
@@ -67,7 +67,7 @@ export default function ContentModal({ animalId, animalName, onClose }) {
         audioUrl: audioUrl
       };
 
-      const res = await fetch(`http://localhost:5000/api/animals/${animalId}/contents`, {
+      const res = await fetch(`import.meta.env.VITE_API_URL/api/animals/${animalId}/contents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -6,7 +6,7 @@ export default function ZoneManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
 
-  const API_URL = 'http://localhost:5000/api/zones';
+  const API_URL = 'import.meta.env.VITE_API_URL/api/zones';
 
   // 1. Lấy danh sách Khu vực
   const fetchZones = async () => {
