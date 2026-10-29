@@ -13,22 +13,19 @@ const translations = {
 export default function AnimalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  // Thêm useSearchParams để lấy query string từ URL
   const [searchParams] = useSearchParams();
-  const source = searchParams.get('source') || 'web'; 
+  const source = searchParams.get('source') || 'web';
 
   const { language } = useVisitor();
   const [animal, setAnimal] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const t = translations[language] || translations['vi'];
 
-  // 1. Tự động ghi log khi người dùng truy cập trang
+  // 1. Tự động ghi log quét QR
   useEffect(() => {
     const logScan = async () => {
       if (!id) return;
-
-      // Lấy hoặc tạo SessionId trong máy khách để định danh phiên
       let sessionId = sessionStorage.getItem('zoo_session_id');
       if (!sessionId) {
         sessionId = crypto.randomUUID();
@@ -38,16 +35,14 @@ export default function AnimalDetail() {
       const logData = {
         animalId: parseInt(id),
         source: source,
-        languageCode: language, // Lấy theo ngôn ngữ khách đang chọn
+        languageCode: language,
         sessionId: sessionId
       };
 
       try {
         await fetch(`https://backend-zooaudio.onrender.com/api/scan-logs`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(logData)
         });
       } catch (error) {
@@ -56,25 +51,45 @@ export default function AnimalDetail() {
     };
 
     logScan();
-  }, [id, source, language]); // Cập nhật log nếu ID động vật hoặc ngôn ngữ thay đổi
+  }, [id, source, language]);
 
-  // 2. Fetch data động vật (giữ nguyên logic mock data của cậu hiện tại)
+  // 2. Fetch data động vật TỪ DATABASE THEO API THẬT
   useEffect(() => {
-    setIsLoading(true);
-    // Lưu ý: Sau này em sẽ thay bằng fetch(`http://localhost:5000/api/animals/${id}?lang=${language}`)
-    setTimeout(() => {
-      setAnimal({
-        id,
-        name: language === 'en' ? 'Indochinese Tiger' : 'Hổ Đông Dương',
-        scientificName: 'Panthera tigris corbetti',
-        imageUrl: 'https://images.unsplash.com/photo-1591824438708-ce405f36ba3d?q=80&w=800&auto=format&fit=crop',
-        zoneName: language === 'en' ? 'Predator Zone' : 'Khu Thú Dữ',
-        content: language === 'en' ? 'The Indochinese tiger is a tiger subspecies...' : 'Hổ Đông Dương là một phân loài hổ đặc hữu...',
-        audioUrl: '',
-        iucnStatus: 'EN'
-      });
-      setIsLoading(false);
-    }, 500);
+    const fetchAnimalData = async () => {
+      if (!id) return;
+
+      setIsLoading(true);
+      try {
+        // Gọi API lấy thông tin động vật theo ngôn ngữ
+        const response = await fetch(`https://backend-zooaudio.onrender.com/api/animals/${id}?lang=${language}`);
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Map dữ liệu từ Backend trả về (AnimalDto) vào state của React
+          setAnimal({
+            id: data.id,
+            name: data.defaultLocalName || 'Đang cập nhật tên...',
+            scientificName: data.scientificName || 'Chưa rõ',
+            imageUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1591824438708-ce405f36ba3d?q=80&w=800&auto=format&fit=crop', // Ảnh dự phòng nếu avatar trống
+            zoneName: data.zoneName || `Khu vực ${data.zoneId}`,
+            content: data.scriptText || 'Nội dung thuyết minh đang được cập nhật...',
+            audioUrl: data.audioUrl || '',
+            iucnStatus: 'EN' // Mục này hiện tại chưa có trong CSDL nên tạm để mặc định
+          });
+        } else {
+          // Nếu API trả về 404 (Không tìm thấy)
+          setAnimal(null);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu động vật từ server:", error);
+        setAnimal(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnimalData();
   }, [id, language]);
 
   if (isLoading) return <div className="h-full bg-white animate-pulse"><div className="w-full h-[45vh] bg-gray-200"></div><div className="p-6 -mt-6"><div className="h-8 bg-gray-200 rounded-full w-2/3 mb-4"></div><div className="h-4 bg-gray-200 rounded-full w-full mb-2"></div><div className="h-4 bg-gray-200 rounded-full w-5/6"></div></div></div>;
@@ -98,10 +113,14 @@ export default function AnimalDetail() {
 
         <div className="flex gap-2 mb-6">
           <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">{animal.zoneName}</span>
-          <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold">{animal.iucnStatus}</span>
+          {animal.iucnStatus && (
+            <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold">{animal.iucnStatus}</span>
+          )}
         </div>
 
-        <p className="text-gray-700 leading-relaxed text-[15px] font-medium opacity-90">{animal.content}</p>
+        <p className="text-gray-700 leading-relaxed text-[15px] font-medium opacity-90 whitespace-pre-wrap">
+          {animal.content}
+        </p>
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-safe z-50">
@@ -109,7 +128,7 @@ export default function AnimalDetail() {
           <button className="w-14 h-14 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-600/30 active:scale-95 transition-transform shrink-0">
             <i className="fa-solid fa-play text-xl ml-1"></i>
           </button>
-          
+
           <div className="flex-1">
             <div className="flex justify-between items-end mb-1">
               <span className="text-xs font-bold text-gray-800">{t.audioTitle}</span>
