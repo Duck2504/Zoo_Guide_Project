@@ -6,8 +6,15 @@ export default function AnimalManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Khởi tạo state khớp 100% với 3 cột cần nhập trong CSDL
-  const [formData, setFormData] = useState({ zoneId: 1, scientificName: '', avatarUrl: '' });
+  // Khởi tạo state khớp với AnimalCreateDto
+  const initialFormState = { 
+    zoneId: 1, 
+    scientificName: '', 
+    avatarUrl: '',
+    localName: '',
+    scriptText: ''
+  };
+  const [formData, setFormData] = useState(initialFormState);
 
   const API_URL = `https://backend-zooaudio.onrender.com/api/animals`;
 
@@ -73,10 +80,17 @@ export default function AnimalManager() {
 
   const handleOpenModal = (animal = null) => {
     if (animal) {
-      setFormData(animal);
+      // Map dữ liệu từ AnimalDto (GET) sang AnimalCreateDto (PUT)
+      setFormData({ 
+        id: animal.id,
+        zoneId: animal.zoneId || 1, 
+        scientificName: animal.scientificName || '', 
+        avatarUrl: animal.avatarUrl || '',
+        localName: animal.defaultLocalName || '', // Lấy defaultLocalName gán vào localName
+        scriptText: animal.scriptText || ''
+      });
     } else {
-      // Reset form về trạng thái rỗng khớp với DB
-      setFormData({ zoneId: 1, scientificName: '', avatarUrl: '' });
+      setFormData(initialFormState);
     }
     setIsModalOpen(true);
   };
@@ -88,7 +102,6 @@ export default function AnimalManager() {
     const pngUrl = canvas.toDataURL("image/png");
     const downloadLink = document.createElement("a");
     downloadLink.href = pngUrl;
-    // Lấy Tên khoa học làm tên file QR
     downloadLink.download = `QR_${scientificName ? scientificName.replace(/ /g, '_') : 'Animal'}_${animalId}.png`;
 
     document.body.appendChild(downloadLink);
@@ -114,8 +127,8 @@ export default function AnimalManager() {
             <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
               <th className="p-4 font-bold">ID</th>
               <th className="p-4 font-bold">Hình ảnh</th>
-              <th className="p-4 font-bold">Tên khoa học</th>
-              <th className="p-4 font-bold">Khu vực (Zone)</th>
+              <th className="p-4 font-bold">Tên gọi</th>
+              <th className="p-4 font-bold">Khu vực</th>
               <th className="p-4 font-bold text-center">Mã QR</th>
               <th className="p-4 font-bold text-center">Thao tác</th>
             </tr>
@@ -130,7 +143,6 @@ export default function AnimalManager() {
                 <tr key={animal.id} className="border-b border-slate-50 hover:bg-slate-50 transition">
                   <td className="p-4 text-slate-600 font-medium">#{animal.id}</td>
                   
-                  {/* Cột hiển thị Avatar */}
                   <td className="p-4">
                     {animal.avatarUrl ? (
                       <img src={animal.avatarUrl} alt="Avatar" className="w-14 h-14 object-cover rounded-xl border border-slate-200 shadow-sm" />
@@ -139,8 +151,15 @@ export default function AnimalManager() {
                     )}
                   </td>
 
-                  <td className="p-4 font-bold text-slate-800 italic">{animal.scientificName}</td>
-                  <td className="p-4 text-slate-600 font-bold">Khu {animal.zoneId}</td>
+                  <td className="p-4">
+                    <div className="font-bold text-slate-800">{animal.defaultLocalName || 'Chưa cập nhật tên'}</div>
+                    <div className="text-sm italic text-slate-500">{animal.scientificName}</div>
+                  </td>
+                  
+                  <td className="p-4">
+                    <div className="text-slate-600 font-bold">Khu {animal.zoneId}</div>
+                    {animal.zoneName && <div className="text-xs text-slate-500">{animal.zoneName}</div>}
+                  </td>
 
                   <td className="p-4 flex flex-col items-center justify-center gap-2">
                     <div className="p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
@@ -159,7 +178,7 @@ export default function AnimalManager() {
                     </button>
                   </td>
 
-                  <td className="p-4 text-center">
+                  <td className="p-4">
                     <div className="flex justify-center gap-2">
                       <button onClick={() => handleOpenModal(animal)} className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition">
                         <i className="fa-solid fa-pen-to-square"></i>
@@ -178,36 +197,56 @@ export default function AnimalManager() {
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
+          <div className="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black text-slate-800">{formData.id ? 'Sửa thông tin' : 'Thêm động vật mới'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><i className="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            
             <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Cập nhật các ô Input khớp với Database */}
-              <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">Tên khoa học (Scientific Name)</label>
-                <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-1">Tên tiếng Việt (Local Name)</label>
+                  <input type="text" value={formData.localName || ''} onChange={e => setFormData({ ...formData, localName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-1">Tên khoa học (Scientific Name)</label>
+                  <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">ID Khu vực (Zone ID)</label>
-                <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-1">ID Khu vực (Zone ID)</label>
+                  <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-bold text-slate-600 mb-1">Đường dẫn ảnh (Avatar URL)</label>
+                  <input type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" />
+                </div>
               </div>
 
+              {formData.avatarUrl && (
+                <div className="mt-2">
+                  <p className="text-xs text-slate-500 mb-1">Xem trước ảnh:</p>
+                  <img src={formData.avatarUrl} alt="Preview" className="h-32 rounded-xl border border-slate-200 object-cover" />
+                </div>
+              )}
+
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">Đường dẫn ảnh (Avatar URL)</label>
-                <input type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" />
-                {formData.avatarUrl && (
-                  <div className="mt-2">
-                    <p className="text-xs text-slate-500 mb-1">Xem trước ảnh:</p>
-                    <img src={formData.avatarUrl} alt="Preview" className="h-20 rounded-lg border border-slate-200 object-cover" />
-                  </div>
-                )}
+                <label className="block text-sm font-bold text-slate-600 mb-1">Bài thuyết minh (Script Text)</label>
+                <textarea 
+                  rows="4" 
+                  value={formData.scriptText || ''} 
+                  onChange={e => setFormData({ ...formData, scriptText: e.target.value })} 
+                  className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" 
+                  placeholder="Nhập nội dung bài thuyết minh bằng tiếng Việt..."
+                />
               </div>
 
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition mt-4">
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition mt-6">
                 {formData.id ? 'Lưu cập nhật' : 'Lưu tạo mới'}
               </button>
             </form>
