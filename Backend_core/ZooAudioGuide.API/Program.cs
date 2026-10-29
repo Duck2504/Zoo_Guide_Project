@@ -42,5 +42,5 @@ app.UseCors("AllowFE");
 // 2. Kích hoạt định tuyến cho các Controller (Zones, Animals...)
 app.MapControllers();
 
-app.Run();
-// chạy CI/CD
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
