@@ -8,7 +8,7 @@ export default function AnimalManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', scientificName: '', zoneId: 1 });
 
-  const API_URL = `${import.meta.env.VITE_API_URL}/api/animals`;
+  const API_URL = `https://zooaudioguide-001-site1.ftempurl.com/api/animals`;
 
   const fetchAnimals = async () => {
     setIsLoading(true);
