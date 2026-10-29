@@ -36,9 +36,21 @@ namespace ZooAudioGuide.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ZoneDto>> CreateZone(ZoneCreateDto dto)
         {
-            var createdZone = await _zoneService.CreateZoneAsync(dto);
-            // Trả về HTTP 201 Created và kèm theo URL để lấy thông tin zone vừa tạo
-            return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
+            try
+            {
+                var createdZone = await _zoneService.CreateZoneAsync(dto);
+                return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
+            }
+            catch (Exception ex)
+            {
+                // Ép C# trả về chính xác dòng lỗi để đọc thẳng trên trình duyệt
+                return StatusCode(500, new
+                {
+                    Message = "LỖI TẠI ĐÂY:",
+                    Error = ex.Message,
+                    InnerError = ex.InnerException?.Message
+                });
+            }
         }
 
         [HttpPut("{id}")]
