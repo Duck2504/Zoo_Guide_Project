@@ -1,4 +1,4 @@
-name: Core Backend CI/CD
+name: Core Backend CI
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - 'Backend_core/**'
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
     
     defaults:
@@ -19,30 +19,20 @@ jobs:
         working-directory: ./Backend_core/ZooAudioGuide.API
 
     steps:
-    - name: Checkout mã nguồn
-      uses: actions/checkout@v4
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
 
-    - name: Cài đặt .NET Core
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+      - name: Cài đặt .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-    - name: Khôi phục các thư viện
-      run: dotnet restore
+      - name: Khôi phục các thư viện (Restore)
+        run: dotnet restore
 
-    - name: Biên dịch
-      run: dotnet build --no-restore --configuration Release
+      - name: Biên dịch (Build)
+        run: dotnet build --no-restore --configuration Release
 
-    - name: Đóng gói dự án (Publish)
-      if: github.event_name == 'push'
-      run: dotnet publish --no-build --configuration Release -o ./publish
-
-    - name: Triển khai FTP lên SmarterASP
-      if: github.event_name == 'push'
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./Backend_core/ZooAudioGuide.API/publish/
-        server-dir: /ZooAudioGuide/backend/
+      # (Tùy chọn) Chạy Unit Test nếu dự án có viết test
+      - name: Chạy kiểm thử (Test)
+        run: dotnet test --no-build --configuration Release
