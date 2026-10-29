@@ -21,7 +21,7 @@ public class GeminiTranslator(HttpClient http, IConfiguration cfg) : ITranslator
         var key = (cfg["Gemini:ApiKey"] ?? throw new Exception("Thiếu Gemini:ApiKey")).Trim();
 
         // 2. ÉP CỨNG tên model vào code, không đọc qua biến môi trường (cfg) nữa
-        var model = "gemini-1.5-flash";
+        var model = "gemini-2.5-flash";
 
         // 3. Nối URL
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}";
