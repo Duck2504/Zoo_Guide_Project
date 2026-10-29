@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import ContentModal from './ContentModal';
 
 export default function AnimalManager() {
   const [animals, setAnimals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', scientificName: '', zoneId: 1 });
+  
+  // Khởi tạo state khớp 100% với 3 cột cần nhập trong CSDL
+  const [formData, setFormData] = useState({ zoneId: 1, scientificName: '', avatarUrl: '' });
 
   const API_URL = `https://backend-zooaudio.onrender.com/api/animals`;
 
@@ -47,7 +48,7 @@ export default function AnimalManager() {
         setIsModalOpen(false);
         fetchAnimals();
       } else {
-        alert("Lưu thất bại, kiểm tra lại dữ liệu!");
+        alert("Lưu thất bại! Hãy kiểm tra tab Network để xem lỗi chi tiết.");
       }
     } catch (error) {
       console.error("Lỗi lưu dữ liệu:", error);
@@ -74,22 +75,21 @@ export default function AnimalManager() {
     if (animal) {
       setFormData(animal);
     } else {
-      setFormData({ name: '', scientificName: '', zoneId: 1 });
+      // Reset form về trạng thái rỗng khớp với DB
+      setFormData({ zoneId: 1, scientificName: '', avatarUrl: '' });
     }
     setIsModalOpen(true);
   };
 
-  // Hàm xử lý tải ảnh QR Code về máy
-  const handleDownloadQR = (animalId, animalName) => {
+  const handleDownloadQR = (animalId, scientificName) => {
     const canvas = document.getElementById(`qr-${animalId}`);
     if (!canvas) return;
 
-    // Chuyển đổi canvas thành file ảnh PNG
     const pngUrl = canvas.toDataURL("image/png");
     const downloadLink = document.createElement("a");
     downloadLink.href = pngUrl;
-    // Đặt tên file tự động theo tên con vật
-    downloadLink.download = `QR_${animalName.replace(/ /g, '_')}_${animalId}.png`;
+    // Lấy Tên khoa học làm tên file QR
+    downloadLink.download = `QR_${scientificName ? scientificName.replace(/ /g, '_') : 'Animal'}_${animalId}.png`;
 
     document.body.appendChild(downloadLink);
     downloadLink.click();
@@ -102,7 +102,7 @@ export default function AnimalManager() {
         <h1 className="text-2xl font-black text-slate-800">Quản lý Động vật</h1>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-zoo-600 hover:bg-zoo-700 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-2"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-2"
         >
           <i className="fa-solid fa-plus"></i> Thêm mới
         </button>
@@ -113,28 +113,35 @@ export default function AnimalManager() {
           <thead>
             <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
               <th className="p-4 font-bold">ID</th>
-              <th className="p-4 font-bold">Tên động vật</th>
-              <th className="p-4 font-bold">Khu vực</th>
+              <th className="p-4 font-bold">Hình ảnh</th>
+              <th className="p-4 font-bold">Tên khoa học</th>
+              <th className="p-4 font-bold">Khu vực (Zone)</th>
               <th className="p-4 font-bold text-center">Mã QR</th>
               <th className="p-4 font-bold text-center">Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr><td colSpan="5" className="p-8 text-center text-slate-500 font-bold animate-pulse">Đang tải dữ liệu...</td></tr>
+              <tr><td colSpan="6" className="p-8 text-center text-slate-500 font-bold animate-pulse">Đang tải dữ liệu...</td></tr>
             ) : animals.length === 0 ? (
-              <tr><td colSpan="5" className="p-8 text-center text-slate-500 italic">Chưa có dữ liệu động vật nào.</td></tr>
+              <tr><td colSpan="6" className="p-8 text-center text-slate-500 italic">Chưa có dữ liệu động vật nào.</td></tr>
             ) : (
               animals.map(animal => (
                 <tr key={animal.id} className="border-b border-slate-50 hover:bg-slate-50 transition">
                   <td className="p-4 text-slate-600 font-medium">#{animal.id}</td>
+                  
+                  {/* Cột hiển thị Avatar */}
                   <td className="p-4">
-                    <p className="font-bold text-slate-800">{animal.name}</p>
-                    <p className="text-sm text-slate-500 italic">{animal.scientificName}</p>
+                    {animal.avatarUrl ? (
+                      <img src={animal.avatarUrl} alt="Avatar" className="w-14 h-14 object-cover rounded-xl border border-slate-200 shadow-sm" />
+                    ) : (
+                      <div className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs italic border border-slate-200">Trống</div>
+                    )}
                   </td>
+
+                  <td className="p-4 font-bold text-slate-800 italic">{animal.scientificName}</td>
                   <td className="p-4 text-slate-600 font-bold">Khu {animal.zoneId}</td>
 
-                  {/* Cột hiển thị và tải mã QR */}
                   <td className="p-4 flex flex-col items-center justify-center gap-2">
                     <div className="p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
                       <QRCodeCanvas
@@ -145,7 +152,7 @@ export default function AnimalManager() {
                       />
                     </div>
                     <button
-                      onClick={() => handleDownloadQR(animal.id, animal.name)}
+                      onClick={() => handleDownloadQR(animal.id, animal.scientificName)}
                       className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-md font-bold transition flex items-center gap-1"
                     >
                       <i className="fa-solid fa-download"></i> Tải ảnh
@@ -177,19 +184,30 @@ export default function AnimalManager() {
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><i className="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Cập nhật các ô Input khớp với Database */}
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">Tên động vật</label>
-                <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" required />
+                <label className="block text-sm font-bold text-slate-600 mb-1">Tên khoa học (Scientific Name)</label>
+                <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
               </div>
+
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">Tên khoa học</label>
-                <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" />
+                <label className="block text-sm font-bold text-slate-600 mb-1">ID Khu vực (Zone ID)</label>
+                <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
               </div>
+
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">ID Khu vực (Zone)</label>
-                <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" required />
+                <label className="block text-sm font-bold text-slate-600 mb-1">Đường dẫn ảnh (Avatar URL)</label>
+                <input type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" />
+                {formData.avatarUrl && (
+                  <div className="mt-2">
+                    <p className="text-xs text-slate-500 mb-1">Xem trước ảnh:</p>
+                    <img src={formData.avatarUrl} alt="Preview" className="h-20 rounded-lg border border-slate-200 object-cover" />
+                  </div>
+                )}
               </div>
-              <button type="submit" className="w-full bg-zoo-600 hover:bg-zoo-700 text-white font-bold py-3 rounded-xl transition mt-4">
+
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition mt-4">
                 {formData.id ? 'Lưu cập nhật' : 'Lưu tạo mới'}
               </button>
             </form>
