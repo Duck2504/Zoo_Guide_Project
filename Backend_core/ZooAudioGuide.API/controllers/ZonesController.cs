@@ -43,12 +43,13 @@ namespace ZooAudioGuide.API.Controllers
             }
             catch (Exception ex)
             {
-                // Ép C# trả về chính xác dòng lỗi để đọc thẳng trên trình duyệt
-                return StatusCode(400, new
+                // THỦ THUẬT: Dùng Ok() để trả về mã 200, ép IIS thả JSON báo lỗi ra trình duyệt
+                return Ok(new
                 {
                     Message = "LỖI TẠI ĐÂY:",
                     Error = ex.Message,
-                    InnerError = ex.InnerException?.Message
+                    InnerError = ex.InnerException?.Message,
+                    StackTrace = ex.StackTrace
                 });
             }
         }
