@@ -22,7 +22,7 @@ export default function HomeAccessManager() {
       
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 max-w-xl">
         <p className="text-slate-600 mb-6">
-          Sử dụng mã QR này để đặt tại cổng ra vào hoặc quầy vé. Khi khách quét mã, hệ thống sẽ đưa họ vào trang chủ và <strong>tự động đếm vào số người đang Online</strong> trên Dashboard.
+          Sử dụng mã QR này để đặt tại cổng ra vào hoặc quầy vé. 
         </p>
 
         <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-2xl border border-slate-200">
