@@ -17,8 +17,13 @@ public class GeminiTranslator(HttpClient http, IConfiguration cfg) : ITranslator
 {
     public async Task<string> TranslateAsync(string text, string targetLang)
     {
-        var key = cfg["Gemini:ApiKey"] ?? throw new Exception("Thiếu Gemini:ApiKey");
-        var model = cfg["Gemini:Model"] ?? "gemini-3.6-flash";
+        // 1. Chỉ đọc ApiKey từ Render và cắt sạch khoảng trắng thừa bằng Trim()
+        var key = (cfg["Gemini:ApiKey"] ?? throw new Exception("Thiếu Gemini:ApiKey")).Trim();
+
+        // 2. ÉP CỨNG tên model vào code, không đọc qua biến môi trường (cfg) nữa
+        var model = "gemini-1.5-flash";
+
+        // 3. Nối URL
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}";
 
         var prompt = $"Dịch đoạn thuyết minh sau sang ngôn ngữ có mã '{targetLang}'. " +
