@@ -33,13 +33,6 @@ export default function AdminLayout() {
           >
             <i className="fa-solid fa-hippo mr-2"></i> Khu Động Vật
           </NavLink>
-
-          <NavLink
-            to="/admin/audios"
-            className={({ isActive }) => `block px-4 py-2 rounded-xl font-bold text-sm transition ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >
-            <i className="fa-solid fa-hippo mr-2"></i> Tùy chỉnh Audio
-          </NavLink>
         </nav>
       </aside>
 
