@@ -21,7 +21,7 @@ public class GeminiTranslator(HttpClient http, IConfiguration cfg) : ITranslator
         var key = (cfg["Gemini:ApiKey"] ?? throw new Exception("Thiếu Gemini:ApiKey")).Trim();
 
         // 2. ÉP CỨNG tên model vào code, không đọc qua biến môi trường (cfg) nữa
-        var model = "gemini-1.5-flash";
+        var model = "gemini-1.0-pro";
 
         // 3. Nối URL
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}";
@@ -33,7 +33,11 @@ public class GeminiTranslator(HttpClient http, IConfiguration cfg) : ITranslator
         {
             contents = new[] { new { parts = new[] { new { text = prompt } } } }
         });
-        res.EnsureSuccessStatusCode();
+        if (!res.IsSuccessStatusCode)
+        {
+            var errorContent = await res.Content.ReadAsStringAsync();
+            throw new Exception($"Lỗi thực sự từ Google {res.StatusCode}: {errorContent}");
+        }
 
         var json = await res.Content.ReadFromJsonAsync<JsonElement>();
         return json.GetProperty("candidates")[0].GetProperty("content")
