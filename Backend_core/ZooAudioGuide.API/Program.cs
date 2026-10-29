@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
     });
 });
 var app = builder.Build();
-
+app.UseDeveloperExceptionPage();
 // 1. KÍCH HOẠT CORS
 app.UseCors("AllowFE");
 
