@@ -14,6 +14,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AnimalManager from './pages/admin/AnimalManager';
 import ZoneManager from './pages/admin/ZoneManager';
 import AudioManager from './pages/admin/ContentModal';
+import QrCodeIndex from './pages/admin/HomeAccessManager'
 // Khởi tạo GA4 một lần duy nhất ở ngoài Component
 ReactGA.initialize("G-XXXXXXXXXX"); // Đừng quên thay mã G- của em vào đây
 
@@ -42,7 +43,7 @@ export default function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/animals" element={<AnimalManager />} />
         <Route path="/admin/zones" element={<ZoneManager/>} />
-        <Route path="/admin/audios" element={<AudioManager/>} />
+        <Route path="/admin/QrCode" element={<QrCodeIndex/>} />
       </Route>
     </Routes>
   );

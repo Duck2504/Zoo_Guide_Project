@@ -47,10 +47,11 @@ namespace ZooAudioGuide.API.Services
 
             var topAnimals = await _context.ScanLogs
                 .Include(s => s.Animal)
+                .Where(s => s.AnimalId != null)
                 .GroupBy(s => new { s.AnimalId, s.Animal.ScientificName })
                 .Select(g => new TopAnimalDto
                 {
-                    AnimalId = g.Key.AnimalId,
+                    AnimalId = g.Key.AnimalId.Value,
                     AnimalName = g.Key.ScientificName,
                     ScanCount = g.Count()
                 })

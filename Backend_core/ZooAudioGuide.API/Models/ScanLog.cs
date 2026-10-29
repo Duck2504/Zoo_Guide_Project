@@ -9,8 +9,7 @@ namespace ZooAudioGuide.API.Models // Sửa lại đúng thư mục Models của
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        public int AnimalId { get; set; }
+        public int? AnimalId { get; set; }
 
         [ForeignKey("AnimalId")]
         public Animal Animal { get; set; } = null!;

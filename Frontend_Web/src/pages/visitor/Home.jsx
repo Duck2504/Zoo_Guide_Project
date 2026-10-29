@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 const translations = {
   vi: {
@@ -62,7 +64,40 @@ const translations = {
 export default function Home() {
   const navigate = useNavigate();
   const { language } = useVisitor();
+  const [searchParams] = useSearchParams();
+  const source = searchParams.get('source') || 'web_home';
+  
   const t = translations[language] || translations['vi'];
+
+  // Tự động ghi nhận lượt truy cập trang chủ / quét QR trang chủ để tính số lượng Online
+  useEffect(() => {
+    const logHomeVisit = async () => {
+      let sessionId = sessionStorage.getItem('zoo_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        sessionStorage.setItem('zoo_session_id', sessionId);
+      }
+
+      const logData = {
+        animalId: null, // Trang chủ không gắn với con vật cụ thể nào
+        source: source,
+        languageCode: language, 
+        sessionId: sessionId
+      };
+
+      try {
+        await fetch(`https://backend-zooaudio.onrender.com/api/scan-logs`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(logData)
+        });
+      } catch (error) {
+        console.error("Lỗi ghi log trang chủ:", error);
+      }
+    };
+
+    logHomeVisit();
+  }, [source, language]);
 
   return (
     <div className="h-full flex flex-col p-5 space-y-6">
@@ -91,7 +126,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center gap-3 active:bg-gray-50 transition cursor-pointer" onClick={() => document.querySelector('.fa-qrcode').closest('button').click()}>
+        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center gap-3 active:bg-gray-50 transition cursor-pointer" onClick={() => document.querySelector('.fa-qrcode')?.closest('button')?.click()}>
           <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl">
             <i className="fa-solid fa-expand"></i>
           </div>
@@ -115,4 +150,3 @@ export default function Home() {
     </div>
   );
 }
-//chay ci/cd
