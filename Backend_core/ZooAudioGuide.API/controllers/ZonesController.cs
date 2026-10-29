@@ -34,7 +34,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ZoneDto>> CreateZone(ZoneCreateDto dto)
+        public async Task<IActionResult> CreateZone(ZoneCreateDto dto)
         {
             try
             {
@@ -43,7 +43,7 @@ namespace ZooAudioGuide.API.Controllers
             }
             catch (Exception ex)
             {
-                // THỦ THUẬT: Dùng Ok() để trả về mã 200, ép IIS thả JSON báo lỗi ra trình duyệt
+                // Dùng IActionResult kết hợp Ok() để lách qua IIS mà không bị lệch kiểu dữ liệu
                 return Ok(new
                 {
                     Message = "LỖI TẠI ĐÂY:",
