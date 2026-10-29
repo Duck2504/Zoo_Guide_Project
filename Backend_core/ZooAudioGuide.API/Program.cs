@@ -31,9 +31,15 @@ builder.Services.AddScoped<IScanLogService, ScanLogService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 // --- Đăng ký Services gộp từ Microservice ---
-builder.Services.AddHttpClient<ITranslator, GeminiTranslator>();
+builder.Services.AddHttpClient<ITranslator, GeminiTranslator>(client => 
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+});
 builder.Services.AddSingleton<ITtsService, EdgeTtsService>();
-builder.Services.AddHttpClient<IAudioStore, SupabaseAudioStore>();
+builder.Services.AddHttpClient<IAudioStore, SupabaseAudioStore>(client => 
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+});
 builder.Services.AddScoped<NarrationGenerator>();
 
 // Add services to the container.
