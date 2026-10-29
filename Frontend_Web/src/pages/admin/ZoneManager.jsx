@@ -6,7 +6,7 @@ export default function ZoneManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
 
-  const API_URL = `https://zooaudioguide-001-site1.ftempurl.com/api/zones`;
+  const API_URL = `https://zooaudioguide-001-site1.ftempurl.com/backend/api/zones`;
 
   // 1. Lấy danh sách Khu vực
   const fetchZones = async () => {

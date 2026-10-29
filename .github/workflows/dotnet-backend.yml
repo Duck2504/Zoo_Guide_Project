@@ -45,4 +45,4 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./Backend_core/ZooAudioGuide.API/publish/
-        server-dir: /ZooAudioGuide/
+        server-dir: /ZooAudioGuide/backend
