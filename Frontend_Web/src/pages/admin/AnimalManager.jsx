@@ -8,7 +8,7 @@ export default function AnimalManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', scientificName: '', zoneId: 1 });
 
-  const API_URL = 'import.meta.env.VITE_API_URL/api/animals';
+  const API_URL = `${import.meta.env.VITE_API_URL}/api/animals`;
 
   const fetchAnimals = async () => {
     setIsLoading(true);
@@ -83,14 +83,14 @@ export default function AnimalManager() {
   const handleDownloadQR = (animalId, animalName) => {
     const canvas = document.getElementById(`qr-${animalId}`);
     if (!canvas) return;
-    
+
     // Chuyển đổi canvas thành file ảnh PNG
     const pngUrl = canvas.toDataURL("image/png");
     const downloadLink = document.createElement("a");
     downloadLink.href = pngUrl;
     // Đặt tên file tự động theo tên con vật
     downloadLink.download = `QR_${animalName.replace(/ /g, '_')}_${animalId}.png`;
-    
+
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -100,7 +100,7 @@ export default function AnimalManager() {
     <div className="p-6 bg-slate-50 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-black text-slate-800">Quản lý Động vật</h1>
-        <button 
+        <button
           onClick={() => handleOpenModal()}
           className="bg-zoo-600 hover:bg-zoo-700 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-2"
         >
@@ -133,18 +133,18 @@ export default function AnimalManager() {
                     <p className="text-sm text-slate-500 italic">{animal.scientificName}</p>
                   </td>
                   <td className="p-4 text-slate-600 font-bold">Khu {animal.zoneId}</td>
-                  
+
                   {/* Cột hiển thị và tải mã QR */}
                   <td className="p-4 flex flex-col items-center justify-center gap-2">
                     <div className="p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
-                      <QRCodeCanvas 
+                      <QRCodeCanvas
                         id={`qr-${animal.id}`}
-                        value={`http://localhost:5173/a/${animal.id}`} 
-                        size={64} 
-                        level={"H"} 
+                        value={`http://localhost:5173/a/${animal.id}`}
+                        size={64}
+                        level={"H"}
                       />
                     </div>
-                    <button 
+                    <button
                       onClick={() => handleDownloadQR(animal.id, animal.name)}
                       className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-md font-bold transition flex items-center gap-1"
                     >
@@ -179,15 +179,15 @@ export default function AnimalManager() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1">Tên động vật</label>
-                <input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" required />
+                <input type="text" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" required />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1">Tên khoa học</label>
-                <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({...formData, scientificName: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" />
+                <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1">ID Khu vực (Zone)</label>
-                <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({...formData, zoneId: parseInt(e.target.value)})} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" required />
+                <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-zoo-500" required />
               </div>
               <button type="submit" className="w-full bg-zoo-600 hover:bg-zoo-700 text-white font-bold py-3 rounded-xl transition mt-4">
                 {formData.id ? 'Lưu cập nhật' : 'Lưu tạo mới'}
