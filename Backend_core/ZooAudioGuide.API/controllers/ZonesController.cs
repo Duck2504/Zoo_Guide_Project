@@ -44,7 +44,7 @@ namespace ZooAudioGuide.API.Controllers
             catch (Exception ex)
             {
                 // Ép C# trả về chính xác dòng lỗi để đọc thẳng trên trình duyệt
-                return StatusCode(500, new
+                return StatusCode(400, new
                 {
                     Message = "LỖI TẠI ĐÂY:",
                     Error = ex.Message,
