@@ -1,16 +1,18 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
-// Dịch vụ giả: không gọi API thật
+// ===== Các dịch vụ giả: không gọi Gemini, edge-tts hay Supabase thật =====
 public class FakeTranslator : ITranslator
 {
     public int CallCount;
     public Task<string> TranslateAsync(string text, string targetLang)
     {
-        CallCount++;
+        Interlocked.Increment(ref CallCount);
         return Task.FromResult("translated: " + text);
     }
 }
@@ -21,9 +23,39 @@ public class FakeTts : ITtsService
         => Task.FromResult(new byte[] { 1, 2, 3 });
 }
 
+// Kho lưu trữ giả, lưu trong bộ nhớ
+public class FakeStore : IAudioStore
+{
+    public ConcurrentDictionary<string, byte[]> Files = new();
+
+    public string GetPublicUrl(string path) => "https://fake/" + path;
+
+    public Task<string?> TryReadTextAsync(string path) =>
+        Task.FromResult(Files.TryGetValue(path, out var b) ? Encoding.UTF8.GetString(b) : null);
+
+    public Task UploadAsync(string path, byte[] data, string contentType)
+    {
+        Files[path] = data;
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteAsync(IEnumerable<string> paths)
+    {
+        foreach (var p in paths) Files.TryRemove(p, out _);
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<string>> ListAsync(string folder) =>
+        Task.FromResult<IReadOnlyList<string>>(
+            Files.Keys.Where(k => k.StartsWith(folder + "/"))
+                      .Select(k => k[(folder.Length + 1)..])
+                      .ToList());
+}
+
 public class NarrationFactory : WebApplicationFactory<Program>
 {
     public FakeTranslator Translator { get; } = new();
+    public FakeStore Store { get; } = new();
 
     protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
     {
@@ -31,6 +63,7 @@ public class NarrationFactory : WebApplicationFactory<Program>
         {
             services.AddSingleton<ITranslator>(Translator);
             services.AddSingleton<ITtsService>(new FakeTts());
+            services.AddSingleton<IAudioStore>(Store);
         });
     }
 }
@@ -46,7 +79,6 @@ public class NarrationApiTests : IClassFixture<NarrationFactory>
         _client = factory.CreateClient();
     }
 
-    // Text duy nhất mỗi lần chạy để cache cũ không làm sai kết quả
     private static string UniqueText() => "Con voi " + Guid.NewGuid();
 
     [Fact]
@@ -93,15 +125,28 @@ public class NarrationApiTests : IClassFixture<NarrationFactory>
         Assert.Equal(before + 1, _factory.Translator.CallCount);
     }
 
+    // ===== Test cho endpoint /generate (đẩy lên đám mây) =====
+
     [Fact]
-    public async Task SameRequestTwice_UsesCache()
+    public async Task Generate_InvalidRequest_Returns400()
     {
-        var body = new { text = UniqueText(), targetLang = "en" };
+        var res = await _client.PostAsJsonAsync("/api/narration/generate",
+            new { animalId = 0, text = UniqueText(), targetLangs = new[] { "en" } });
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
+    }
+
+    [Fact]
+    public async Task Generate_UploadsToCloud_AndSecondCallReusesIt()
+    {
+        var body = new { animalId = 99, text = UniqueText(), targetLangs = new[] { "en", "vi" } };
         var before = _factory.Translator.CallCount;
 
-        await _client.PostAsJsonAsync("/api/narration", body);
-        await _client.PostAsJsonAsync("/api/narration", body);
+        var res1 = await _client.PostAsJsonAsync("/api/narration/generate", body);
+        Assert.Equal(HttpStatusCode.OK, res1.StatusCode);
+        Assert.Equal(before + 1, _factory.Translator.CallCount);   // chỉ "en" cần dịch
+        Assert.Equal(4, _factory.Store.Files.Keys.Count(k => k.StartsWith("animals/99/")));  // 2 mp3 + 2 txt
 
-        Assert.Equal(before + 1, _factory.Translator.CallCount); // lần 2 lấy từ cache
+        await _client.PostAsJsonAsync("/api/narration/generate", body);
+        Assert.Equal(before + 1, _factory.Translator.CallCount);   // lần 2 dùng lại, không dịch nữa
     }
 }
