@@ -165,7 +165,7 @@ export default function AnimalManager() {
                     <div className="p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
                       <QRCodeCanvas
                         id={`qr-${animal.id}`}
-                        value={`http://localhost:5173/a/${animal.id}`}
+                        value={`https://zooaudioguide-001-site1.ftempurl.com/a/${animal.id}`}
                         size={64}
                         level={"H"}
                       />
