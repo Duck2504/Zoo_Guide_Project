@@ -43,4 +43,4 @@ app.UseCors("AllowFE");
 app.MapControllers();
 
 app.Run();
-// chạy CI/CD trên web
+// chạy CI/CD
