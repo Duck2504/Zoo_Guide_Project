@@ -5,6 +5,7 @@ export default function ZoneManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
+  const [error, setError] = useState(null); // State lưu lỗi trả về từ Backend
 
   const API_URL = `https://backend-zooaudio.onrender.com/api/zones`;
 
@@ -31,6 +32,8 @@ export default function ZoneManager() {
   // 2. Lưu form (Thêm mới / Cập nhật)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Xóa lỗi cũ trước khi gọi API mới
+
     try {
       const isUpdate = formData.id;
       const url = isUpdate ? `${API_URL}/${formData.id}` : API_URL;
@@ -55,10 +58,20 @@ export default function ZoneManager() {
         setIsModalOpen(false);
         fetchZones();
       } else {
-        alert("Lưu thất bại!");
+        // Đọc cục JSON báo lỗi từ C# trả về
+        const errorData = await res.json();
+        
+        // EF Core / ASP.NET thường gom lỗi Validation vào thuộc tính "errors"
+        if (errorData.errors) {
+          const errorMessages = Object.values(errorData.errors).flat();
+          setError(errorMessages.join('\n')); 
+        } else {
+          setError(errorData.title || errorData.message || "Lưu thất bại! Dữ liệu không hợp lệ.");
+        }
       }
     } catch (error) {
       console.error("Lỗi lưu Khu vực:", error);
+      setError("Lỗi kết nối đến máy chủ.");
     }
   };
 
@@ -80,6 +93,7 @@ export default function ZoneManager() {
   };
 
   const handleOpenModal = (zone = null) => {
+    setError(null); // Clear lỗi cũ mỗi khi mở form
     if (zone) {
       setFormData(zone);
     } else {
@@ -137,6 +151,15 @@ export default function ZoneManager() {
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl">
             <h2 className="text-xl font-black text-slate-800 mb-6">{formData.id ? 'Sửa Khu Vực' : 'Thêm Khu Vực'}</h2>
+            
+            {/* HIỂN THỊ LỖI TỪ BACKEND */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-semibold whitespace-pre-line">
+                <i className="fa-solid fa-circle-exclamation mr-2"></i>
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1">Mã Zone (vd: Z-TIGER)</label>
@@ -154,6 +177,7 @@ export default function ZoneManager() {
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-600 mb-1">Bán kính quét GPS (mét)</label>
+                {/* Đã xóa min="1" để cho phép nhập số âm test lỗi */}
                 <input type="number" value={formData.radius} onChange={e => setFormData({...formData, radius: e.target.value})} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-emerald-500" required />
               </div>
               <div className="flex gap-2 mt-6">
