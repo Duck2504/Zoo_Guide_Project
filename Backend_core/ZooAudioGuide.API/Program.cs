@@ -46,6 +46,7 @@ builder.Services.AddScoped<NarrationGenerator>();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails(); // bắt buộc đi cùng UseExceptionHandler() bên dưới
 
 builder.Services.AddCors(options =>
 {
@@ -58,7 +59,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-app.UseDeveloperExceptionPage(); 
+// Development tự bật trang lỗi chi tiết; production chỉ trả ProblemDetails, không lộ stack trace
+if (!app.Environment.IsDevelopment()) app.UseExceptionHandler();
 
 // 1. KÍCH HOẠT CORS
 app.UseCors("AllowFE");

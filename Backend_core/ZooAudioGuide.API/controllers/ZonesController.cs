@@ -38,22 +38,8 @@ namespace ZooAudioGuide.API.Controllers
         [AdminKey]
         public async Task<IActionResult> CreateZone(ZoneCreateDto dto)
         {
-            try
-            {
-                var createdZone = await _zoneService.CreateZoneAsync(dto);
-                return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
-            }
-            catch (Exception ex)
-            {
-                // Dùng IActionResult kết hợp Ok() để lách qua IIS mà không bị lệch kiểu dữ liệu
-                return Ok(new
-                {
-                    Message = "LỖI TẠI ĐÂY:",
-                    Error = ex.Message,
-                    InnerError = ex.InnerException?.Message,
-                    StackTrace = ex.StackTrace
-                });
-            }
+            var createdZone = await _zoneService.CreateZoneAsync(dto);
+            return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
         }
 
         [HttpPut("{id}")]
