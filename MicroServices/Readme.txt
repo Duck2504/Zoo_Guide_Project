@@ -7,3 +7,4 @@ Lỗi: 400 nếu thiếu text / ngôn ngữ không hỗ trợ, 502 nếu API bê
 CI tự build và chạy test mỗi lần push. CD ở mức cơ bản: tự đóng gói service thành Docker image.
 docker build -t narration-service .
 docker run -p 8080:8080 narration-service
+Yêu cầu header X-Admin-Key (khớp biến môi trường Admin__ApiKey của service); thiếu/sai -> 401. Text tối đa 5000 ký tự.

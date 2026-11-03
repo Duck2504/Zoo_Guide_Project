@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ZooAudioGuide.API.Data;
+using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Repositories;
 using ZooAudioGuide.API.Services;
 using Scalar.AspNetCore;
@@ -73,13 +74,22 @@ app.MapControllers();
 // 4. CÁC ENDPOINT GỘP TỪ MICROSERVICE SANG (Minimal APIs)
 // ====================================================================
 
-app.MapGet("/health", () => "OK");
+app.MapGet("/health", () => "OK"); // để công khai: Render dùng để kiểm tra sống/chết
+
+const int MaxTextLength = 5000;
+
+// Các endpoint thuyết minh gọi Gemini/edge-tts tốn tiền, nên chỉ admin được gọi
+var narration = app.MapGroup("/api/narration").AddEndpointFilter(async (ctx, next) =>
+    AdminKeyAttribute.IsAuthorized(ctx.HttpContext)
+        ? await next(ctx)
+        : Results.Json(AdminKeyAttribute.DeniedBody, statusCode: StatusCodes.Status401Unauthorized));
 
 // Endpoint chính: tạo mp3, đẩy lên đám mây, trả về link
-app.MapPost("/api/narration/generate", async (GenerateRequest req, NarrationGenerator gen) =>
+narration.MapPost("/generate", async (GenerateRequest req, NarrationGenerator gen) =>
 {
     if (req.AnimalId <= 0) return Results.BadRequest("AnimalId không hợp lệ");
     if (string.IsNullOrWhiteSpace(req.Text)) return Results.BadRequest("Text không được để trống");
+    if (req.Text.Length > MaxTextLength) return Results.BadRequest($"Text tối đa {MaxTextLength} ký tự");
 
     var langs = (req.TargetLangs ?? []).Distinct().ToArray();
     if (langs.Length == 0) return Results.BadRequest("Thiếu TargetLangs");
@@ -92,10 +102,12 @@ app.MapPost("/api/narration/generate", async (GenerateRequest req, NarrationGene
 });
 
 // Endpoint phụ: trả thẳng mp3, không lưu đâu cả (dùng để test nhanh)
-app.MapPost("/api/narration", async (NarrationRequest req, ITranslator translator, ITtsService tts) =>
+narration.MapPost("", async (NarrationRequest req, ITranslator translator, ITtsService tts) =>
 {
     if (string.IsNullOrWhiteSpace(req.Text))
         return Results.BadRequest("Text không được để trống");
+    if (req.Text.Length > MaxTextLength)
+        return Results.BadRequest($"Text tối đa {MaxTextLength} ký tự");
     if (!EdgeTtsService.IsSupported(req.TargetLang))
         return Results.BadRequest($"Ngôn ngữ '{req.TargetLang}' chưa hỗ trợ");
 
