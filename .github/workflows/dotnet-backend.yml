@@ -5,10 +5,12 @@ on:
     branches: [ "main", "master" ]
     paths:
       - 'Backend_core/**'
+      - '.github/workflows/dotnet-backend.yml'
   pull_request:
     branches: [ "main", "master" ]
     paths:
       - 'Backend_core/**'
+      - '.github/workflows/dotnet-backend.yml'
 
 jobs:
   build-and-test:
@@ -16,7 +18,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: ./Backend_core/ZooAudioGuide.API
+        working-directory: ./Backend_core
 
     steps:
       - name: Checkout mã nguồn
@@ -25,14 +27,8 @@ jobs:
       - name: Cài đặt .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
 
-      - name: Khôi phục các thư viện (Restore)
-        run: dotnet restore
-
-      - name: Biên dịch (Build)
-        run: dotnet build --no-restore --configuration Release
-
-      # (Tùy chọn) Chạy Unit Test nếu dự án có viết test
-      - name: Chạy kiểm thử (Test)
-        run: dotnet test --no-build --configuration Release
+      # Project test tham chiếu API, nên lệnh này restore + build cả API rồi chạy test
+      - name: Biên dịch và chạy kiểm thử (Build + Test)
+        run: dotnet test ZooAudioGuide.Tests --configuration Release
