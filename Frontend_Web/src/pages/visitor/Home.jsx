@@ -98,7 +98,8 @@ export default function Home() {
     };
 
     logHomeVisit();
-  }, [source, language]);
+    // Không đưa `language` vào: đổi ngôn ngữ không phải một lượt truy cập mới
+  }, [source]);
 
   return (
     <div className="h-full flex flex-col p-5 space-y-6">

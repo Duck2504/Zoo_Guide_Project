@@ -76,7 +76,8 @@ export default function AnimalDetail() {
       }
     };
     logScan();
-  }, [id, source, language]);
+    // Không đưa `language` vào: đổi ngôn ngữ không phải một lượt quét mới
+  }, [id, source]);
 
   // 2. Fetch data động vật TỪ DATABASE THEO API THẬT
   useEffect(() => {
