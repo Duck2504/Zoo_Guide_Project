@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
+import { adminFetch } from '../../utils/adminFetch';
 
 export default function AnimalManager() {
   const [animals, setAnimals] = useState([]);
@@ -44,7 +45,7 @@ export default function AnimalManager() {
       const url = isUpdate ? `${API_URL}/${formData.id}` : API_URL;
       const method = isUpdate ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -67,7 +68,7 @@ export default function AnimalManager() {
   const handleGenerateAudio = async (id) => {
     setGeneratingId(id);
     try {
-      const res = await fetch(`${API_URL}/${id}/narration`, {
+      const res = await adminFetch(`${API_URL}/${id}/narration`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(['vi', 'en', 'ja', 'ko'])
@@ -92,7 +93,7 @@ export default function AnimalManager() {
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa động vật này?")) {
       try {
-        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        const res = await adminFetch(`${API_URL}/${id}`, { method: 'DELETE' });
         if (res.ok) {
           alert("Xóa thành công!");
           fetchAnimals();

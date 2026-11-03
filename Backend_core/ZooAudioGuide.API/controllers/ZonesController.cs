@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZooAudioGuide.API.DTOs;
+using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Services;
 
 namespace ZooAudioGuide.API.Controllers
@@ -34,6 +35,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpPost]
+        [AdminKey]
         public async Task<IActionResult> CreateZone(ZoneCreateDto dto)
         {
             try
@@ -55,6 +57,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [AdminKey]
         public async Task<IActionResult> UpdateZone(int id, ZoneCreateDto dto)
         {
             var result = await _zoneService.UpdateZoneAsync(id, dto);
@@ -63,11 +66,19 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [AdminKey]
         public async Task<IActionResult> DeleteZone(int id)
         {
-            var result = await _zoneService.DeleteZoneAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var result = await _zoneService.DeleteZoneAsync(id);
+                if (!result) return NotFound();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
     }
 }

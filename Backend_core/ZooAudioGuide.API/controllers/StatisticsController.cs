@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
+using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Services;
 
 namespace ZooAudioGuide.API.Controllers
 {
     [ApiController]
     [Route("api/admin/stats")]
-    // [Authorize] // Tạm thời comment lại để test, sau này làm JWT sẽ mở ra
+    [AdminKey]
     public class StatisticsController : ControllerBase
     {
         private readonly IStatisticsService _statisticsService;

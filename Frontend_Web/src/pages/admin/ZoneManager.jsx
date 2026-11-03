@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { adminFetch } from '../../utils/adminFetch';
 
 export default function ZoneManager() {
   const [zones, setZones] = useState([]);
@@ -47,7 +48,7 @@ export default function ZoneManager() {
         radius: parseInt(formData.radius)
       };
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -77,14 +78,15 @@ export default function ZoneManager() {
 
   // 3. Xóa Khu vực
   const handleDelete = async (id) => {
-    if (window.confirm("Xóa khu vực này có thể ảnh hưởng đến các động vật đang thuộc về nó. Tiếp tục?")) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa khu vực này? (Khu còn động vật sẽ không xóa được.)")) {
       try {
-        const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        const res = await adminFetch(`${API_URL}/${id}`, { method: 'DELETE' });
         if (res.ok) {
           alert("Xóa thành công!");
           fetchZones();
         } else {
-          alert("Xóa thất bại!");
+          const data = await res.json().catch(() => ({}));
+          alert(data.message || "Xóa thất bại!");
         }
       } catch (error) {
         console.error("Lỗi khi xóa:", error);

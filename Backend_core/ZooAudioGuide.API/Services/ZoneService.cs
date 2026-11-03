@@ -93,6 +93,10 @@ namespace ZooAudioGuide.API.Services
             var zone = await _zoneRepository.GetByIdAsync(id);
             if (zone == null) return false;
 
+            // Khóa ngoại đang cascade: xóa khu sẽ xóa luôn động vật, bài thuyết minh và lượt quét, nên chặn ở đây
+            if (await _zoneRepository.HasAnimalsAsync(id))
+                throw new InvalidOperationException("Khu vực còn động vật. Hãy chuyển hoặc xóa các động vật trước.");
+
             await _zoneRepository.DeleteAsync(zone);
             await _zoneRepository.SaveChangesAsync();
             return true;

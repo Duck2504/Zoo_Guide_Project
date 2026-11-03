@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZooAudioGuide.API.DTOs;
+using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Services;
 
 namespace ZooAudioGuide.API.Controllers
@@ -35,6 +36,7 @@ namespace ZooAudioGuide.API.Controllers
 
         // Body: ["vi","en","ja","ko"]. Văn bản lấy từ bài tiếng Việt trong DB, không nhận text từ client.
         [HttpPost("{id}/narration")]
+        [AdminKey]
         public async Task<IActionResult> GenerateNarration(int id, [FromBody] string[] targetLangs, [FromServices] NarrationGenerator narration)
         {
             var langs = (targetLangs ?? []).Distinct().ToArray();
@@ -56,6 +58,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpPost]
+        [AdminKey]
         public async Task<ActionResult<AnimalDto>> CreateAnimal(AnimalCreateDto dto)
         {
             var createdAnimal = await _animalService.CreateAnimalAsync(dto);
@@ -63,6 +66,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [AdminKey]
         public async Task<IActionResult> DeleteAnimal(int id)
         {
             var result = await _animalService.DeleteAnimalAsync(id);
