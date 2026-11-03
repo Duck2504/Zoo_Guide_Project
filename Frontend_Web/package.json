@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext js,jsx",
-    "test": "echo \"All web tests passed\""
+    "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
     "html5-qrcode": "^2.3.8",

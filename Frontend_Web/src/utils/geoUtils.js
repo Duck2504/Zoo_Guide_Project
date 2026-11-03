@@ -13,3 +13,14 @@ export function calculateDistance(lat1, lon1, lat2, lon2) {
 
   return R * c; // Trả về khoảng cách bằng mét
 }
+// Tìm con vật đầu tiên (mỗi khu lấy một con) có khu chứa vị trí hiện tại và khu đó chưa phát trong phiên.
+export function findEnteredAnimal(location, animals, playedZoneIds) {
+  const seenZones = new Set();
+  for (const a of animals) {
+    if (seenZones.has(a.zoneId)) continue;
+    seenZones.add(a.zoneId);
+    if (playedZoneIds.has(a.zoneId)) continue;
+    if (calculateDistance(location.lat, location.lng, a.latitude, a.longitude) <= a.radiusMeters) return a;
+  }
+  return null;
+}
