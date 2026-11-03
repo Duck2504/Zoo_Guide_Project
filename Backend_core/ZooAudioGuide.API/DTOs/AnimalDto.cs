@@ -13,6 +13,9 @@ namespace ZooAudioGuide.API.DTOs
         // Bài thuyết minh tiếng Việt
         public string ScriptText { get; set; } = string.Empty;
 
+        // Link mp3 của ngôn ngữ được yêu cầu (rỗng nếu chưa tạo audio)
+        public string AudioUrl { get; set; } = string.Empty;
+
         // Tọa độ và bán kính lấy từ Zone trong CSDL
         public double Latitude { get; set; }
         public double Longitude { get; set; }

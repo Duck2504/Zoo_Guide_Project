@@ -11,5 +11,6 @@ namespace ZooAudioGuide.API.Repositories
         Task AddAsync(Animal animal);
         Task DeleteAsync(Animal animal);
         Task SaveChangesAsync();
+        Task EnsureLanguageAsync(string code);
     }
 }

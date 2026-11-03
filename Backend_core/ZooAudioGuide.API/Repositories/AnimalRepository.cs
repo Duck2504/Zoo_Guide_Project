@@ -52,5 +52,17 @@ namespace ZooAudioGuide.API.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        private static readonly Dictionary<string, string> LanguageNames = new()
+        {
+            ["vi"] = "Tiếng Việt", ["en"] = "English", ["ja"] = "日本語", ["ko"] = "한국어"
+        };
+
+        // Bảng Languages không có seed, nên thêm ngôn ngữ còn thiếu để khóa ngoại của AnimalContent không lỗi.
+        public async Task EnsureLanguageAsync(string code)
+        {
+            if (!await _context.Languages.AnyAsync(l => l.Code == code))
+                _context.Languages.Add(new Language { Code = code, Name = LanguageNames.GetValueOrDefault(code, code) });
+        }
     }
 }

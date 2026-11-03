@@ -26,11 +26,33 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<AnimalDto>> GetAnimal(int id)
+        public async Task<ActionResult<AnimalDto>> GetAnimal(int id, [FromQuery] string lang = "vi")
         {
-            var animal = await _animalService.GetAnimalByIdAsync(id);
+            var animal = await _animalService.GetAnimalByIdAsync(id, lang);
             if (animal == null) return NotFound();
             return Ok(animal);
+        }
+
+        // Body: ["vi","en","ja","ko"]. Văn bản lấy từ bài tiếng Việt trong DB, không nhận text từ client.
+        [HttpPost("{id}/narration")]
+        public async Task<IActionResult> GenerateNarration(int id, [FromBody] string[] targetLangs, [FromServices] NarrationGenerator narration)
+        {
+            var langs = (targetLangs ?? []).Distinct().ToArray();
+            if (langs.Length == 0) return BadRequest("Thiếu danh sách ngôn ngữ");
+
+            var bad = langs.Where(l => !EdgeTtsService.IsSupported(l)).ToArray();
+            if (bad.Length > 0) return BadRequest($"Chưa hỗ trợ: {string.Join(", ", bad)}");
+
+            try
+            {
+                var results = await _animalService.GenerateNarrationAsync(id, langs, narration);
+                if (results == null) return NotFound();
+                return Ok(new { animalId = id, results });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]

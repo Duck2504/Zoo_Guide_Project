@@ -62,6 +62,33 @@ export default function AnimalManager() {
     }
   };
 
+  // Tạo audio thuyết minh (dịch + đọc) cho các ngôn ngữ từ bài tiếng Việt đã lưu
+  const [generatingId, setGeneratingId] = useState(null);
+  const handleGenerateAudio = async (id) => {
+    setGeneratingId(id);
+    try {
+      const res = await fetch(`${API_URL}/${id}/narration`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(['vi', 'en', 'ja', 'ko'])
+      });
+      if (!res.ok) {
+        alert(`Tạo audio thất bại: ${await res.text()}`);
+        return;
+      }
+      const { results } = await res.json();
+      const failed = results.filter(r => r.status !== 'DONE');
+      alert(failed.length === 0
+        ? 'Đã tạo audio cho tất cả ngôn ngữ!'
+        : `Lỗi ở: ${failed.map(r => `${r.lang} (${r.error})`).join(', ')}`);
+    } catch (error) {
+      console.error("Lỗi tạo audio:", error);
+      alert("Không gọi được server để tạo audio.");
+    } finally {
+      setGeneratingId(null);
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa động vật này?")) {
       try {
@@ -180,6 +207,15 @@ export default function AnimalManager() {
 
                   <td className="p-4">
                     <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleGenerateAudio(animal.id)}
+                        disabled={generatingId !== null}
+                        title="Tạo audio thuyết minh"
+                        aria-label="Tạo audio thuyết minh"
+                        className="w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 disabled:opacity-50 flex items-center justify-center transition"
+                      >
+                        <i className={`fa-solid ${generatingId === animal.id ? 'fa-spinner fa-spin' : 'fa-volume-high'}`}></i>
+                      </button>
                       <button onClick={() => handleOpenModal(animal)} className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition">
                         <i className="fa-solid fa-pen-to-square"></i>
                       </button>

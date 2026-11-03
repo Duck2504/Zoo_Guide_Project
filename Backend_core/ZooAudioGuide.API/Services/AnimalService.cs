@@ -19,38 +19,13 @@ namespace ZooAudioGuide.API.Services
         public async Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync()
         {
             var animals = await _animalRepository.GetAllAsync();
-            return animals.Select(a => new AnimalDto
-            {
-                Id = a.Id,
-                ZoneId = a.ZoneId,
-                ScientificName = a.ScientificName,
-                AvatarUrl = a.AvatarUrl,
-                DefaultLocalName = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi")?.LocalName ?? "Unknown",
-                ScriptText = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi")?.ScriptText ?? string.Empty,
-                Latitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.Y : 10.7873,
-                Longitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.X : 106.7055,
-                RadiusMeters = a.Zone != null ? a.Zone.Radius : 25,
-                ZoneName = a.Zone != null ? a.Zone.ZoneCode : "Khu Vực Thảo Cầm Viên"
-            });
+            return animals.Select(a => ToDto(a));
         }
 
-        public async Task<AnimalDto?> GetAnimalByIdAsync(int id)
+        public async Task<AnimalDto?> GetAnimalByIdAsync(int id, string lang = "vi")
         {
             var a = await _animalRepository.GetByIdAsync(id);
-            if (a == null) return null;
-            return new AnimalDto
-            {
-                Id = a.Id,
-                ZoneId = a.ZoneId,
-                ScientificName = a.ScientificName,
-                AvatarUrl = a.AvatarUrl,
-                DefaultLocalName = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi")?.LocalName ?? "Unknown",
-                ScriptText = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi")?.ScriptText ?? string.Empty,
-                Latitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.Y : 10.7873,
-                Longitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.X : 106.7055,
-                RadiusMeters = a.Zone != null ? a.Zone.Radius : 25,
-                ZoneName = a.Zone != null ? a.Zone.ZoneCode : "Khu Vực Thảo Cầm Viên"
-            };
+            return a == null ? null : ToDto(a, lang);
         }
 
         public async Task<AnimalDto> CreateAnimalAsync(AnimalCreateDto dto)
@@ -62,29 +37,19 @@ namespace ZooAudioGuide.API.Services
                 AvatarUrl = dto.AvatarUrl
             };
 
-            var content = new AnimalContent
+            animal.AnimalContents.Add(new AnimalContent
             {
                 LanguageCode = "vi",
                 LocalName = dto.LocalName,
                 ScriptText = dto.ScriptText,
                 AudioUrl = "",
                 SyncStatus = "Pending"
-            };
-
-            animal.AnimalContents.Add(content);
+            });
 
             await _animalRepository.AddAsync(animal);
             await _animalRepository.SaveChangesAsync();
 
-            return new AnimalDto
-            {
-                Id = animal.Id,
-                ZoneId = animal.ZoneId,
-                ScientificName = animal.ScientificName,
-                AvatarUrl = animal.AvatarUrl,
-                DefaultLocalName = content.LocalName,
-                ScriptText = content.ScriptText
-            };
+            return ToDto(animal);
         }
 
         public async Task<bool> DeleteAnimalAsync(int id)
@@ -93,6 +58,67 @@ namespace ZooAudioGuide.API.Services
             if (a == null) return false;
             await _animalRepository.DeleteAsync(a);
             return true;
+        }
+
+        // Tạo mp3 cho từng ngôn ngữ từ bài tiếng Việt trong DB, rồi lưu bản dịch + link audio vào AnimalContents.
+        // Trả null nếu không có con vật; ném InvalidOperationException nếu chưa có bài tiếng Việt.
+        // Nhận generator qua tham số (không qua constructor) để các API đọc không phụ thuộc cấu hình Supabase.
+        public async Task<LangResult[]?> GenerateNarrationAsync(int id, string[] langs, NarrationGenerator narration)
+        {
+            var a = await _animalRepository.GetByIdAsync(id);
+            if (a == null) return null;
+
+            var vi = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi");
+            if (vi == null || string.IsNullOrWhiteSpace(vi.ScriptText))
+                throw new InvalidOperationException("Con vật chưa có bài thuyết minh tiếng Việt");
+
+            // Phần gọi Gemini/edge-tts/Supabase chạy song song; phần ghi DB làm tuần tự bên dưới.
+            var results = await Task.WhenAll(langs.Select(l => narration.GenerateAsync(id, vi.ScriptText, l)));
+
+            foreach (var r in results)
+            {
+                var content = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == r.Lang);
+                if (r.Status != "DONE")
+                {
+                    if (content != null) content.SyncStatus = "Failed";
+                    continue;
+                }
+
+                if (content == null)
+                {
+                    await _animalRepository.EnsureLanguageAsync(r.Lang);
+                    content = new AnimalContent { LanguageCode = r.Lang, LocalName = vi.LocalName };
+                    a.AnimalContents.Add(content);
+                }
+                content.ScriptText = r.TranslatedText ?? vi.ScriptText;
+                content.AudioUrl = r.AudioUrl ?? "";
+                content.SyncStatus = "Done";
+            }
+
+            await _animalRepository.SaveChangesAsync();
+            return results;
+        }
+
+        // Lấy nội dung theo ngôn ngữ yêu cầu, không có thì dùng bản tiếng Việt.
+        private static AnimalDto ToDto(Animal a, string lang = "vi")
+        {
+            var content = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == lang)
+                       ?? a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi");
+
+            return new AnimalDto
+            {
+                Id = a.Id,
+                ZoneId = a.ZoneId,
+                ScientificName = a.ScientificName,
+                AvatarUrl = a.AvatarUrl,
+                DefaultLocalName = content?.LocalName ?? "Unknown",
+                ScriptText = content?.ScriptText ?? string.Empty,
+                AudioUrl = content?.AudioUrl ?? string.Empty,
+                Latitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.Y : 10.7873,
+                Longitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.X : 106.7055,
+                RadiusMeters = a.Zone != null ? a.Zone.Radius : 25,
+                ZoneName = a.Zone != null ? a.Zone.ZoneCode : "Khu Vực Thảo Cầm Viên"
+            };
         }
     }
 }
