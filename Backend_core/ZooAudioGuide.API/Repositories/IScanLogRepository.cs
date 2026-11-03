@@ -5,5 +5,6 @@ namespace ZooAudioGuide.API.Repositories
     public interface IScanLogRepository
     {
         Task AddLogAsync(ScanLog log);
+        Task<bool> AnimalExistsAsync(int animalId);
     }
 }

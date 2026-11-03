@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ZooAudioGuide.API.Data;
 using ZooAudioGuide.API.Models;
 
@@ -13,5 +14,7 @@ namespace ZooAudioGuide.API.Repositories
             await _context.ScanLogs.AddAsync(log);
             await _context.SaveChangesAsync();
         }
+
+        public Task<bool> AnimalExistsAsync(int animalId) => _context.Animals.AnyAsync(a => a.Id == animalId);
     }
 }
