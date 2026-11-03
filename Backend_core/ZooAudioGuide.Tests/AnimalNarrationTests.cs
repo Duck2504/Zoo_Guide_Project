@@ -38,6 +38,29 @@ public sealed class AnimalNarrationTests
     }
 
     [TestMethod]
+    public async Task Update_ChangesVietnameseRow_AndMarksAudioPending()
+    {
+        var animal = new Animal { Id = 3, ZoneId = 1, ScientificName = "Old" };
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Cũ", ScriptText = "Bài cũ", SyncStatus = "Done", AudioUrl = "u-vi" });
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "en", ScriptText = "Old text", SyncStatus = "Done", AudioUrl = "u-en" });
+        var repo = new FakeRepo(animal);
+        var service = new AnimalService(repo);
+
+        var ok = await service.UpdateAnimalAsync(3, new() { ZoneId = 2, ScientificName = "New", LocalName = "Mới", ScriptText = "Bài mới" });
+
+        Assert.IsTrue(ok);
+        Assert.IsTrue(repo.Saved);
+        Assert.AreEqual(2, animal.ZoneId);
+        var vi = animal.AnimalContents.Single(c => c.LanguageCode == "vi");
+        Assert.AreEqual("Mới", vi.LocalName);
+        Assert.AreEqual("Bài mới", vi.ScriptText);
+        Assert.IsTrue(animal.AnimalContents.All(c => c.SyncStatus == "Pending"));
+        Assert.AreEqual("u-en", animal.AnimalContents.Single(c => c.LanguageCode == "en").AudioUrl);
+
+        Assert.IsFalse(await service.UpdateAnimalAsync(999, new()));
+    }
+
+    [TestMethod]
     public async Task Generate_WithoutVietnameseScript_Throws()
     {
         var service = new AnimalService(new FakeRepo(new Animal { Id = 1 }));

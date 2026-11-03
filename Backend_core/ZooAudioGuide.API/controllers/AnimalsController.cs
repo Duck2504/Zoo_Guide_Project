@@ -65,6 +65,15 @@ namespace ZooAudioGuide.API.Controllers
             return Ok(createdAnimal);
         }
 
+        [HttpPut("{id}")]
+        [AdminKey]
+        public async Task<IActionResult> UpdateAnimal(int id, AnimalCreateDto dto)
+        {
+            var result = await _animalService.UpdateAnimalAsync(id, dto);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         [AdminKey]
         public async Task<IActionResult> DeleteAnimal(int id)

@@ -52,6 +52,33 @@ namespace ZooAudioGuide.API.Services
             return ToDto(animal);
         }
 
+        public async Task<bool> UpdateAnimalAsync(int id, AnimalCreateDto dto)
+        {
+            var a = await _animalRepository.GetByIdAsync(id);
+            if (a == null) return false;
+
+            a.ZoneId = dto.ZoneId;
+            a.ScientificName = dto.ScientificName;
+            a.AvatarUrl = dto.AvatarUrl;
+
+            var vi = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi");
+            if (vi == null)
+            {
+                vi = new AnimalContent { LanguageCode = "vi", AudioUrl = "" };
+                a.AnimalContents.Add(vi);
+            }
+            var scriptChanged = vi.ScriptText != dto.ScriptText;
+            vi.LocalName = dto.LocalName;
+            vi.ScriptText = dto.ScriptText;
+
+            // Bài gốc đổi thì mọi audio/bản dịch đã cũ: giữ link cũ để vẫn nghe được, đánh dấu chờ tạo lại
+            if (scriptChanged)
+                foreach (var c in a.AnimalContents) c.SyncStatus = "Pending";
+
+            await _animalRepository.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<bool> DeleteAnimalAsync(int id)
         {
             var a = await _animalRepository.GetByIdAsync(id);
