@@ -13,7 +13,6 @@ import AnimalDetail from './pages/visitor/AnimalDetail';
 import AdminDashboard from './pages/admin/Dashboard';
 import AnimalManager from './pages/admin/AnimalManager';
 import ZoneManager from './pages/admin/ZoneManager';
-import AudioManager from './pages/admin/ContentModal';
 import QrCodeIndex from './pages/admin/HomeAccessManager'
 // Khởi tạo GA4 một lần duy nhất ở ngoài Component
 ReactGA.initialize("G-XXXXXXXXXX"); // Đừng quên thay mã G- của em vào đây
