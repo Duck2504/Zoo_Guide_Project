@@ -48,3 +48,7 @@ appsettings.Local.json
 cache/
 ban-do-tcv.jpg
 map.html
+
+# Claude Code
+.claude/
+CLAUDE.md
