@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { API } from '../../config';
 import { useVisitor } from '../../context/VisitorContext';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -86,7 +87,7 @@ export default function Home() {
       };
 
       try {
-        await fetch(`https://backend-zooaudio.onrender.com/api/scan-logs`, {
+        await fetch(`${API}/api/scan-logs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(logData)

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { API } from '../../config';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 
@@ -65,7 +66,7 @@ export default function AnimalDetail() {
       };
 
       try {
-        await fetch(`https://backend-zooaudio.onrender.com/api/scan-logs`, {
+        await fetch(`${API}/api/scan-logs`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(logData)
@@ -89,7 +90,7 @@ export default function AnimalDetail() {
       setCurrentTime(0);
 
       try {
-        const response = await fetch(`https://backend-zooaudio.onrender.com/api/animals/${id}?lang=${language}`);
+        const response = await fetch(`${API}/api/animals/${id}?lang=${language}`);
         if (response.ok) {
           const data = await response.json();
           setAnimal({

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API } from '../../config';
 import { adminFetch } from '../../utils/adminFetch';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar 
@@ -17,7 +18,7 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     try {
       // Nhớ đổi port 5000 thành port Backend thật của em
-      const res = await adminFetch(`https://backend-zooaudio.onrender.com/api/admin/stats/overview`); 
+      const res = await adminFetch(`${API}/api/admin/stats/overview`); 
       if (res.ok) {
         const data = await res.json();
         // Format lại ngày tháng cho biểu đồ

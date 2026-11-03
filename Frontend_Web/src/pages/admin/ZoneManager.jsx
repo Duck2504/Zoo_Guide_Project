@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API } from '../../config';
 import { adminFetch } from '../../utils/adminFetch';
 
 export default function ZoneManager() {
@@ -8,7 +9,7 @@ export default function ZoneManager() {
   const [formData, setFormData] = useState({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
   const [error, setError] = useState(null); // State lưu lỗi trả về từ Backend
 
-  const API_URL = `https://backend-zooaudio.onrender.com/api/zones`;
+  const API_URL = `${API}/api/zones`;
 
   // 1. Lấy danh sách Khu vực
   const fetchZones = async () => {

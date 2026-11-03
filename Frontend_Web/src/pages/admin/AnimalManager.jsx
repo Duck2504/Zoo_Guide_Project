@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API } from '../../config';
 import { QRCodeCanvas } from 'qrcode.react';
 import { adminFetch } from '../../utils/adminFetch';
 
@@ -17,7 +18,7 @@ export default function AnimalManager() {
   };
   const [formData, setFormData] = useState(initialFormState);
 
-  const API_URL = `https://backend-zooaudio.onrender.com/api/animals`;
+  const API_URL = `${API}/api/animals`;
 
   const fetchAnimals = async () => {
     setIsLoading(true);
