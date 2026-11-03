@@ -9,6 +9,25 @@ namespace ZooAudioGuide.Tests;
 [TestClass]
 public sealed class ZoneAndScanLogTests
 {
+    // NetTopologySuite nhận (X, Y) = (Longitude, Latitude); đảo nhầm là mọi khu nằm giữa biển
+    [TestMethod]
+    public async Task CreateZone_StoresLongitudeAsX_LatitudeAsY_AndReadsBack()
+    {
+        var repo = new FakeZoneRepo();
+        var service = new ZoneService(repo);
+
+        await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z", Latitude = 10.78, Longitude = 106.70, Radius = 20 });
+
+        var zone = repo.Added!;
+        Assert.AreEqual(106.70, zone.Location.X);
+        Assert.AreEqual(10.78, zone.Location.Y);
+        Assert.AreEqual(4326, zone.Location.SRID);
+
+        var dto = await service.GetZoneByIdAsync(zone.Id);
+        Assert.AreEqual(10.78, dto!.Latitude);
+        Assert.AreEqual(106.70, dto.Longitude);
+    }
+
     [TestMethod]
     public async Task RecordLog_UnknownAnimalBecomesNull_KnownKept_UserAgentCut()
     {
@@ -22,6 +41,19 @@ public sealed class ZoneAndScanLogTests
         Assert.AreEqual(255, repo.Logs[0].UserAgent!.Length);
         Assert.AreEqual(5, repo.Logs[1].AnimalId);
         Assert.AreEqual("short", repo.Logs[1].UserAgent);
+    }
+
+    private sealed class FakeZoneRepo : IZoneRepository
+    {
+        public Zone? Added;
+        public IQueryable<Zone> GetZonesWithDetails() => Enumerable.Empty<Zone>().AsQueryable();
+        public Task<IEnumerable<Zone>> GetAllAsync() => Task.FromResult<IEnumerable<Zone>>(Added is null ? [] : [Added]);
+        public Task<Zone?> GetByIdAsync(int id) => Task.FromResult(Added?.Id == id ? Added : null);
+        public Task AddAsync(Zone zone) { zone.Id = 1; Added = zone; return Task.CompletedTask; }
+        public Task UpdateAsync(Zone zone) => Task.CompletedTask;
+        public Task DeleteAsync(Zone zone) => Task.CompletedTask;
+        public Task SaveChangesAsync() => Task.CompletedTask;
+        public Task<bool> HasAnimalsAsync(int zoneId) => Task.FromResult(false);
     }
 
     private sealed class FakeScanLogRepo(int knownAnimalId) : IScanLogRepository
