@@ -52,3 +52,6 @@ map.html
 # Claude Code
 .claude/
 CLAUDE.md
+
+# graphify (đồ thị code sinh tự động, có đường dẫn máy cá nhân)
+graphify-out/
