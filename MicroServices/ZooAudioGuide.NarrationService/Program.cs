@@ -1,7 +1,7 @@
-using System.Security.Cryptography;
-using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddHttpClient<ITranslator, GeminiTranslator>();
 builder.Services.AddSingleton<ITtsService, EdgeTtsService>();
 builder.Services.AddHttpClient<IAudioStore, SupabaseAudioStore>();

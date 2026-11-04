@@ -19,3 +19,5 @@ jobs:
       - run: dotnet restore MicroServices/ZooAudioGuide.NarrationService.Tests
       - run: dotnet build MicroServices/ZooAudioGuide.NarrationService.Tests --no-restore
       - run: dotnet test MicroServices/ZooAudioGuide.NarrationService.Tests --no-build
+      - name: Build Docker image
+        run: docker build -t narration-service MicroServices/ZooAudioGuide.NarrationService
