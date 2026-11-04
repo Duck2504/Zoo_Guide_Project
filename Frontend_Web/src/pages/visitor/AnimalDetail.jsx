@@ -2,13 +2,14 @@ import { useEffect, useState, useRef } from 'react';
 import { API } from '../../config';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
+import AnimalImage from '../../components/AnimalImage';
 
 const translations = {
-  vi: { audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.' },
-  en: { audioTitle: 'Auto Audio Guide', notFound: 'Information not found.' },
-  ko: { audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.' },
-  ja: { audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。' },
-  zh: { audioTitle: '自动语音导览', notFound: '未找到信息。' }
+  vi: { audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng' },
+  en: { audioTitle: 'Auto Audio Guide', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', viewOnMap: 'View on map', play: 'Play audio guide', pause: 'Pause' },
+  ko: { audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', viewOnMap: '지도에서 보기', play: '오디오 재생', pause: '일시정지' },
+  ja: { audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', viewOnMap: '地図で見る', play: '音声ガイドを再生', pause: '一時停止' },
+  zh: { audioTitle: '自动语音导览', notFound: '未找到信息。', noAudio: '此语言暂无语音导览', viewOnMap: '在地图上查看', play: '播放语音导览', pause: '暂停' }
 };
 
 // Hàm phụ trợ định dạng thời gian (vd: 105 giây -> 01:45)
@@ -42,6 +43,7 @@ export default function AnimalDetail() {
   // --- AUDIO STATES & REFS ---
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioFailed, setAudioFailed] = useState(false); // link audio có nhưng tải lỗi
   const [progress, setProgress] = useState(0); // Tính theo %
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -87,6 +89,7 @@ export default function AnimalDetail() {
       
       // Reset lại audio khi đổi bài hoặc đổi ngôn ngữ
       setIsPlaying(false);
+      setAudioFailed(false);
       setProgress(0);
       setCurrentTime(0);
 
@@ -98,11 +101,10 @@ export default function AnimalDetail() {
             id: data.id,
             name: data.defaultLocalName || 'Đang cập nhật tên...',
             scientificName: data.scientificName || 'Chưa rõ',
-            imageUrl: data.avatarUrl || 'https://images.unsplash.com/photo-1591824438708-ce405f36ba3d?q=80&w=800&auto=format&fit=crop',
+            imageUrl: data.avatarUrl || '',
             zoneName: data.zoneName || `Khu vực ${data.zoneId}`,
             content: data.scriptText || 'Nội dung thuyết minh đang được cập nhật...',
-            audioUrl: data.audioUrl || '',
-            iucnStatus: 'EN'
+            audioUrl: data.audioUrl || ''
           });
         } else {
           setAnimal(null);
@@ -117,9 +119,11 @@ export default function AnimalDetail() {
     fetchAnimalData();
   }, [id, language]);
 
+  const hasAudio = !!animal?.audioUrl && !audioFailed;
+
   // --- AUDIO CONTROL FUNCTIONS ---
   const togglePlayPause = () => {
-    if (!audioRef.current || !animal?.audioUrl) return;
+    if (!audioRef.current || !hasAudio) return;
 
     if (isPlaying) {
       audioRef.current.pause();
@@ -190,20 +194,20 @@ export default function AnimalDetail() {
 
       {/* ẢNH ĐỘNG VẬT */}
       <div className="w-full h-[45vh] relative">
-        <img src={animal.imageUrl} alt={animal.name} className="w-full h-full object-cover" />
+        <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" className="w-full h-full" />
         <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"></div>
       </div>
 
       {/* THÔNG TIN CHI TIẾT */}
-      <div className="px-6 -mt-10 relative z-20 pb-32">
+      <div className="px-6 -mt-10 relative z-20 pb-32 max-w-2xl mx-auto">
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">{animal.name}</h1>
         <p className="text-sm font-semibold text-emerald-600 italic mb-4">{animal.scientificName}</p>
 
+        {/* Khu chỉ có mã nội bộ (vd ZONE-LINHTRUONG), chưa có tên hiển thị → không đưa mã cho du khách, cho xem vị trí trên bản đồ */}
         <div className="flex gap-2 mb-6">
-          <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold">{animal.zoneName}</span>
-          {animal.iucnStatus && (
-            <span className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold">{animal.iucnStatus}</span>
-          )}
+          <button onClick={() => navigate('/map')} className="inline-flex items-center gap-2 min-h-11 px-3 py-1 bg-zoo-50 text-zoo-700 rounded-lg text-xs font-bold hover:bg-zoo-100 transition-colors">
+            <i className="fa-solid fa-map-location-dot" aria-hidden="true"></i> {t.viewOnMap}
+          </button>
         </div>
 
         <p className="text-gray-700 leading-relaxed text-[15px] font-medium opacity-90 whitespace-pre-wrap">
@@ -218,6 +222,7 @@ export default function AnimalDetail() {
           {/* Thẻ audio ẩn */}
           {animal.audioUrl && (
             <audio 
+              onError={() => { setAudioFailed(true); setIsPlaying(false); }}
               ref={audioRef} 
               src={animal.audioUrl} 
               onTimeUpdate={handleTimeUpdate}
@@ -226,30 +231,37 @@ export default function AnimalDetail() {
             />
           )}
 
-          <button 
+          <button
             onClick={togglePlayPause}
-            disabled={!animal.audioUrl}
-            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform shrink-0 
-              ${animal.audioUrl 
-                ? 'bg-emerald-600 text-white shadow-emerald-600/30 active:scale-95' 
+            disabled={!hasAudio}
+            aria-label={!hasAudio ? t.noAudio : isPlaying ? t.pause : t.play}
+            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform shrink-0
+              ${hasAudio
+                ? 'bg-emerald-600 text-white shadow-emerald-600/30 active:scale-95'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
           >
-            <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xl ${!isPlaying ? 'ml-1' : ''}`}></i>
+            <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xl ${!isPlaying ? 'ml-1' : ''}`} aria-hidden="true"></i>
           </button>
 
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex justify-between items-end mb-1">
               <span className="text-xs font-bold text-gray-800">{t.audioTitle}</span>
-              <span className="text-[10px] font-bold text-gray-400">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
+              {hasAudio && (
+                <span className="text-[10px] font-bold text-gray-400">
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
+              )}
             </div>
-            <div className="h-1.5 bg-gray-200 rounded-full w-full overflow-hidden mt-1 relative">
-              <div 
-                className="h-full bg-emerald-500 rounded-full transition-all duration-100"
-                style={{ width: `${progress}%` }}
-              ></div>
-            </div>
+            {hasAudio ? (
+              <div className="h-1.5 bg-gray-200 rounded-full w-full overflow-hidden mt-1 relative">
+                <div
+                  className="h-full bg-emerald-500 rounded-full transition-[width] duration-100 ease-linear"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">{t.noAudio}</p>
+            )}
           </div>
 
         </div>
