@@ -1,15 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
 import { API } from '../../config';
-import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, useLocation, useOutletContext } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
+import LanguageMenu from '../../components/LanguageMenu';
 
 const translations = {
-  vi: { audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng' },
-  en: { audioTitle: 'Auto Audio Guide', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', viewOnMap: 'View on map', play: 'Play audio guide', pause: 'Pause' },
-  ko: { audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', viewOnMap: '지도에서 보기', play: '오디오 재생', pause: '일시정지' },
-  ja: { audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', viewOnMap: '地図で見る', play: '音声ガイドを再生', pause: '一時停止' },
-  zh: { audioTitle: '自动语音导览', notFound: '未找到信息。', noAudio: '此语言暂无语音导览', viewOnMap: '在地图上查看', play: '播放语音导览', pause: '暂停' }
+  vi: { scanNext: 'Quét chuồng kế tiếp', zoneMap: 'Xem khu này trên bản đồ', back: 'Quay lại', audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng' },
+  en: { scanNext: 'Scan the next enclosure', zoneMap: 'See this zone on the map', back: 'Back', audioTitle: 'Auto Audio Guide', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', viewOnMap: 'View on map', play: 'Play audio guide', pause: 'Pause' },
+  ko: { scanNext: '다음 우리 스캔', zoneMap: '지도에서 이 구역 보기', back: '뒤로', audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', viewOnMap: '지도에서 보기', play: '오디오 재생', pause: '일시정지' },
+  ja: { scanNext: '次の展示場をスキャン', zoneMap: 'このエリアを地図で見る', back: '戻る', audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', viewOnMap: '地図で見る', play: '音声ガイドを再生', pause: '一時停止' },
+  zh: { scanNext: '扫描下一个围栏', zoneMap: '在地图上查看此区域', back: '返回', audioTitle: '自动语音导览', notFound: '未找到信息。', noAudio: '此语言暂无语音导览', viewOnMap: '在地图上查看', play: '播放语音导览', pause: '暂停' }
 };
 
 // Hàm phụ trợ định dạng thời gian (vd: 105 giây -> 01:45)
@@ -23,22 +24,16 @@ const formatTime = (time) => {
 export default function AnimalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const routerLocation = useLocation();
+  const { openQR } = useOutletContext();
+  // Vào thẳng từ mã QR thì không có lịch sử trong app: quay lại đưa về trang chủ
+  const goBack = () => (routerLocation.key === 'default' ? navigate('/') : navigate(-1));
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source') || 'web';
 
-  const { language, setLanguage } = useVisitor();
+  const { language } = useVisitor();
   const [animal, setAnimal] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  // --- THÊM STATE CHO MENU NGÔN NGỮ ---
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-  const languages = [
-    { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'ko', label: '한국어', flag: '🇰🇷' },
-    { code: 'ja', label: '日本語', flag: '🇯🇵' },
-    { code: 'zh', label: '中文', flag: '🇨🇳' }
-  ];
 
   // --- AUDIO STATES & REFS ---
   const audioRef = useRef(null);
@@ -102,6 +97,7 @@ export default function AnimalDetail() {
             name: data.defaultLocalName || 'Đang cập nhật tên...',
             scientificName: data.scientificName || 'Chưa rõ',
             imageUrl: data.avatarUrl || '',
+            zoneId: data.zoneId,
             zoneName: data.zoneName || `Khu vực ${data.zoneId}`,
             content: data.scriptText || 'Nội dung thuyết minh đang được cập nhật...',
             audioUrl: data.audioUrl || ''
@@ -156,75 +152,62 @@ export default function AnimalDetail() {
     }
   };
 
-  if (isLoading) return <div className="h-full bg-white animate-pulse"><div className="w-full h-[45vh] bg-gray-200"></div><div className="p-6 -mt-6"><div className="h-8 bg-gray-200 rounded-full w-2/3 mb-4"></div><div className="h-4 bg-gray-200 rounded-full w-full mb-2"></div><div className="h-4 bg-gray-200 rounded-full w-5/6"></div></div></div>;
-  if (!animal) return <div className="p-8 text-center font-bold text-red-500">{t.notFound}</div>;
+  if (isLoading) return (
+    <div className="h-full bg-trail" aria-busy="true">
+      <div className="h-[42vh] w-full bg-sign/15 motion-safe:animate-pulse" />
+      <div className="mx-4 -mt-10 h-32 rounded-md bg-sign/25 motion-safe:animate-pulse" />
+    </div>
+  );
+  if (!animal) return (
+    <div className="flex h-full flex-col items-center justify-center gap-4 bg-trail p-8 text-center">
+      <p className="font-sign text-2xl font-bold text-post">{t.notFound}</p>
+      <button onClick={() => navigate('/')} className="min-h-12 rounded bg-sign px-5 font-sign text-lg font-bold text-trail">{t.back}</button>
+    </div>
+  );
 
   return (
-    <div className="h-full bg-white overflow-y-auto hide-scrollbar relative">
-      
-      {/* NÚT BACK */}
-      <button onClick={() => navigate(-1)} className="absolute top-4 left-4 w-10 h-10 bg-black/30 backdrop-blur-md rounded-full text-white flex items-center justify-center z-50">
-        <i className="fa-solid fa-chevron-left"></i>
-      </button>
+    <div className="relative h-full overflow-y-auto bg-trail hide-scrollbar">
 
-      {/* MENU ĐỔI NGÔN NGỮ NỔI GÓC PHẢI */}
-      <div className="absolute top-4 right-4 z-50">
-        <button 
-          onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} 
-          className="flex items-center gap-1.5 px-3 py-2 bg-black/30 backdrop-blur-md rounded-full text-sm font-semibold text-white shadow-sm transition"
-        >
-          {languages.find(l => l.code === language)?.flag} {language.toUpperCase()}
-          <i className="fa-solid fa-chevron-down text-[10px] ml-1 opacity-80"></i>
+      {/* Ảnh con vật, nút quay lại và ngôn ngữ đặt trên ảnh */}
+      <div className="relative h-[42vh] min-h-64 w-full md:h-[52vh]">
+        <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" className="h-full w-full" />
+        <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-post/55 to-transparent" aria-hidden="true" />
+        <button onClick={goBack} aria-label={t.back} className="absolute left-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-md bg-post/70 text-trail backdrop-blur-sm transition-colors hover:bg-post/85">
+          <i className="fa-solid fa-chevron-left" aria-hidden="true"></i>
         </button>
+        <div className="absolute right-4 top-4 z-20"><LanguageMenu onPhoto /></div>
+      </div>
 
-        {isLangMenuOpen && (
-          <div className="absolute top-full right-0 mt-2 w-40 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 py-1">
-            {languages.map(lang => (
-              <button 
-                key={lang.code} 
-                onClick={() => { setLanguage(lang.code); setIsLangMenuOpen(false); }} 
-                className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-50 flex items-center gap-3 transition-colors ${language === lang.code ? 'text-emerald-600 bg-emerald-50/50' : 'text-gray-700'}`}
-              >
-                <span className="text-lg">{lang.flag}</span> {lang.label}
-              </button>
-            ))}
+      <div className="relative z-10 mx-auto max-w-2xl px-4 pb-36 sm:px-6">
+        {/* Biển tên con vật gắn lên ảnh */}
+        <section className="relative -mt-12 rounded-md bg-sign p-5 text-trail shadow-[0_14px_28px_-14px_rgb(15_63_34/0.6)] sm:p-7">
+          <div className="pointer-events-none absolute inset-2 rounded border border-trail/30" aria-hidden="true" />
+          <h1 className="font-sign text-4xl font-extrabold leading-none tracking-tight sm:text-5xl">{animal.name}</h1>
+          <p className="mt-2 text-base italic text-trail/80">{animal.scientificName}</p>
+          {/* Khu chỉ có mã nội bộ, chưa có tên hiển thị: cho xem vị trí trên bản đồ thay vì hiện mã */}
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="inline-flex min-h-11 items-center gap-2 rounded border border-trail/40 px-4 font-sign text-base font-bold transition-colors hover:bg-trail/10">
+              <i className="fa-solid fa-map-location-dot" aria-hidden="true"></i> {t.zoneMap}
+            </button>
+            <button onClick={openQR} className="inline-flex min-h-11 items-center gap-2 rounded border border-trail/40 px-4 font-sign text-base font-bold transition-colors hover:bg-trail/10">
+              <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scanNext}
+            </button>
           </div>
-        )}
-      </div>
+        </section>
 
-      {/* ẢNH ĐỘNG VẬT */}
-      <div className="w-full h-[45vh] relative">
-        <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" className="w-full h-full" />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"></div>
-      </div>
-
-      {/* THÔNG TIN CHI TIẾT */}
-      <div className="px-6 -mt-10 relative z-20 pb-32 max-w-2xl mx-auto">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-1">{animal.name}</h1>
-        <p className="text-sm font-semibold text-emerald-600 italic mb-4">{animal.scientificName}</p>
-
-        {/* Khu chỉ có mã nội bộ (vd ZONE-LINHTRUONG), chưa có tên hiển thị → không đưa mã cho du khách, cho xem vị trí trên bản đồ */}
-        <div className="flex gap-2 mb-6">
-          <button onClick={() => navigate('/map')} className="inline-flex items-center gap-2 min-h-11 px-3 py-1 bg-zoo-50 text-zoo-700 rounded-lg text-xs font-bold hover:bg-zoo-100 transition-colors">
-            <i className="fa-solid fa-map-location-dot" aria-hidden="true"></i> {t.viewOnMap}
-          </button>
-        </div>
-
-        <p className="text-gray-700 leading-relaxed text-[15px] font-medium opacity-90 whitespace-pre-wrap">
+        <p className="mt-8 max-w-[65ch] whitespace-pre-wrap text-[17px] leading-relaxed text-post">
           {animal.content}
         </p>
       </div>
 
-      {/* TRÌNH PHÁT AUDIO */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-100 p-4 pb-safe z-50">
-        <div className="max-w-md mx-auto flex items-center gap-4">
-          
-          {/* Thẻ audio ẩn */}
+      {/* TRÌNH PHÁT AUDIO: ghim đáy, nút phát vàng là hành động chính của trang */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-trail-line bg-trail/95 p-4 pb-safe backdrop-blur-sm">
+        <div className="mx-auto flex max-w-2xl items-center gap-4">
           {animal.audioUrl && (
-            <audio 
+            <audio
               onError={() => { setAudioFailed(true); setIsPlaying(false); }}
-              ref={audioRef} 
-              src={animal.audioUrl} 
+              ref={audioRef}
+              src={animal.audioUrl}
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleAudioEnded}
               onLoadedMetadata={handleLoadedMetadata}
@@ -235,35 +218,30 @@ export default function AnimalDetail() {
             onClick={togglePlayPause}
             disabled={!hasAudio}
             aria-label={!hasAudio ? t.noAudio : isPlaying ? t.pause : t.play}
-            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform shrink-0
-              ${hasAudio
-                ? 'bg-emerald-600 text-white shadow-emerald-600/30 active:scale-95'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
+            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-md text-xl transition-[background-color,transform] duration-150 ${
+              hasAudio ? 'bg-arrow text-post hover:bg-arrow-deep active:scale-95' : 'cursor-not-allowed bg-trail-line text-post-soft'
+            }`}
           >
-            <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xl ${!isPlaying ? 'ml-1' : ''}`} aria-hidden="true"></i>
+            <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} ${!isPlaying ? 'ml-0.5' : ''}`} aria-hidden="true"></i>
           </button>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-end mb-1">
-              <span className="text-xs font-bold text-gray-800">{t.audioTitle}</span>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="truncate font-sign text-base font-bold text-post">{t.audioTitle}</span>
               {hasAudio && (
-                <span className="text-[10px] font-bold text-gray-400">
+                <span className="shrink-0 font-sign text-sm font-semibold tabular-nums text-post-soft">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               )}
             </div>
             {hasAudio ? (
-              <div className="h-1.5 bg-gray-200 rounded-full w-full overflow-hidden mt-1 relative">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-[width] duration-100 ease-linear"
-                  style={{ width: `${progress}%` }}
-                ></div>
+              <div className="relative mt-2 h-2 w-full overflow-hidden rounded-full bg-trail-line">
+                <div className="h-full rounded-full bg-sign transition-[width] duration-100 ease-linear" style={{ width: `${progress}%` }} />
               </div>
             ) : (
-              <p className="text-xs text-gray-500 mt-1">{t.noAudio}</p>
+              <p className="mt-1 text-sm text-post-soft">{t.noAudio}</p>
             )}
           </div>
-
         </div>
       </div>
     </div>

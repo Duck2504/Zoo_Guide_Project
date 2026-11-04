@@ -1,110 +1,116 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import GeofenceController from '../components/GeofenceController';
-import QRScannerModal from '../components/QRScannerModal'; 
+import QRScannerModal from '../components/QRScannerModal';
+import LanguageMenu from '../components/LanguageMenu';
 
-// 1. Tạo bộ từ điển tĩnh cho các text trên Layout
 const translations = {
-  vi: {
-    title: 'Thảo Cầm Viên',
-    home: 'Trang chủ',
-    map: 'Bản đồ',
-  },
-  en: {
-    title: 'Saigon Zoo',
-    home: 'Home',
-    map: 'Map',
-  },
-  ko: {
-    title: '사이공 동물원',
-    home: '홈',
-    map: '지도',
-  },
-  ja: {
-    title: 'サイゴン動植物園',
-    home: 'ホーム',
-    map: 'マップ',
-  },
-  zh: {
-    title: '西贡动植物园',
-    home: '首页',
-    map: '地图',
-  }
+  vi: { title: 'Thảo Cầm Viên', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', nav: 'Điều hướng', geoOn: 'Đang tự mở theo vị trí (bấm để tắt)', geoOff: 'Tự mở thuyết minh theo vị trí' },
+  en: { title: 'Saigon Zoo', home: 'Home', map: 'Map', scan: 'Scan QR code', nav: 'Navigation', geoOn: 'Opening guides by location (tap to stop)', geoOff: 'Open guides by location' },
+  ko: { title: '사이공 동물원', home: '홈', map: '지도', scan: 'QR 스캔', nav: '탐색', geoOn: '위치로 가이드 여는 중 (눌러서 끄기)', geoOff: '위치로 가이드 열기' },
+  ja: { title: 'サイゴン動植物園', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', nav: 'ナビゲーション', geoOn: '位置でガイドを開いています（タップで停止）', geoOff: '位置でガイドを開く' },
+  zh: { title: '西贡动植物园', home: '首页', map: '地图', scan: '扫描QR码', nav: '导航', geoOn: '正在按位置打开导览（点击关闭）', geoOff: '按位置打开导览' }
 };
 
+// Mục điều hướng kiểu biển: chữ đứng in hoa, mục đang chọn có vạch vàng "bạn đang ở đây"
+const tabClass = ({ isActive }) =>
+  `relative flex min-h-11 w-20 flex-col items-center justify-center gap-1 font-sign text-xs font-bold uppercase tracking-wider transition-colors ${
+    isActive ? 'text-sign' : 'text-post-soft hover:text-post'
+  }`;
+const headerLinkClass = ({ isActive }) =>
+  `relative flex min-h-11 items-center gap-2 px-3 font-sign text-base font-bold uppercase tracking-wider transition-colors ${
+    isActive ? 'text-sign' : 'text-post-soft hover:text-post'
+  }`;
+const HereMark = ({ className }) => <span className={`absolute h-1 w-10 rounded bg-arrow ${className}`} aria-hidden="true" />;
+
 export default function VisitorLayout() {
-  const { language, setLanguage } = useVisitor();
+  const { language } = useVisitor();
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
+  const [geoEnabled, setGeoEnabled] = useState(false);
   const location = useLocation();
 
   const isDetailPage = location.pathname.startsWith('/a/');
-
-  // 2. Lấy bộ từ vựng tương ứng với ngôn ngữ đang chọn (mặc định 'vi' nếu lỗi)
+  const isHome = location.pathname === '/';
   const t = translations[language] || translations['vi'];
 
-  // Cập nhật danh sách 5 ngôn ngữ theo PRD
-  const languages = [
-    { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
-    { code: 'en', label: 'English', flag: '🇬🇧' },
-    { code: 'ko', label: '한국어', flag: '🇰🇷' },
-    { code: 'ja', label: '日本語', flag: '🇯🇵' },
-    { code: 'zh', label: '中文', flag: '🇨🇳' }
-  ];
+  // Trình đọc màn hình và trình dịch biết đúng ngôn ngữ đang hiển thị
+  useEffect(() => { document.documentElement.lang = language; }, [language]);
 
   // Điện thoại: full màn hình; tablet/desktop: khung rộng dần để trang không bị bó thành cột hẹp
   return (
-    <div className="bg-gray-50 flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative shadow-2xl overflow-hidden ring-1 ring-gray-200">
-      
+    <div className="visitor-world font-trail text-post bg-trail flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative overflow-hidden md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]">
+      <GeofenceController enabled={geoEnabled} />
+
       {!isDetailPage && (
-        <header className="h-14 bg-white/80 backdrop-blur-md shrink-0 px-4 flex items-center justify-between z-30 absolute top-0 left-0 right-0 border-b border-gray-100">
-          <div className="font-bold text-lg text-emerald-800 tracking-tight flex items-center gap-2">
-            <span className="bg-emerald-100 p-1.5 rounded-lg text-emerald-600"><i className="fa-solid fa-leaf text-sm"></i></span>
-            {/* Gọi text từ bộ từ điển */}
-            {t.title}
-          </div>
+        <header className="h-14 bg-trail/95 backdrop-blur-sm shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 absolute top-0 left-0 right-0 border-b border-trail-line">
+          <NavLink to="/" className="flex min-w-0 items-center gap-2.5 font-sign text-xl font-extrabold text-sign">
+            {/* Con dấu của vườn: luôn ở đúng một chỗ trên mọi trang */}
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sign text-trail" aria-hidden="true">
+              <i className="fa-solid fa-leaf text-sm"></i>
+            </span>
+            {/* Trang chủ đã có tên vườn trên biển lớn, không lặp lại ở header */}
+            <span className={isHome ? 'sr-only' : 'truncate'}>{t.title}</span>
+          </NavLink>
 
-          <div className="relative">
-            <button onClick={() => setIsLangMenuOpen(!isLangMenuOpen)} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-200 transition">
-              {languages.find(l => l.code === language)?.flag} {language.toUpperCase()}
-              <i className="fa-solid fa-chevron-down text-xs text-gray-400 ml-1"></i>
+          <div className="flex items-center gap-2">
+            {/* Máy tính: điều hướng nằm trên header thay cho thanh tab dưới */}
+            <nav className="hidden items-center lg:flex" aria-label={t.nav}>
+              <NavLink to="/" end className={headerLinkClass}>
+                {({ isActive }) => (<>{isActive && <HereMark className="-bottom-2 left-3" />}{t.home}</>)}
+              </NavLink>
+              <NavLink to="/map" className={headerLinkClass}>
+                {({ isActive }) => (<>{isActive && <HereMark className="-bottom-2 left-3" />}{t.map}</>)}
+              </NavLink>
+              <button onClick={() => setIsQRModalOpen(true)} className="ml-2 flex min-h-11 items-center gap-2 rounded-md bg-sign px-4 font-sign text-base font-bold uppercase tracking-wider text-trail transition-colors hover:bg-sign-deep">
+                <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scan}
+              </button>
+            </nav>
+
+            <button
+              onClick={() => setGeoEnabled(!geoEnabled)}
+              aria-pressed={geoEnabled}
+              aria-label={geoEnabled ? t.geoOn : t.geoOff}
+              title={geoEnabled ? t.geoOn : t.geoOff}
+              className={`flex h-11 w-11 items-center justify-center rounded-md border transition-colors ${
+                geoEnabled ? 'border-sign bg-sign text-trail' : 'border-trail-line bg-white text-post hover:border-sage'
+              }`}
+            >
+              <i className={`fa-solid ${geoEnabled ? 'fa-location-crosshairs' : 'fa-location-arrow'}`} aria-hidden="true"></i>
             </button>
-
-            {isLangMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-36 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                {languages.map(lang => (
-                  <button key={lang.code} onClick={() => { setLanguage(lang.code); setIsLangMenuOpen(false); }} className={`w-full text-left px-4 py-3 text-sm font-medium hover:bg-gray-50 flex items-center gap-2 ${language === lang.code ? 'text-emerald-600 bg-emerald-50/50' : 'text-gray-700'}`}>
-                    {lang.flag} {lang.label}
-                  </button>
-                ))}
-              </div>
-            )}
+            <LanguageMenu />
           </div>
         </header>
       )}
 
-      <div className={`flex-1 overflow-y-auto hide-scrollbar relative z-10 ${!isDetailPage ? 'pt-14 pb-20' : 'pb-0'}`}>
-        <GeofenceController />
+      <div className={`flex-1 overflow-y-auto hide-scrollbar relative z-10 ${!isDetailPage ? 'pt-14 pb-20 lg:pb-0' : 'pb-0'}`}>
         <Outlet context={{ openQR: () => setIsQRModalOpen(true) }} />
       </div>
 
       {!isDetailPage && (
-        <nav className="h-20 bg-white border-t border-gray-100 shrink-0 z-40 absolute bottom-0 left-0 right-0 flex justify-around items-center px-2 pb-safe shadow-[0_-10px_30px_rgba(0,0,0,0.03)]">
-          <NavLink to="/" className={({ isActive }) => `flex flex-col items-center gap-1 w-16 transition-colors ${isActive ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'}`}>
-            <i className="fa-solid fa-house text-xl"></i>
-            <span className="text-[10px] font-bold">{t.home}</span>
+        <nav className="h-20 bg-trail border-t border-trail-line shrink-0 z-40 absolute bottom-0 left-0 right-0 flex justify-around items-center px-2 pb-safe lg:hidden" aria-label={t.nav}>
+          <NavLink to="/" end className={tabClass}>
+            {({ isActive }) => (<>
+              {isActive && <HereMark className="-top-px" />}
+              <i className="fa-solid fa-house text-xl" aria-hidden="true"></i>
+              <span>{t.home}</span>
+            </>)}
           </NavLink>
 
-          <div className="relative -top-6">
-            <button onClick={() => setIsQRModalOpen(true)} className="w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 text-white shadow-lg shadow-emerald-500/40 flex items-center justify-center text-2xl transform active:scale-95 transition">
-              <i className="fa-solid fa-qrcode"></i>
-            </button>
-          </div>
+          <button
+            onClick={() => setIsQRModalOpen(true)}
+            aria-label={t.scan}
+            className="relative -top-5 flex h-16 w-16 items-center justify-center rounded-md bg-sign text-2xl text-trail shadow-[0_10px_20px_-6px_rgb(20_83_45/0.55)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95"
+          >
+            <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
+          </button>
 
-          <NavLink to="/map" className={({ isActive }) => `flex flex-col items-center gap-1 w-16 transition-colors ${isActive ? 'text-emerald-600' : 'text-gray-400 hover:text-gray-600'}`}>
-            <i className="fa-solid fa-map-location-dot text-xl"></i>
-            <span className="text-[10px] font-bold">{t.map}</span>
+          <NavLink to="/map" className={tabClass}>
+            {({ isActive }) => (<>
+              {isActive && <HereMark className="-top-px" />}
+              <i className="fa-solid fa-map-location-dot text-xl" aria-hidden="true"></i>
+              <span>{t.map}</span>
+            </>)}
           </NavLink>
         </nav>
       )}

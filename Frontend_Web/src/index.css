@@ -13,6 +13,40 @@
   --color-zoo-900: #064e3b;
   --color-zoo-950: #022c22;
   --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
+
+  /* Trang du khách: hệ biển chỉ dẫn vườn */
+  --color-trail: #f5f7f2;
+  --color-trail-line: #dfe5dc;
+  --color-sign: #14532d;
+  --color-sign-deep: #0f3f22;
+  --color-post: #1c2b22;
+  --color-post-soft: #4b5a50;
+  --color-arrow: #f2b705;
+  --color-arrow-deep: #d9a300;
+  --color-sage: #7a9a6e;
+  --color-sage-soft: #e6ece3;
+  --font-sign: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+  --font-trail: "Barlow", system-ui, sans-serif;
+}
+
+/* Bề mặt trình duyệt trong khu du khách mang màu của hệ biển */
+.visitor-world ::selection { background: var(--color-arrow); color: var(--color-post); }
+.visitor-world { caret-color: var(--color-sign); accent-color: var(--color-sign); }
+/* Vòng focus: xanh biển trên nền sáng, vàng khi nằm trong mảng biển xanh */
+.visitor-world :focus-visible { outline: 3px solid var(--color-sign); outline-offset: 2px; }
+.visitor-world [class*="bg-sign"] :focus-visible { outline-color: var(--color-arrow); }
+
+/* Bản đồ nền dịu màu để vàng chỉ hướng vẫn là màu vàng duy nhất */
+.visitor-world .leaflet-tile-pane { filter: grayscale(0.85) contrast(0.9) brightness(1.05); }
+.visitor-world .leaflet-popup-content-wrapper { border-radius: 6px; background: var(--color-trail); box-shadow: 0 16px 32px -12px rgb(28 43 34 / 0.45); }
+.visitor-world .leaflet-popup-content { margin: 10px; }
+.visitor-world .leaflet-popup-tip { background: var(--color-trail); }
+.visitor-world .leaflet-container a.leaflet-popup-close-button { width: 32px; height: 32px; font: 700 22px/30px var(--font-trail); color: var(--color-post); }
+
+/* Biển rơi vào trụ khi mở trang: chỉ dịch chuyển, nội dung luôn hiện sẵn */
+@keyframes sign-hang { from { transform: translateY(-10px) rotate(-1.2deg); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .sign-hang { animation: sign-hang 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 }
 
 /* Custom Scrollbar cho giao diện mượt mà */

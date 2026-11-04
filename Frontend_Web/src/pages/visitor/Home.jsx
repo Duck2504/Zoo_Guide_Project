@@ -4,81 +4,75 @@ import { API } from '../../config';
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
 
-// Ảnh minh họa từ Unsplash (không phải ảnh chụp tại Thảo Cầm Viên) — nên thay bằng ảnh thật của vườn khi có.
+// Ảnh minh họa từ Unsplash (không chụp tại Thảo Cầm Viên), được ghi nhãn trên trang; nên thay bằng ảnh thật của vườn.
 const photo = (id, w) => `https://images.unsplash.com/${id}?w=${w}&q=70&auto=format&fit=crop`;
-const HERO_PHOTO = 'photo-1557050543-4d5f4e07ef46'; // voi trên đồng cỏ
-const WILD_PHOTOS = [
+const PANEL_PHOTOS = [
+  { id: 'photo-1557050543-4d5f4e07ef46', key: 'elephant' },
   { id: 'photo-1547721064-da6cfb341d50', key: 'giraffe' },
   { id: 'photo-1564349683136-77e08dba1ef7', key: 'panda' },
   { id: 'photo-1552728089-57bdde30beb3', key: 'parrot' },
   { id: 'photo-1526095179574-86e545346ae6', key: 'zebra' },
-  { id: 'photo-1503066211613-c17ebc9daef0', key: 'tiger' },
 ];
 
 const translations = {
   vi: {
-    greeting: 'Xin chào 👋',
-    description: 'Hệ thống thuyết minh đa ngôn ngữ. Quét mã QR tại chuồng thú hoặc bật định vị để nghe tự động.',
-    scanQR: 'Quét mã QR', openMap: 'Mở bản đồ',
-    species: n => `${n} loài động vật`, languages: '4 ngôn ngữ thuyết minh', hours: '07:00 – 18:30 mỗi ngày',
-    howTitle: 'Tham quan trong 3 bước',
-    steps: [['Quét mã QR', 'Mã đặt tại mỗi chuồng thú'], ['Đi theo bản đồ', 'Bật định vị để tự mở thuyết minh'], ['Nghe thuyết minh', 'Chọn ngôn ngữ bạn muốn']],
-    animalsTitle: 'Động vật tại vườn', animalsEmpty: 'Danh sách động vật đang được cập nhật.',
-    wildTitle: 'Thế giới hoang dã', wildDesc: 'Hàng trăm loài đang chờ bạn khám phá.',
-    wild: { giraffe: 'Hươu cao cổ', panda: 'Gấu trúc', parrot: 'Vẹt', zebra: 'Ngựa vằn', tiger: 'Hổ trắng' },
-    credit: 'Ảnh minh họa: Unsplash'
+    title: 'Thảo Cầm Viên', sub: 'Thuyết minh động vật bằng 5 ngôn ngữ', // không ngắt dòng giữa "động vật"
+    scan: 'Quét mã QR tại chuồng', map: 'Xem bản đồ khu',
+    howTitle: 'Cách nghe thuyết minh',
+    steps: [['Quét mã', 'Mã QR gắn ở mỗi chuồng'], ['Nghe', 'Chọn ngôn ngữ của bạn'], ['Đi tiếp', 'Theo bản đồ tới chuồng kế']],
+    animals: 'Động vật trong vườn', species: n => `${n} loài`, empty: 'Danh sách động vật đang được cập nhật.', failed: 'Chưa tải được danh sách động vật.',
+    panelTitle: 'Bảng giới thiệu', panelText: 'Mỗi chuồng thú có một mã QR. Quét mã để nghe câu chuyện của loài sống ở đó, bằng ngôn ngữ của bạn.', photoAlt: 'Ảnh minh họa:',
+    wild: { elephant: 'Voi', giraffe: 'Hươu cao cổ', panda: 'Gấu trúc', parrot: 'Vẹt', zebra: 'Ngựa vằn' },
+    credit: 'Ảnh minh họa, không chụp tại vườn',
+    hoursTitle: 'Giờ mở cửa', hours: '07:00 – 18:30, mỗi ngày'
   },
   en: {
-    greeting: 'Hello 👋',
-    description: 'Multilingual audio guide. Scan QR codes at enclosures or enable location for auto-playback.',
-    scanQR: 'Scan QR code', openMap: 'Open map',
-    species: n => `${n} animal species`, languages: '4 guide languages', hours: '07:00 – 18:30 daily',
-    howTitle: 'Visit in 3 steps',
-    steps: [['Scan a QR code', 'Found at every enclosure'], ['Follow the map', 'Turn on location for auto-guides'], ['Listen', 'Pick your language']],
-    animalsTitle: 'Animals at the zoo', animalsEmpty: 'The animal list is being updated.',
-    wildTitle: 'The wild world', wildDesc: 'Hundreds of species are waiting for you.',
-    wild: { giraffe: 'Giraffe', panda: 'Panda', parrot: 'Parrot', zebra: 'Zebra', tiger: 'White tiger' },
-    credit: 'Illustrative photos: Unsplash'
+    title: 'Saigon Zoo', sub: 'Animal audio guide in 5 languages',
+    scan: 'Scan the QR code at an enclosure', map: 'See the zone map',
+    howTitle: 'How the audio guide works',
+    steps: [['Scan', 'A QR code at every enclosure'], ['Listen', 'Pick your language'], ['Move on', 'Follow the map to the next one']],
+    animals: 'Animals at the zoo', species: n => `${n} species`, empty: 'The animal list is being updated.', failed: 'The animal list could not be loaded.',
+    panelTitle: 'Visitor panel', panelText: 'Every enclosure has a QR code. Scan it to hear the story of the animal that lives there, in your language.', photoAlt: 'Illustrative photo:',
+    wild: { elephant: 'Elephant', giraffe: 'Giraffe', panda: 'Panda', parrot: 'Parrot', zebra: 'Zebra' },
+    credit: 'Illustrative photos, not taken at the zoo',
+    hoursTitle: 'Opening hours', hours: '07:00 – 18:30, daily'
   },
   ko: {
-    greeting: '안녕하세요 👋',
-    description: '다국어 오디오 가이드. 동물 우리에서 QR을 스캔하거나 위치를 켜면 자동으로 재생됩니다.',
-    scanQR: 'QR 스캔', openMap: '지도 열기',
-    species: n => `동물 ${n}종`, languages: '4개 언어 가이드', hours: '매일 07:00 – 18:30',
-    howTitle: '3단계로 관람하기',
-    steps: [['QR 스캔', '각 동물 우리에 있습니다'], ['지도 따라가기', '위치를 켜면 자동 안내'], ['가이드 듣기', '원하는 언어 선택']],
-    animalsTitle: '동물원의 동물들', animalsEmpty: '동물 목록을 업데이트하는 중입니다.',
-    wildTitle: '야생의 세계', wildDesc: '수백 종의 동물이 기다리고 있습니다.',
-    wild: { giraffe: '기린', panda: '판다', parrot: '앵무새', zebra: '얼룩말', tiger: '백호' },
-    credit: '참고 사진: Unsplash'
+    title: '사이공 동물원', sub: '5개 언어 동물 오디오 가이드',
+    scan: '우리 앞 QR 코드 스캔', map: '구역 지도 보기',
+    howTitle: '오디오 가이드 이용 방법',
+    steps: [['스캔', '모든 우리에 QR 코드'], ['듣기', '언어 선택'], ['이동', '지도를 따라 다음 우리로']],
+    animals: '동물원의 동물들', species: n => `${n}종`, empty: '동물 목록을 업데이트하는 중입니다.', failed: '동물 목록을 불러오지 못했습니다.',
+    panelTitle: '안내판', panelText: '모든 우리에 QR 코드가 있습니다. 스캔하면 그곳에 사는 동물의 이야기를 원하는 언어로 들을 수 있습니다.', photoAlt: '참고 사진:',
+    wild: { elephant: '코끼리', giraffe: '기린', panda: '판다', parrot: '앵무새', zebra: '얼룩말' },
+    credit: '참고 사진이며 동물원에서 촬영하지 않았습니다',
+    hoursTitle: '운영 시간', hours: '매일 07:00 – 18:30'
   },
   ja: {
-    greeting: 'こんにちは 👋',
-    description: '多言語音声ガイド。QRコードをスキャンするか、位置情報を有効にすると自動再生されます。',
-    scanQR: 'QRスキャン', openMap: 'マップを開く',
-    species: n => `${n}種の動物`, languages: '4言語の音声ガイド', hours: '毎日 07:00 – 18:30',
-    howTitle: '3ステップで見学',
-    steps: [['QRをスキャン', '各展示場にあります'], ['マップに沿って', '位置情報で自動再生'], ['ガイドを聞く', '言語を選べます']],
-    animalsTitle: '園内の動物', animalsEmpty: '動物リストを更新中です。',
-    wildTitle: '野生の世界', wildDesc: '何百種もの動物があなたを待っています。',
-    wild: { giraffe: 'キリン', panda: 'パンダ', parrot: 'オウム', zebra: 'シマウマ', tiger: 'ホワイトタイガー' },
-    credit: 'イメージ写真: Unsplash'
+    title: 'サイゴン動植物園', sub: '5言語の動物音声ガイド',
+    scan: '展示場のQRコードをスキャン', map: 'エリアマップを見る',
+    howTitle: '音声ガイドの使い方',
+    steps: [['スキャン', '各展示場にQRコード'], ['聞く', '言語を選ぶ'], ['次へ', 'マップで次の展示場へ']],
+    animals: '園内の動物', species: n => `${n}種`, empty: '動物リストを更新中です。', failed: '動物リストを読み込めませんでした。',
+    panelTitle: '案内板', panelText: '各展示場にQRコードがあります。スキャンすると、そこに暮らす動物の話をあなたの言語で聞けます。', photoAlt: 'イメージ写真:',
+    wild: { elephant: 'ゾウ', giraffe: 'キリン', panda: 'パンダ', parrot: 'オウム', zebra: 'シマウマ' },
+    credit: 'イメージ写真です（園内で撮影したものではありません）',
+    hoursTitle: '開園時間', hours: '毎日 07:00 – 18:30'
   },
   zh: {
-    greeting: '您好 👋',
-    description: '多语言语音导览。在动物围栏处扫描QR码或启用定位即可自动播放。',
-    scanQR: '扫描QR码', openMap: '打开地图',
-    species: n => `${n} 种动物`, languages: '4 种导览语言', hours: '每天 07:00 – 18:30',
-    howTitle: '三步游览',
-    steps: [['扫描QR码', '每个围栏处都有'], ['跟随地图', '开启定位自动导览'], ['收听导览', '选择您的语言']],
-    animalsTitle: '园内动物', animalsEmpty: '动物列表正在更新。',
-    wildTitle: '野生世界', wildDesc: '数百种动物等你来探索。',
-    wild: { giraffe: '长颈鹿', panda: '熊猫', parrot: '鹦鹉', zebra: '斑马', tiger: '白虎' },
-    credit: '示意图片: Unsplash'
+    title: '西贡动植物园', sub: '5种语言的动物语音导览',
+    scan: '扫描围栏处的QR码', map: '查看区域地图',
+    howTitle: '如何收听导览',
+    steps: [['扫描', '每个围栏都有QR码'], ['收听', '选择您的语言'], ['继续', '按地图前往下一个']],
+    animals: '园内动物', species: n => `${n} 种`, empty: '动物列表正在更新。', failed: '无法加载动物列表。',
+    panelTitle: '介绍牌', panelText: '每个围栏都有一个QR码。扫码即可用您的语言收听那里动物的故事。', photoAlt: '示意图片：',
+    wild: { elephant: '大象', giraffe: '长颈鹿', panda: '熊猫', parrot: '鹦鹉', zebra: '斑马' },
+    credit: '示意图片，并非在园内拍摄',
+    hoursTitle: '开放时间', hours: '每天 07:00 – 18:30'
   }
 };
 
-const STEP_ICONS = ['fa-qrcode', 'fa-map-location-dot', 'fa-headphones'];
+const STEP_ICONS = ['fa-qrcode', 'fa-headphones', 'fa-person-walking'];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -86,7 +80,7 @@ export default function Home() {
   const { language } = useVisitor();
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source') || 'web_home';
-  const [animals, setAnimals] = useState(null); // null = đang tải
+  const [animals, setAnimals] = useState(null); // null = đang tải, 'error' = lỗi
 
   const t = translations[language] || translations['vi'];
 
@@ -121,113 +115,144 @@ export default function Home() {
     // Không đưa `language` vào: đổi ngôn ngữ không phải một lượt truy cập mới
   }, [source]);
 
-  // Danh sách động vật thật để hiện ở dải ảnh "Động vật tại vườn"
   useEffect(() => {
     fetch(`${API}/api/animals`)
-      .then(res => (res.ok ? res.json() : []))
+      .then(res => (res.ok ? res.json() : 'error'))
       .then(setAnimals)
-      .catch(() => setAnimals([]));
+      .catch(() => setAnimals('error'));
   }, []);
 
+  const list = Array.isArray(animals) ? animals : [];
+
   return (
-    <div className="px-4 py-5 sm:px-6 lg:px-8 pb-28 space-y-8 md:space-y-10">
+    <div className="px-4 pt-5 pb-28 sm:px-6 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-10 lg:px-8 lg:pt-8">
 
-      {/* HERO: ảnh lớn + lớp phủ xanh lá đủ đậm để chữ trắng dễ đọc */}
-      <section className="relative overflow-hidden rounded-3xl bg-zoo-900 shadow-xl shadow-zoo-900/20 min-h-[22rem] md:min-h-[26rem] [@media(max-height:500px)]:min-h-[15rem] flex">
-        <img
-          src={photo(HERO_PHOTO, 1400)}
-          srcSet={`${photo(HERO_PHOTO, 640)} 640w, ${photo(HERO_PHOTO, 1024)} 1024w, ${photo(HERO_PHOTO, 1600)} 1600w`}
-          sizes="(min-width: 1152px) 1100px, 100vw"
-          alt=""
-          fetchpriority="high"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-zoo-950/95 via-zoo-900/70 to-zoo-900/20 md:bg-gradient-to-r md:from-zoo-950/95 md:via-zoo-900/70 md:to-transparent" />
-        <div className="relative z-10 mt-auto w-full p-6 sm:p-8 md:my-auto md:max-w-lg text-white">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">{t.greeting}</h2>
-          <p className="text-zoo-50/90 text-sm sm:text-base leading-relaxed mb-6">{t.description}</p>
-          <div className="flex flex-wrap gap-3">
-            <button onClick={openQR} className="min-h-12 inline-flex items-center gap-2 rounded-xl bg-white px-5 text-sm font-bold text-zoo-900 shadow-sm transition-[transform,background-color] duration-150 hover:bg-zoo-50 active:scale-[0.97]">
-              <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scanQR}
-            </button>
-            <button onClick={() => navigate('/map')} className="min-h-12 inline-flex items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-sm transition-[transform,background-color] duration-150 hover:bg-white/20 active:scale-[0.97]">
-              <i className="fa-solid fa-map-location-dot" aria-hidden="true"></i> {t.openMap}
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* CỘT TRÁI: tấm biển chính (dính khi cuộn trên máy tính) */}
+      <div className="space-y-5 lg:sticky lg:top-8 lg:space-y-6">
+        <section className="relative rounded-md bg-sign px-6 pb-6 pt-8 text-trail shadow-[0_14px_28px_-14px_rgb(15_63_34/0.6)] sm:p-8">
+          {/* Viền kẻ trắng chạy trong mép biển, như biển sơn ngoài trời */}
+          <div className="pointer-events-none absolute inset-2 rounded border border-trail/30" aria-hidden="true" />
+          <h1 className="max-w-[8ch] font-sign text-[4rem] font-extrabold leading-[0.88] tracking-tight text-balance sm:text-7xl lg:text-[5.25rem]">{t.title}</h1>
+          <p className="mt-4 text-lg font-semibold text-trail/85 text-balance">{t.sub}</p>
 
-      {/* THÔNG TIN NHANH */}
-      <section className="flex flex-wrap gap-2">
-        {animals?.length > 0 && (
-          <span className="inline-flex items-center gap-2 rounded-full bg-zoo-50 px-4 py-2 text-xs sm:text-sm font-bold text-zoo-800">
-            <i className="fa-solid fa-paw" aria-hidden="true"></i> {t.species(animals.length)}
-          </span>
-        )}
-        <span className="inline-flex items-center gap-2 rounded-full bg-zoo-50 px-4 py-2 text-xs sm:text-sm font-bold text-zoo-800">
-          <i className="fa-solid fa-language" aria-hidden="true"></i> {t.languages}
-        </span>
-        <span className="inline-flex items-center gap-2 rounded-full bg-zoo-50 px-4 py-2 text-xs sm:text-sm font-bold text-zoo-800">
-          <i className="fa-solid fa-clock" aria-hidden="true"></i> {t.hours}
-        </span>
-      </section>
+          <button
+            onClick={openQR}
+            className="group mt-7 flex min-h-16 w-full items-center justify-between gap-4 rounded bg-arrow px-5 text-left font-sign text-xl font-extrabold text-post shadow-[0_6px_14px_-6px_rgb(0_0_0/0.45)] transition-[background-color,transform] duration-150 hover:bg-arrow-deep active:scale-[0.98] sm:text-2xl"
+          >
+            <span className="flex items-center gap-3">
+              <i className="fa-solid fa-qrcode text-2xl" aria-hidden="true"></i>
+              {t.scan}
+            </span>
+            <i className="fa-solid fa-arrow-right text-2xl transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden="true"></i>
+          </button>
 
-      {/* ĐỘNG VẬT THẬT TỪ HỆ THỐNG: điện thoại vuốt ngang, màn lớn thành lưới */}
-      <section>
-        <h3 className="mb-4 text-lg sm:text-xl font-extrabold text-gray-900">{t.animalsTitle}</h3>
-        {animals === null ? (
-          <div className="flex gap-4 overflow-hidden">
-            {[0, 1, 2].map(i => <div key={i} className="aspect-[4/5] w-40 shrink-0 rounded-2xl bg-gray-200 motion-safe:animate-pulse" />)}
-          </div>
-        ) : animals.length === 0 ? (
-          <p className="rounded-2xl bg-white p-5 text-sm text-gray-500 border border-gray-100">{t.animalsEmpty}</p>
-        ) : (
-          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 hide-scrollbar sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 lg:grid-cols-4">
-            {animals.map(a => (
-              <Link key={a.id} to={`/a/${a.id}`} className="group w-40 shrink-0 snap-start md:w-auto">
-                <div className="aspect-[4/5] md:aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100 shadow-sm">
-                  <AnimalImage src={a.avatarUrl} alt={a.defaultLocalName} className="h-full w-full transition-transform duration-300 ease-out md:group-hover:scale-105" />
-                </div>
-                <p className="mt-2 truncate text-sm font-bold text-gray-900">{a.defaultLocalName}</p>
-                <p className="truncate text-xs italic text-zoo-700">{a.scientificName}</p>
-              </Link>
+          <button
+            onClick={() => navigate('/map')}
+            className="mt-3 flex min-h-12 w-full items-center justify-between rounded border border-trail/40 px-5 font-sign text-lg font-bold text-trail transition-colors hover:bg-trail/10"
+          >
+            {t.map}
+            <i className="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+          </button>
+        </section>
+
+        {/* Cách dùng: ba ký hiệu như biển pictogram */}
+        <section aria-labelledby="how-title">
+          {/* Điện thoại: dải ký hiệu gọn một hàng để biển con vật đầu tiên lộ ra ngay màn hình đầu */}
+          <h2 id="how-title" className="sr-only font-sign text-xl font-extrabold text-post lg:not-sr-only">{t.howTitle}</h2>
+          <ol className="grid grid-cols-3 gap-2 lg:mt-3 lg:gap-3">
+            {t.steps.map(([title, desc], i) => (
+              <li key={title} className="flex items-center gap-2 lg:block lg:text-center">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-sage text-lg text-white lg:mx-auto lg:aspect-square lg:h-auto lg:w-full lg:max-w-24 lg:text-3xl">
+                  <i className={`fa-solid ${STEP_ICONS[i]}`} aria-hidden="true"></i>
+                </span>
+                <p className="font-sign text-base font-bold leading-tight text-post lg:mt-2 lg:text-lg">{title}</p>
+                <p className="hidden text-sm leading-snug text-post-soft lg:block">{desc}</p>
+              </li>
             ))}
+          </ol>
+        </section>
+
+        <section className="hidden items-center gap-4 rounded-md border border-trail-line bg-white p-4 lg:flex">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-sage-soft text-xl text-sign"><i className="fa-solid fa-clock" aria-hidden="true"></i></span>
+          <div>
+            <p className="font-sign text-lg font-bold">{t.hoursTitle}</p>
+            <p className="text-sm text-post-soft">{t.hours}</p>
           </div>
-        )}
-      </section>
+        </section>
+      </div>
 
-      {/* CÁCH SỬ DỤNG */}
-      <section>
-        <h3 className="mb-4 text-lg sm:text-xl font-extrabold text-gray-900">{t.howTitle}</h3>
-        <ol className="grid gap-3 sm:grid-cols-3">
-          {t.steps.map(([title, desc], i) => (
-            <li key={title} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:flex-col sm:items-start">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-zoo-600 text-lg text-white">
-                <i className={`fa-solid ${STEP_ICONS[i]}`} aria-hidden="true"></i>
-              </span>
-              <div>
-                <p className="text-sm font-bold text-gray-900">{i + 1}. {title}</p>
-                <p className="mt-0.5 text-xs text-gray-500">{desc}</p>
+      {/* CỘT PHẢI: trụ biển với các biển con vật */}
+      <div className="mt-7 space-y-10 lg:mt-0">
+        <section aria-labelledby="animals-title">
+          <div className="flex items-baseline justify-between">
+            <h2 id="animals-title" className="font-sign text-2xl font-extrabold text-post">{t.animals}</h2>
+            {list.length > 0 && <p className="font-sign text-sm font-bold uppercase tracking-wider text-post-soft">{t.species(list.length)}</p>}
+          </div>
+
+          <div className="relative mt-4 pl-6">
+            {/* Trụ biển */}
+            <div className="absolute bottom-0 left-1 top-0 w-2 rounded-full bg-post" aria-hidden="true" />
+
+            {animals === null ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => <div key={i} className="h-20 rounded-md bg-sign/15 motion-safe:animate-pulse" />)}
               </div>
-            </li>
-          ))}
-        </ol>
-      </section>
+            ) : list.length === 0 ? (
+              <p className="rounded-md border border-trail-line bg-white p-5 text-sm text-post-soft">{animals === 'error' ? t.failed : t.empty}</p>
+            ) : (
+              <ul className="space-y-3">
+                {list.map((a, i) => (
+                  <li key={a.id} className="sign-hang relative" style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}>
+                    {/* Giá đỡ nối biển vào trụ */}
+                    <span className="absolute -left-5 top-1/2 h-1.5 w-5 -translate-y-1/2 bg-post" aria-hidden="true" />
+                    <Link
+                      to={`/a/${a.id}`}
+                      className="group flex min-h-20 items-center gap-4 rounded-md bg-sign p-2.5 pr-4 text-trail transition-colors hover:bg-sign-deep"
+                    >
+                      <AnimalImage src={a.avatarUrl} alt={a.defaultLocalName} className="h-16 w-16 shrink-0 rounded" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-sign text-xl font-bold leading-tight line-clamp-2">{a.defaultLocalName}</span>
+                        <span className="block truncate text-sm italic text-trail/75">{a.scientificName}</span>
+                      </span>
+                      <i className="fa-solid fa-chevron-right text-lg transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden="true"></i>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
 
-      {/* KHỐI ẢNH TRANG TRÍ */}
-      <section>
-        <h3 className="text-lg sm:text-xl font-extrabold text-gray-900">{t.wildTitle}</h3>
-        <p className="mb-4 text-sm text-gray-500">{t.wildDesc}</p>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:grid-rows-2">
-          {WILD_PHOTOS.map((p, i) => (
-            <figure key={p.id} className={`relative overflow-hidden rounded-2xl bg-gray-100 ${i === 0 ? 'col-span-2 aspect-[2/1] md:row-span-2 md:aspect-auto' : 'aspect-square'}`}>
-              <AnimalImage src={photo(p.id, i === 0 ? 900 : 450)} alt={t.wild[p.key]} className="h-full w-full" />
-              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2 pt-6 text-xs sm:text-sm font-bold text-white">{t.wild[p.key]}</figcaption>
-            </figure>
-          ))}
-        </div>
-        <p className="mt-2 text-right text-[11px] text-gray-400">{t.credit}</p>
-      </section>
+        {/* Bảng giới thiệu kiểu biển diễn giải ngoài trời: khung xanh, thân trắng, ảnh có chú thích */}
+        <section aria-labelledby="panel-title" className="overflow-hidden rounded-md border-2 border-sign bg-white">
+          <div className="flex items-center justify-between bg-sign px-5 py-3 text-trail">
+            <h2 id="panel-title" className="font-sign text-xl font-extrabold">{t.panelTitle}</h2>
+            <i className="fa-solid fa-binoculars" aria-hidden="true"></i>
+          </div>
+          <div className="p-4 sm:p-5">
+            <p className="text-base text-post">{t.panelText}</p>
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {PANEL_PHOTOS.map((p, i) => (
+                <AnimalImage
+                  key={p.id}
+                  src={photo(p.id, i === 0 ? 900 : 450)}
+                  alt={`${t.photoAlt} ${t.wild[p.key]}`}
+                  className={`w-full rounded ${i === 0 ? 'col-span-2 aspect-[16/10] sm:row-span-2 sm:aspect-auto sm:h-full' : 'aspect-square'}`}
+                />
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-post-soft">{t.credit}</p>
+          </div>
+        </section>
+
+        <section className="flex items-center gap-4 rounded-md border border-trail-line bg-white p-4 lg:hidden">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-sage-soft text-xl text-sign"><i className="fa-solid fa-clock" aria-hidden="true"></i></span>
+          <div>
+            <p className="font-sign text-lg font-bold">{t.hoursTitle}</p>
+            <p className="text-sm text-post-soft">{t.hours}</p>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
