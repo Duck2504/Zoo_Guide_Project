@@ -7,6 +7,8 @@ export default function AnimalManager() {
   const [animals, setAnimals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedZone, setSelectedZone] = useState('all');
   
   // Khởi tạo state khớp với AnimalCreateDto
   const initialFormState = { 
@@ -19,6 +21,18 @@ export default function AnimalManager() {
   const [formData, setFormData] = useState(initialFormState);
 
   const API_URL = `${API}/api/animals`;
+  const zones = [...new Set(animals.map(animal => animal.zoneId).filter(Boolean))].sort((a, b) => a - b);
+  const filteredAnimals = animals.filter(animal => {
+    const query = searchTerm.trim().toLocaleLowerCase('vi');
+    const matchesSearch = !query || [
+      animal.defaultLocalName,
+      animal.scientificName,
+      animal.zoneName,
+      String(animal.id)
+    ].some(value => String(value || '').toLocaleLowerCase('vi').includes(query));
+    const matchesZone = selectedZone === 'all' || String(animal.zoneId) === selectedZone;
+    return matchesSearch && matchesZone;
+  });
 
   const fetchAnimals = async () => {
     setIsLoading(true);
@@ -139,154 +153,229 @@ export default function AnimalManager() {
   };
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-black text-slate-800">Quản lý Động vật</h1>
-        <button
-          onClick={() => handleOpenModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold transition shadow-sm flex items-center gap-2"
-        >
-          <i className="fa-solid fa-plus"></i> Thêm mới
-        </button>
-      </div>
+    <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-800 to-teal-950 px-6 py-7 text-white shadow-lg shadow-emerald-950/10 sm:px-8 sm:py-9">
+          <div className="pointer-events-none absolute -right-10 -top-20 h-64 w-64 rounded-full border-[32px] border-white/5" />
+          <div className="pointer-events-none absolute -bottom-28 right-40 h-64 w-64 rounded-full bg-emerald-400/10 blur-2xl" />
+          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-50">
+                <i className="fa-solid fa-paw"></i> TRUNG TÂM QUẢN TRỊ SỞ THÚ
+              </div>
+              <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Quản lý động vật</h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-100 sm:text-base">
+                Quản lý hồ sơ, nội dung thuyết minh và mã QR cho các loài trong sở thú.
+              </p>
+            </div>
+            <button
+              onClick={() => handleOpenModal()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-emerald-800 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25"
+            >
+              <i className="fa-solid fa-plus"></i> Thêm động vật
+            </button>
+          </div>
+        </section>
 
-      <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 text-slate-500 text-sm border-b border-slate-100">
-              <th className="p-4 font-bold">ID</th>
-              <th className="p-4 font-bold">Hình ảnh</th>
-              <th className="p-4 font-bold">Tên gọi</th>
-              <th className="p-4 font-bold">Khu vực</th>
-              <th className="p-4 font-bold text-center">Mã QR</th>
-              <th className="p-4 font-bold text-center">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr><td colSpan="6" className="p-8 text-center text-slate-500 font-bold animate-pulse">Đang tải dữ liệu...</td></tr>
-            ) : animals.length === 0 ? (
-              <tr><td colSpan="6" className="p-8 text-center text-slate-500 italic">Chưa có dữ liệu động vật nào.</td></tr>
-            ) : (
-              animals.map(animal => (
-                <tr key={animal.id} className="border-b border-slate-50 hover:bg-slate-50 transition">
-                  <td className="p-4 text-slate-600 font-medium">#{animal.id}</td>
-                  
-                  <td className="p-4">
-                    {animal.avatarUrl ? (
-                      <img src={animal.avatarUrl} alt="Avatar" className="w-14 h-14 object-cover rounded-xl border border-slate-200 shadow-sm" />
-                    ) : (
-                      <div className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-xs italic border border-slate-200">Trống</div>
-                    )}
-                  </td>
+        <section className="grid gap-4 sm:grid-cols-3">
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-700"><i className="fa-solid fa-paw"></i></div>
+            <div><p className="text-sm font-medium text-slate-500">Tổng số động vật</p><p className="mt-1 text-2xl font-black text-slate-800">{animals.length}</p></div>
+          </div>
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-xl text-sky-700"><i className="fa-solid fa-map-location-dot"></i></div>
+            <div><p className="text-sm font-medium text-slate-500">Khu vực có động vật</p><p className="mt-1 text-2xl font-black text-slate-800">{zones.length}</p></div>
+          </div>
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl text-amber-600"><i className="fa-solid fa-filter"></i></div>
+            <div><p className="text-sm font-medium text-slate-500">Kết quả đang hiển thị</p><p className="mt-1 text-2xl font-black text-slate-800">{filteredAnimals.length}</p></div>
+          </div>
+        </section>
 
-                  <td className="p-4">
-                    <div className="font-bold text-slate-800">{animal.defaultLocalName || 'Chưa cập nhật tên'}</div>
-                    <div className="text-sm italic text-slate-500">{animal.scientificName}</div>
-                  </td>
-                  
-                  <td className="p-4">
-                    <div className="text-slate-600 font-bold">Khu {animal.zoneId}</div>
-                    {animal.zoneName && <div className="text-xs text-slate-500">{animal.zoneName}</div>}
-                  </td>
+        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+              <h2 className="font-bold text-slate-800">Danh sách động vật</h2>
+              <p className="mt-1 text-sm text-slate-500">Tra cứu và quản lý thông tin từng loài</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <label className="relative block sm:w-64">
+                <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={event => setSearchTerm(event.target.value)}
+                  placeholder="Tìm tên, mã động vật..."
+                  aria-label="Tìm động vật"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                />
+              </label>
+              <label className="relative block sm:w-44">
+                <i className="fa-solid fa-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                <select
+                  value={selectedZone}
+                  onChange={event => setSelectedZone(event.target.value)}
+                  aria-label="Lọc theo khu vực"
+                  className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                >
+                  <option value="all">Tất cả khu vực</option>
+                  {zones.map(zone => <option key={zone} value={String(zone)}>Khu vực {zone}</option>)}
+                </select>
+                <i className="fa-solid fa-chevron-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+              </label>
+              <button
+                onClick={fetchAnimals}
+                disabled={isLoading}
+                title="Làm mới danh sách"
+                aria-label="Làm mới danh sách"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-50"
+              >
+                <i className={`fa-solid fa-rotate ${isLoading ? 'fa-spin' : ''}`}></i><span className="sm:hidden">Làm mới</span>
+              </button>
+            </div>
+          </div>
 
-                  <td className="p-4 flex flex-col items-center justify-center gap-2">
-                    <div className="p-1 bg-white border border-slate-200 rounded-lg shadow-sm">
-                      <QRCodeCanvas
-                        id={`qr-${animal.id}`}
-                        value={`https://zooaudioguide-001-site1.ftempurl.com/a/${animal.id}`}
-                        size={64}
-                        level={"H"}
-                      />
-                    </div>
-                    <button
-                      onClick={() => handleDownloadQR(animal.id, animal.scientificName)}
-                      className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-md font-bold transition flex items-center gap-1"
-                    >
-                      <i className="fa-solid fa-download"></i> Tải ảnh
-                    </button>
-                  </td>
-
-                  <td className="p-4">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleGenerateAudio(animal.id)}
-                        disabled={generatingId !== null}
-                        title="Tạo audio thuyết minh"
-                        aria-label="Tạo audio thuyết minh"
-                        className="w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 disabled:opacity-50 flex items-center justify-center transition"
-                      >
-                        <i className={`fa-solid ${generatingId === animal.id ? 'fa-spinner fa-spin' : 'fa-volume-high'}`}></i>
-                      </button>
-                      <button onClick={() => handleOpenModal(animal)} className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition">
-                        <i className="fa-solid fa-pen-to-square"></i>
-                      </button>
-                      <button onClick={() => handleDelete(animal.id)} className="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center transition">
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[850px] text-left">
+              <thead>
+                <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
+                  <th className="px-5 py-3.5 font-bold">Động vật</th>
+                  <th className="px-5 py-3.5 font-bold">Khu vực</th>
+                  <th className="px-5 py-3.5 text-center font-bold">Mã QR</th>
+                  <th className="px-5 py-3.5 text-right font-bold">Thao tác</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {isLoading ? (
+                  <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600"></i>Đang tải danh sách động vật...</td></tr>
+                ) : filteredAnimals.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="px-5 py-16 text-center">
+                      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-xl text-slate-400"><i className={`fa-solid ${animals.length ? 'fa-magnifying-glass' : 'fa-paw'}`}></i></div>
+                      <p className="mt-4 font-bold text-slate-700">{animals.length ? 'Không tìm thấy động vật phù hợp' : 'Chưa có động vật nào'}</p>
+                      <p className="mt-1 text-sm text-slate-500">{animals.length ? 'Thử từ khóa hoặc khu vực khác.' : 'Thêm loài đầu tiên để bắt đầu xây dựng danh mục.'}</p>
+                      {!animals.length && <button onClick={() => handleOpenModal()} className="mt-4 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-800"><i className="fa-solid fa-plus mr-2"></i>Thêm động vật</button>}
+                    </td>
+                  </tr>
+                ) : filteredAnimals.map(animal => (
+                  <tr key={animal.id} className="group transition hover:bg-emerald-50/30">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3.5">
+                        {animal.avatarUrl ? (
+                          <img src={animal.avatarUrl} alt={animal.defaultLocalName || 'Ảnh động vật'} className="h-14 w-14 shrink-0 rounded-2xl border border-slate-200 object-cover shadow-sm" />
+                        ) : (
+                          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-lg text-slate-400"><i className="fa-solid fa-paw"></i></div>
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-800">{animal.defaultLocalName || 'Chưa cập nhật tên'}</p>
+                          <p className="mt-0.5 text-sm italic text-slate-500">{animal.scientificName || 'Chưa có tên khoa học'}</p>
+                          <span className="mt-1.5 inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-500">Mã #{animal.id}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-sm font-semibold text-emerald-800"><i className="fa-solid fa-location-dot text-xs text-emerald-600"></i>Khu {animal.zoneId}</span>
+                      {animal.zoneName && <p className="mt-1.5 pl-1 text-xs text-slate-500">{animal.zoneName}</p>}
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                          <QRCodeCanvas id={`qr-${animal.id}`} value={`https://zooaudioguide-001-site1.ftempurl.com/a/${animal.id}`} size={60} level="H" />
+                        </div>
+                        <button onClick={() => handleDownloadQR(animal.id, animal.scientificName)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800">
+                          <i className="fa-solid fa-download"></i>Tải mã
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => handleGenerateAudio(animal.id)} disabled={generatingId !== null} title="Tạo audio thuyết minh" aria-label="Tạo audio thuyết minh" className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">
+                          <i className={`fa-solid ${generatingId === animal.id ? 'fa-spinner fa-spin' : 'fa-volume-high'}`}></i>
+                        </button>
+                        <button onClick={() => handleOpenModal(animal)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100">
+                          <i className="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onClick={() => handleDelete(animal.id)} title="Xóa" aria-label={`Xóa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100">
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {!isLoading && animals.length > 0 && (
+            <div className="border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+              Đang hiển thị <span className="font-bold text-slate-700">{filteredAnimals.length}</span> / <span className="font-bold text-slate-700">{animals.length}</span> động vật
+            </div>
+          )}
+        </section>
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 w-full max-w-2xl shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-black text-slate-800">{formData.id ? 'Sửa thông tin' : 'Thêm động vật mới'}</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600"><i className="fa-solid fa-xmark text-xl"></i></button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur sm:px-8">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">{formData.id ? 'Cập nhật hồ sơ' : 'Danh mục động vật'}</p>
+                <h2 className="mt-1 text-xl font-black text-slate-800">{formData.id ? 'Chỉnh sửa thông tin' : 'Thêm động vật mới'}</h2>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} aria-label="Đóng biểu mẫu" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"><i className="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5 px-6 py-6 sm:px-8">
+              <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-900">
+                <i className="fa-solid fa-circle-info mr-2 text-emerald-700"></i>
+                Điền thông tin cơ bản và nội dung thuyết minh để hoàn thiện hồ sơ.
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-1">Tên tiếng Việt (Local Name)</label>
-                  <input type="text" value={formData.localName || ''} onChange={e => setFormData({ ...formData, localName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">Tên tiếng Việt <span className="text-rose-500">*</span></label>
+                  <input type="text" value={formData.localName || ''} onChange={e => setFormData({ ...formData, localName: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-1">Tên khoa học (Scientific Name)</label>
-                  <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">Tên khoa học <span className="text-rose-500">*</span></label>
+                  <input type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-1">ID Khu vực (Zone ID)</label>
-                  <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" required />
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">ID khu vực <span className="text-rose-500">*</span></label>
+                  <input type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-slate-600 mb-1">Đường dẫn ảnh (Avatar URL)</label>
-                  <input type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" />
+                  <label className="mb-1.5 block text-sm font-bold text-slate-700">Đường dẫn ảnh</label>
+                  <input type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
                 </div>
               </div>
 
               {formData.avatarUrl && (
-                <div className="mt-2">
-                  <p className="text-xs text-slate-500 mb-1">Xem trước ảnh:</p>
-                  <img src={formData.avatarUrl} alt="Preview" className="h-32 rounded-xl border border-slate-200 object-cover" />
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                  <p className="mb-2 text-xs font-semibold text-slate-500">Xem trước ảnh</p>
+                  <img src={formData.avatarUrl} alt="Xem trước ảnh động vật" className="h-36 w-36 rounded-xl border border-slate-200 bg-white object-cover" />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-bold text-slate-600 mb-1">Bài thuyết minh (Script Text)</label>
+                <label className="mb-1.5 block text-sm font-bold text-slate-700">Bài thuyết minh</label>
                 <textarea 
                   rows="4" 
                   value={formData.scriptText || ''} 
                   onChange={e => setFormData({ ...formData, scriptText: e.target.value })} 
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500" 
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" 
                   placeholder="Nhập nội dung bài thuyết minh bằng tiếng Việt..."
                 />
               </div>
 
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition mt-6">
-                {formData.id ? 'Lưu cập nhật' : 'Lưu tạo mới'}
-              </button>
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
+                <button type="submit" className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                  <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`}></i>{formData.id ? 'Lưu cập nhật' : 'Tạo hồ sơ'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
