@@ -28,15 +28,21 @@ public class GeminiTranslator(HttpClient http, IConfiguration cfg) : ITranslator
         {
             contents = new[] { new { parts = new[] { new { text = prompt } } } }
         });
-        res.EnsureSuccessStatusCode();
 
-        var json = await res.Content.ReadFromJsonAsync<JsonElement>();
-        return json.GetProperty("candidates")[0].GetProperty("content")
-                   .GetProperty("parts")[0].GetProperty("text").GetString()!.Trim();
+        var body = await res.Content.ReadAsStringAsync();
+        if (!res.IsSuccessStatusCode)
+            throw new Exception($"Gemini lỗi {(int)res.StatusCode}: {body}");
+
+        using var doc = JsonDocument.Parse(body);
+        if (!doc.RootElement.TryGetProperty("candidates", out var candidates) || candidates.GetArrayLength() == 0)
+            throw new Exception("Gemini không trả về bản dịch: " + body);
+
+        return candidates[0].GetProperty("content").GetProperty("parts")[0]
+                            .GetProperty("text").GetString()!.Trim();
     }
 }
 
-// Tạo mp3 bằng edge-tts
+// Tạo mp3 bằng edge-tts (tự thử lại 3 lần nếu bị lỗi chập chờn)
 public class EdgeTtsService : ITtsService
 {
     private static readonly Dictionary<string, string> Voices = new()
@@ -47,14 +53,14 @@ public class EdgeTtsService : ITtsService
         ["ko"] = "ko-KR-SunHiNeural",
         ["zh"] = "zh-CN-XiaoxiaoNeural",
         ["fr"] = "fr-FR-DeniseNeural",
-        ["de"] = "de-DE-KatjaNeural", //đức
-        ["es"] = "es-ES-ElviraNeural", // tây ban nha
-        ["it"] = "it-IT-ElsaNeural", // ý
-        ["ru"] = "ru-RU-DariyaNeural", // nga
-        ["pt"] = "pt-PT-FernandaNeural", // bồ đào nha
-        ["hi"] = "hi-IN-SwaraNeural", // ấn độ
-        ["th"] = "th-TH-PremwadeeNeural", // thái lan
-        ["tr"] = "tr-TR-AhmetNeural", // thổ nhĩ kỳ
+        ["de"] = "de-DE-KatjaNeural",      // Đức
+        ["es"] = "es-ES-ElviraNeural",     // Tây Ban Nha
+        ["it"] = "it-IT-ElsaNeural",       // Ý
+        ["ru"] = "ru-RU-DariyaNeural",     // Nga
+        ["pt"] = "pt-PT-FernandaNeural",   // Bồ Đào Nha
+        ["hi"] = "hi-IN-SwaraNeural",      // Ấn Độ
+        ["th"] = "th-TH-PremwadeeNeural",  // Thái Lan
+        ["tr"] = "tr-TR-AhmetNeural",      // Thổ Nhĩ Kỳ
     };
 
     public static bool IsSupported(string lang) => Voices.ContainsKey(lang);
@@ -64,23 +70,48 @@ public class EdgeTtsService : ITtsService
         if (!Voices.TryGetValue(lang, out var voice))
             throw new ArgumentException($"Ngôn ngữ '{lang}' chưa được hỗ trợ");
 
-        var tmp = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp3");
-        var psi = new ProcessStartInfo("edge-tts")
+        Exception? last = null;
+        for (var attempt = 1; attempt <= 3; attempt++)
         {
-            RedirectStandardError = true,
-            UseShellExecute = false
-        };
-        psi.ArgumentList.Add("--voice"); psi.ArgumentList.Add(voice);
-        psi.ArgumentList.Add("--text"); psi.ArgumentList.Add(text);
-        psi.ArgumentList.Add("--write-media"); psi.ArgumentList.Add(tmp);
+            try { return await RunEdgeTtsAsync(text, voice); }
+            catch (Exception ex)
+            {
+                last = ex;
+                await Task.Delay(1000 * attempt);   // chờ 1s, 2s rồi thử lại
+            }
+        }
+        throw last!;
+    }
 
-        using var p = Process.Start(psi)!;
-        var err = p.StandardError.ReadToEndAsync();
-        await p.WaitForExitAsync();
-        if (p.ExitCode != 0) throw new Exception("edge-tts lỗi: " + await err);
+    private static async Task<byte[]> RunEdgeTtsAsync(string text, string voice)
+    {
+        var tmp = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.mp3");
+        try
+        {
+            var psi = new ProcessStartInfo("edge-tts")
+            {
+                RedirectStandardError = true,
+                UseShellExecute = false
+            };
+            psi.ArgumentList.Add("--voice"); psi.ArgumentList.Add(voice);
+            psi.ArgumentList.Add("--text"); psi.ArgumentList.Add(text);
+            psi.ArgumentList.Add("--write-media"); psi.ArgumentList.Add(tmp);
 
-        var bytes = await File.ReadAllBytesAsync(tmp);
-        File.Delete(tmp);
-        return bytes;
+            using var p = Process.Start(psi)!;
+            var err = p.StandardError.ReadToEndAsync();
+            await p.WaitForExitAsync();
+            if (p.ExitCode != 0)
+            {
+                // Chỉ lấy dòng cuối của traceback cho dễ đọc
+                var lastLine = (await err).Trim().Split('\n').Last().Trim();
+                throw new Exception("edge-tts lỗi: " + lastLine);
+            }
+
+            return await File.ReadAllBytesAsync(tmp);
+        }
+        finally
+        {
+            if (File.Exists(tmp)) File.Delete(tmp);
+        }
     }
 }
