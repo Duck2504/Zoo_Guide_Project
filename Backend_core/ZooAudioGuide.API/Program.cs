@@ -4,6 +4,8 @@ using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Repositories;
 using ZooAudioGuide.API.Services;
 using Scalar.AspNetCore;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 // --- Thư viện bổ sung từ Microservice ---
 using System.Security.Cryptography;
@@ -47,6 +49,15 @@ builder.Services.AddScoped<NarrationGenerator>();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails(); // bắt buộc đi cùng UseExceptionHandler() bên dưới
+builder.Services.AddDataProtection(); // tạo/kiểm tra token đăng nhập admin (AdminToken)
+
+// Chống dò mật khẩu ở /api/auth/login: tối đa 5 lần/phút.
+// shortcut: sau proxy của Render mọi request chung 1 IP nên giới hạn là toàn cục (kẻ dò có thể làm admin chờ 1 phút); khi cần thì chia theo X-Forwarded-For.
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests; // mặc định là 503
+    o.AddFixedWindowLimiter("login", w => { w.PermitLimit = 5; w.Window = TimeSpan.FromMinutes(1); w.QueueLimit = 0; });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -64,6 +75,7 @@ if (!app.Environment.IsDevelopment()) app.UseExceptionHandler();
 
 // 1. KÍCH HOẠT CORS
 app.UseCors("AllowFE");
+app.UseRateLimiter(); // sau CORS để trang web đọc được lỗi 429
 
 // 2. CẤU HÌNH API DOCS & GIAO DIỆN SCALAR (Tương tự Swagger)
 app.MapOpenApi();

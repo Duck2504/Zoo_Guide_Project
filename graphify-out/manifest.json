@@ -1,0 +1,488 @@
+{
+  ".github/workflows/dotnet-backend.yml": {
+    "mtime": 1793282757.6093874,
+    "seen": 1793740012.8819408,
+    "ast_hash": "edfa60004b4a62dbc913d6bb361de564",
+    "semantic_hash": "edfa60004b4a62dbc913d6bb361de564"
+  },
+  ".github/workflows/fe-ci.yml": {
+    "mtime": 1793193210.7066836,
+    "seen": 1793740012.8819501,
+    "ast_hash": "49dbe08cb462e983e156fe76e1d6d1f8",
+    "semantic_hash": "49dbe08cb462e983e156fe76e1d6d1f8"
+  },
+  ".github/workflows/narration-ci.yml": {
+    "mtime": 1793169696.5845034,
+    "seen": 1793740012.8819532,
+    "ast_hash": "e8b46f5d4b055eefa349535614144be7",
+    "semantic_hash": "e8b46f5d4b055eefa349535614144be7"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/AnimalCreateDto.cs": {
+    "mtime": 1793297837.5806005,
+    "seen": 1793740012.8819551,
+    "ast_hash": "352c482c80cc80cd5d388ce259687c91",
+    "semantic_hash": "352c482c80cc80cd5d388ce259687c91"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/AnimalDto.cs": {
+    "mtime": 1793169696.5865085,
+    "seen": 1793740012.8819568,
+    "ast_hash": "70b0959688443d4afad76581296b0fd3",
+    "semantic_hash": "70b0959688443d4afad76581296b0fd3"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/DashboardOverviewDto.cs": {
+    "mtime": 1793169696.5875068,
+    "seen": 1793740012.8819585,
+    "ast_hash": "b4fbad8165e53e6b69e9a83fdb402d21",
+    "semantic_hash": "b4fbad8165e53e6b69e9a83fdb402d21"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/LocationRequestDto.cs": {
+    "mtime": 1793169696.5875068,
+    "seen": 1793740012.8819597,
+    "ast_hash": "13d78a0c1f9aaa3fea624569317d31b1",
+    "semantic_hash": "13d78a0c1f9aaa3fea624569317d31b1"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/NearbyZoneResponseDto.cs": {
+    "mtime": 1793169696.5875068,
+    "seen": 1793740012.881961,
+    "ast_hash": "d0cb6cf4d466f14e94b961676ac08c73",
+    "semantic_hash": "d0cb6cf4d466f14e94b961676ac08c73"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/ScanLogCreateDto.cs": {
+    "mtime": 1793301306.0653677,
+    "seen": 1793740012.8819625,
+    "ast_hash": "4482af7eeb79804ac96751a7aa5dd872",
+    "semantic_hash": "4482af7eeb79804ac96751a7aa5dd872"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/ZoneCreateDto.cs": {
+    "mtime": 1793323905.9445877,
+    "seen": 1793740012.8819637,
+    "ast_hash": "a22bfea60d26fe667c4b153beaace173",
+    "semantic_hash": "a22bfea60d26fe667c4b153beaace173"
+  },
+  "Backend_core/ZooAudioGuide.API/DTOs/ZoneDto.cs": {
+    "mtime": 1793169696.588504,
+    "seen": 1793740012.8819652,
+    "ast_hash": "2f71a5a5e27df2c3efaad0b8a71632d7",
+    "semantic_hash": "2f71a5a5e27df2c3efaad0b8a71632d7"
+  },
+  "Backend_core/ZooAudioGuide.API/Data/ZooDbContext.cs": {
+    "mtime": 1793169696.5895045,
+    "seen": 1793740012.8819666,
+    "ast_hash": "487a0979279c0109c9fd97e3c0d1a914",
+    "semantic_hash": "487a0979279c0109c9fd97e3c0d1a914"
+  },
+  "Backend_core/ZooAudioGuide.API/Migrations/20261015194602_InitialCreate.Designer.cs": {
+    "mtime": 1793169696.5895045,
+    "seen": 1793740012.881968,
+    "ast_hash": "cdd1a1e29c59a2e35473fe1c34c9b3e5",
+    "semantic_hash": "cdd1a1e29c59a2e35473fe1c34c9b3e5"
+  },
+  "Backend_core/ZooAudioGuide.API/Migrations/20261015194602_InitialCreate.cs": {
+    "mtime": 1793169696.5895045,
+    "seen": 1793740012.8819695,
+    "ast_hash": "f96c372c21db35a7d9584bfc434519f5",
+    "semantic_hash": "f96c372c21db35a7d9584bfc434519f5"
+  },
+  "Backend_core/ZooAudioGuide.API/Migrations/20261027175439_AddScanLogsTable.Designer.cs": {
+    "mtime": 1793169696.5905077,
+    "seen": 1793740012.8819706,
+    "ast_hash": "6eb229ef7073460623b8d535b04840e4",
+    "semantic_hash": "6eb229ef7073460623b8d535b04840e4"
+  },
+  "Backend_core/ZooAudioGuide.API/Migrations/20261027175439_AddScanLogsTable.cs": {
+    "mtime": 1793169696.5905077,
+    "seen": 1793740012.8819723,
+    "ast_hash": "65b17a7ec72f6eea830cec90b207db8f",
+    "semantic_hash": "65b17a7ec72f6eea830cec90b207db8f"
+  },
+  "Backend_core/ZooAudioGuide.API/Migrations/ZooDbContextModelSnapshot.cs": {
+    "mtime": 1793169696.5905077,
+    "seen": 1793740012.8819735,
+    "ast_hash": "1f44691d68e83c6298e91d47e077cfae",
+    "semantic_hash": "1f44691d68e83c6298e91d47e077cfae"
+  },
+  "Backend_core/ZooAudioGuide.API/Models/Animal.cs": {
+    "mtime": 1793169696.5915105,
+    "seen": 1793740012.8819747,
+    "ast_hash": "ad9f88c6f9e8f1cc05e73d4dfdf8df3a",
+    "semantic_hash": "ad9f88c6f9e8f1cc05e73d4dfdf8df3a"
+  },
+  "Backend_core/ZooAudioGuide.API/Models/AnimalContent.cs": {
+    "mtime": 1793169696.5915105,
+    "seen": 1793740012.8819761,
+    "ast_hash": "36fe03327a3edda059ff720d2369f987",
+    "semantic_hash": "36fe03327a3edda059ff720d2369f987"
+  },
+  "Backend_core/ZooAudioGuide.API/Models/Language.cs": {
+    "mtime": 1793169696.5925145,
+    "seen": 1793740012.881977,
+    "ast_hash": "fc5f7709ad9616c32f6b45bed1b436e6",
+    "semantic_hash": "fc5f7709ad9616c32f6b45bed1b436e6"
+  },
+  "Backend_core/ZooAudioGuide.API/Models/ScanLog.cs": {
+    "mtime": 1793301264.7803435,
+    "seen": 1793740012.8819785,
+    "ast_hash": "eae668d79f356fad3ee18540a1869fae",
+    "semantic_hash": "eae668d79f356fad3ee18540a1869fae"
+  },
+  "Backend_core/ZooAudioGuide.API/Models/Zone.cs": {
+    "mtime": 1793169696.5925145,
+    "seen": 1793740012.8819802,
+    "ast_hash": "389164fbda00da6a8cbab4d0c5078258",
+    "semantic_hash": "389164fbda00da6a8cbab4d0c5078258"
+  },
+  "Backend_core/ZooAudioGuide.API/Program.cs": {
+    "mtime": 1793292097.8719742,
+    "seen": 1793740012.8819816,
+    "ast_hash": "870a274eb2ea00d4575c339d7e0d50a1",
+    "semantic_hash": "870a274eb2ea00d4575c339d7e0d50a1"
+  },
+  "Backend_core/ZooAudioGuide.API/Properties/launchSettings.json": {
+    "mtime": 1793169696.5935185,
+    "seen": 1793740012.8819828,
+    "ast_hash": "fa8e4cf9528d79c4af9297d997ea62bf",
+    "semantic_hash": "fa8e4cf9528d79c4af9297d997ea62bf"
+  },
+  "Backend_core/ZooAudioGuide.API/Repositories/AnimalRepository.cs": {
+    "mtime": 1793169696.5945058,
+    "seen": 1793740012.8819842,
+    "ast_hash": "a4abe0b939f8ea4e03a8b5cf33617125",
+    "semantic_hash": "a4abe0b939f8ea4e03a8b5cf33617125"
+  },
+  "Backend_core/ZooAudioGuide.API/Repositories/IAnimalRepository.cs": {
+    "mtime": 1793169696.5955093,
+    "seen": 1793740012.881986,
+    "ast_hash": "41376e9c811605bb7d81de1c4481d9bc",
+    "semantic_hash": "41376e9c811605bb7d81de1c4481d9bc"
+  },
+  "Backend_core/ZooAudioGuide.API/Repositories/IScanLogRepository.cs": {
+    "mtime": 1793169696.5955093,
+    "seen": 1793740012.881987,
+    "ast_hash": "7947311aa940a220e882108a3b7f771d",
+    "semantic_hash": "7947311aa940a220e882108a3b7f771d"
+  },
+  "Backend_core/ZooAudioGuide.API/Repositories/IZoneRepository.cs": {
+    "mtime": 1793169696.5965073,
+    "seen": 1793740012.8819885,
+    "ast_hash": "6505d80b5b965bedc3f8a7b2c09f1aea",
+    "semantic_hash": "6505d80b5b965bedc3f8a7b2c09f1aea"
+  },
+  "Backend_core/ZooAudioGuide.API/Repositories/ScanLogRepository.cs": {
+    "mtime": 1793169696.5965073,
+    "seen": 1793740012.8819902,
+    "ast_hash": "11d6a9ed100439cbee079c009ad09e09",
+    "semantic_hash": "11d6a9ed100439cbee079c009ad09e09"
+  },
+  "Backend_core/ZooAudioGuide.API/Repositories/ZoneRepository.cs": {
+    "mtime": 1793169696.5974994,
+    "seen": 1793740012.8819914,
+    "ast_hash": "90b3adf57bd4614d60ebac35bd708606",
+    "semantic_hash": "90b3adf57bd4614d60ebac35bd708606"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/AnimalService.cs": {
+    "mtime": 1793169696.598007,
+    "seen": 1793740012.8819928,
+    "ast_hash": "8e68e12d7678876aae13f7f179d354ca",
+    "semantic_hash": "8e68e12d7678876aae13f7f179d354ca"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/AudioServices.cs": {
+    "mtime": 1793295664.9111419,
+    "seen": 1793740012.8819938,
+    "ast_hash": "c9d6ac78225b346b50274f6c8b5a68a4",
+    "semantic_hash": "c9d6ac78225b346b50274f6c8b5a68a4"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/CloudAudioStore.cs": {
+    "mtime": 1793287299.2443562,
+    "seen": 1793740012.8819952,
+    "ast_hash": "953290cf7ca420f633a73c7aa5476319",
+    "semantic_hash": "953290cf7ca420f633a73c7aa5476319"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/IAnimalService.cs": {
+    "mtime": 1793169696.598007,
+    "seen": 1793740012.8819964,
+    "ast_hash": "45ed1f84b8b433f6019e7134e2e26353",
+    "semantic_hash": "45ed1f84b8b433f6019e7134e2e26353"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/IScanLogService.cs": {
+    "mtime": 1793169696.598007,
+    "seen": 1793740012.8819978,
+    "ast_hash": "759f0833157e9edcebc6b5ea3d060107",
+    "semantic_hash": "759f0833157e9edcebc6b5ea3d060107"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/IZoneService.cs": {
+    "mtime": 1793169696.5990157,
+    "seen": 1793740012.881999,
+    "ast_hash": "edb03421baee121568c998932fab6739",
+    "semantic_hash": "edb03421baee121568c998932fab6739"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/NarrationGenerator.cs": {
+    "mtime": 1793287299.2453585,
+    "seen": 1793740012.8820004,
+    "ast_hash": "4229cef31e74632ae2af2bf6dc9015dc",
+    "semantic_hash": "4229cef31e74632ae2af2bf6dc9015dc"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/ScanLogService.cs": {
+    "mtime": 1793169696.5990157,
+    "seen": 1793740012.8820019,
+    "ast_hash": "3cf02024b4221f627dabbc8637bad6ef",
+    "semantic_hash": "3cf02024b4221f627dabbc8637bad6ef"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/StatisticsService.cs": {
+    "mtime": 1793301911.798703,
+    "seen": 1793740012.8820033,
+    "ast_hash": "14cdb64c1d96771bf2457aa2154419fb",
+    "semantic_hash": "14cdb64c1d96771bf2457aa2154419fb"
+  },
+  "Backend_core/ZooAudioGuide.API/Services/ZoneService.cs": {
+    "mtime": 1793169696.6000137,
+    "seen": 1793740012.8820045,
+    "ast_hash": "1737aa174187cb63ebc8a04884cb8792",
+    "semantic_hash": "1737aa174187cb63ebc8a04884cb8792"
+  },
+  "Backend_core/ZooAudioGuide.API/ZooAudioGuide.API.csproj": {
+    "mtime": 1793283739.1639822,
+    "seen": 1793740012.8820057,
+    "ast_hash": "c45bcde5f53321be8b36e42a17718580",
+    "semantic_hash": "c45bcde5f53321be8b36e42a17718580"
+  },
+  "Backend_core/ZooAudioGuide.API/appsettings.Development.json": {
+    "mtime": 1793169696.601027,
+    "seen": 1793740012.8820071,
+    "ast_hash": "85fcd432939831a12bfd9010b5a2e517",
+    "semantic_hash": "85fcd432939831a12bfd9010b5a2e517"
+  },
+  "Backend_core/ZooAudioGuide.API/appsettings.json": {
+    "mtime": 1793266044.0593781,
+    "seen": 1793740012.8820083,
+    "ast_hash": "36409df46120d578dbe9dfe4cf53f0e2",
+    "semantic_hash": "36409df46120d578dbe9dfe4cf53f0e2"
+  },
+  "Backend_core/ZooAudioGuide.API/controllers/AnimalsController.cs": {
+    "mtime": 1793169696.6020222,
+    "seen": 1793740012.8820107,
+    "ast_hash": "285d2b4cb3eb5168d8ff07d9943c0c57",
+    "semantic_hash": "285d2b4cb3eb5168d8ff07d9943c0c57"
+  },
+  "Backend_core/ZooAudioGuide.API/controllers/ScanLogsController.cs": {
+    "mtime": 1793169696.603022,
+    "seen": 1793740012.8820117,
+    "ast_hash": "21e10382741418433e9eead361d6779e",
+    "semantic_hash": "21e10382741418433e9eead361d6779e"
+  },
+  "Backend_core/ZooAudioGuide.API/controllers/StatisticsController.cs": {
+    "mtime": 1793169696.603022,
+    "seen": 1793740012.8820128,
+    "ast_hash": "6633ee06d657dae71ad44a57ecd81f56",
+    "semantic_hash": "6633ee06d657dae71ad44a57ecd81f56"
+  },
+  "Backend_core/ZooAudioGuide.API/controllers/ZonesController.cs": {
+    "mtime": 1793278885.2862394,
+    "seen": 1793740012.8820143,
+    "ast_hash": "d0dd29414e5a1b13fe50dc160b682e2f",
+    "semantic_hash": "d0dd29414e5a1b13fe50dc160b682e2f"
+  },
+  "Backend_core/ZooAudioGuide.Tests/MSTestSettings.cs": {
+    "mtime": 1793169696.6040232,
+    "seen": 1793740012.8820152,
+    "ast_hash": "756726f7f566caf8f6314ea66701f20d",
+    "semantic_hash": "756726f7f566caf8f6314ea66701f20d"
+  },
+  "Backend_core/ZooAudioGuide.Tests/Test1.cs": {
+    "mtime": 1793169696.6050227,
+    "seen": 1793740012.8820174,
+    "ast_hash": "d90566d452c30f8a71ae9092e0d43578",
+    "semantic_hash": "d90566d452c30f8a71ae9092e0d43578"
+  },
+  "Backend_core/ZooAudioGuide.Tests/ZooAudioGuide.Tests.csproj": {
+    "mtime": 1793169696.6050227,
+    "seen": 1793740012.8820186,
+    "ast_hash": "77432181cf9b226f898035a4a9ba6362",
+    "semantic_hash": "77432181cf9b226f898035a4a9ba6362"
+  },
+  "Backend_core/ZooAudioGuild.slnx": {
+    "mtime": 1793169696.6050227,
+    "seen": 1793740012.88202,
+    "ast_hash": "65e2de17e74f6163a5a1cb15d6ce3404",
+    "semantic_hash": "65e2de17e74f6163a5a1cb15d6ce3404"
+  },
+  "Frontend_Web/package.json": {
+    "mtime": 1793196030.6505287,
+    "seen": 1793740012.8820214,
+    "ast_hash": "adaec50850456ed54a77bb6b7fb7e88d",
+    "semantic_hash": "adaec50850456ed54a77bb6b7fb7e88d"
+  },
+  "Frontend_Web/src/App.jsx": {
+    "mtime": 1793302160.3419678,
+    "seen": 1793740012.8820224,
+    "ast_hash": "461c6e3cc6dabaeb2b29753a62c9ee3b",
+    "semantic_hash": "461c6e3cc6dabaeb2b29753a62c9ee3b"
+  },
+  "Frontend_Web/src/components/GeofenceController.jsx": {
+    "mtime": 1793169696.6100156,
+    "seen": 1793740012.8820236,
+    "ast_hash": "b3097f6aa3ca9be9402198823b6b7a3c",
+    "semantic_hash": "b3097f6aa3ca9be9402198823b6b7a3c"
+  },
+  "Frontend_Web/src/components/QRScannerModal.jsx": {
+    "mtime": 1793193812.2424066,
+    "seen": 1793740012.8820255,
+    "ast_hash": "14276fdccc7b790d48643964903e3097",
+    "semantic_hash": "14276fdccc7b790d48643964903e3097"
+  },
+  "Frontend_Web/src/context/VisitorContext.jsx": {
+    "mtime": 1793169696.611022,
+    "seen": 1793740012.8820267,
+    "ast_hash": "a80cc2c651108561ebe0f171b64209ff",
+    "semantic_hash": "a80cc2c651108561ebe0f171b64209ff"
+  },
+  "Frontend_Web/src/hooks/useGeolocation.js": {
+    "mtime": 1793169696.611022,
+    "seen": 1793740012.8820283,
+    "ast_hash": "4d58f88af2b080905e560b960d7080e8",
+    "semantic_hash": "4d58f88af2b080905e560b960d7080e8"
+  },
+  "Frontend_Web/src/layouts/AdminLayout.jsx": {
+    "mtime": 1793302213.5012617,
+    "seen": 1793740012.8820295,
+    "ast_hash": "e7641f3c4d1bcc4acc3d066a962fc516",
+    "semantic_hash": "e7641f3c4d1bcc4acc3d066a962fc516"
+  },
+  "Frontend_Web/src/layouts/VisitorLayout.jsx": {
+    "mtime": 1793195153.0399067,
+    "seen": 1793740012.882031,
+    "ast_hash": "d63c54eafa584d094fd165f0bb3a9a44",
+    "semantic_hash": "d63c54eafa584d094fd165f0bb3a9a44"
+  },
+  "Frontend_Web/src/main.jsx": {
+    "mtime": 1793193210.7086978,
+    "seen": 1793740012.8820326,
+    "ast_hash": "7927bb378bea14f4f52544cb4cb40cc1",
+    "semantic_hash": "7927bb378bea14f4f52544cb4cb40cc1"
+  },
+  "Frontend_Web/src/pages/admin/AnimalManager.jsx": {
+    "mtime": 1793299498.9895947,
+    "seen": 1793740012.8820338,
+    "ast_hash": "9b3c8e664c21a421e0d12962a25c30c3",
+    "semantic_hash": "9b3c8e664c21a421e0d12962a25c30c3"
+  },
+  "Frontend_Web/src/pages/admin/ContentModal.jsx": {
+    "mtime": 1793283486.8958037,
+    "seen": 1793740012.8820353,
+    "ast_hash": "7943baf0d59e555d4514b745c71911f9",
+    "semantic_hash": "7943baf0d59e555d4514b745c71911f9"
+  },
+  "Frontend_Web/src/pages/admin/Dashboard.jsx": {
+    "mtime": 1793283445.3543262,
+    "seen": 1793740012.8820364,
+    "ast_hash": "319c3e032f835124d61be2c6a4bd59a1",
+    "semantic_hash": "319c3e032f835124d61be2c6a4bd59a1"
+  },
+  "Frontend_Web/src/pages/admin/HomeAccessManager.jsx": {
+    "mtime": 1793307668.2382932,
+    "seen": 1793740012.8820379,
+    "ast_hash": "20f58e0275781bdc4c3ada24990725be",
+    "semantic_hash": "20f58e0275781bdc4c3ada24990725be"
+  },
+  "Frontend_Web/src/pages/admin/ZoneManager.jsx": {
+    "mtime": 1793325304.3335285,
+    "seen": 1793740012.8820393,
+    "ast_hash": "416a36eee623f86d345890298bf93499",
+    "semantic_hash": "416a36eee623f86d345890298bf93499"
+  },
+  "Frontend_Web/src/pages/visitor/AnimalDetail.jsx": {
+    "mtime": 1793316738.3082652,
+    "seen": 1793740012.8820405,
+    "ast_hash": "f66b30d7511b9758f3762508005ee48a",
+    "semantic_hash": "f66b30d7511b9758f3762508005ee48a"
+  },
+  "Frontend_Web/src/pages/visitor/Home.jsx": {
+    "mtime": 1793302471.330464,
+    "seen": 1793740012.8820417,
+    "ast_hash": "9fca7dbed70f35310a703e6df595956c",
+    "semantic_hash": "9fca7dbed70f35310a703e6df595956c"
+  },
+  "Frontend_Web/src/pages/visitor/Map.jsx": {
+    "mtime": 1793196107.8459885,
+    "seen": 1793740012.882043,
+    "ast_hash": "1c3c3c72eecbad3064c173ad899280ce",
+    "semantic_hash": "1c3c3c72eecbad3064c173ad899280ce"
+  },
+  "Frontend_Web/src/utils/geoUtils.js": {
+    "mtime": 1793169696.6170228,
+    "seen": 1793740012.8820443,
+    "ast_hash": "0860f01ca2dd7ea3e7ceb2e7079565e4",
+    "semantic_hash": "0860f01ca2dd7ea3e7ceb2e7079565e4"
+  },
+  "Frontend_Web/vite.config.js": {
+    "mtime": 1793193210.7086978,
+    "seen": 1793740012.8820457,
+    "ast_hash": "4319596f64064f61314f20120e9fff7d",
+    "semantic_hash": "4319596f64064f61314f20120e9fff7d"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService.Tests/NarrationApiTests.cs": {
+    "mtime": 1793287299.2443562,
+    "seen": 1793740012.882047,
+    "ast_hash": "57b7cc1896daa3284861e0f5f590220c",
+    "semantic_hash": "57b7cc1896daa3284861e0f5f590220c"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService.Tests/ZooAudioGuide.NarrationService.Tests.csproj": {
+    "mtime": 1793287209.3383486,
+    "seen": 1793740012.8820488,
+    "ast_hash": "91e68a66a27b19bd872e646b6e1a0741",
+    "semantic_hash": "91e68a66a27b19bd872e646b6e1a0741"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/CloudAudioStore.cs": {
+    "mtime": 1793287299.2443562,
+    "seen": 1793740012.8820503,
+    "ast_hash": "953290cf7ca420f633a73c7aa5476319",
+    "semantic_hash": "953290cf7ca420f633a73c7aa5476319"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/NarrationGenerator.cs": {
+    "mtime": 1793287299.2453585,
+    "seen": 1793740012.8820515,
+    "ast_hash": "4229cef31e74632ae2af2bf6dc9015dc",
+    "semantic_hash": "4229cef31e74632ae2af2bf6dc9015dc"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/Program.cs": {
+    "mtime": 1793287299.2453585,
+    "seen": 1793740012.8820527,
+    "ast_hash": "4d35b63d83585ac903a9dd343af7bcc2",
+    "semantic_hash": "4d35b63d83585ac903a9dd343af7bcc2"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/Properties/launchSettings.json": {
+    "mtime": 1793287299.246355,
+    "seen": 1793740012.8820539,
+    "ast_hash": "67bc32185ec73f26a8a25aa9642127da",
+    "semantic_hash": "67bc32185ec73f26a8a25aa9642127da"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/Services.cs": {
+    "mtime": 1793287299.246355,
+    "seen": 1793740012.8820553,
+    "ast_hash": "8f84b1b954eb4fe0cfe89da5c96bc34c",
+    "semantic_hash": "8f84b1b954eb4fe0cfe89da5c96bc34c"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/ZooAudioGuide.NarrationService.csproj": {
+    "mtime": 1793287299.246355,
+    "seen": 1793740012.8820565,
+    "ast_hash": "29874c2a3d730bb774473ffff257b8b8",
+    "semantic_hash": "29874c2a3d730bb774473ffff257b8b8"
+  },
+  "MicroServices/ZooAudioGuide.NarrationService/appsettings.json": {
+    "mtime": 1793287299.2473595,
+    "seen": 1793740012.8820577,
+    "ast_hash": "8114620773144d3b69205ec2568b6aa5",
+    "semantic_hash": "8114620773144d3b69205ec2568b6aa5"
+  },
+  "Frontend_Web/index.html": {
+    "mtime": 1793193488.934055,
+    "seen": 1793740012.882059,
+    "ast_hash": "48b5de26a593cca9302b13ddcb6a38ee",
+    "semantic_hash": "48b5de26a593cca9302b13ddcb6a38ee"
+  },
+  "MicroServices/Readme.txt": {
+    "mtime": 1793287299.2433715,
+    "seen": 1793740012.8820603,
+    "ast_hash": "a6c74d26fb8fbc1ae5aea72c3a02198f",
+    "semantic_hash": "a6c74d26fb8fbc1ae5aea72c3a02198f"
+  }
+}

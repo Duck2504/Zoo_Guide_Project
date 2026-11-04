@@ -1,32 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { getAdminKey, setAdminKey, ADMIN_KEY_INVALID } from '../utils/adminFetch';
+import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
+import { getAdminToken, setAdminToken, ADMIN_AUTH_EXPIRED } from '../utils/adminFetch';
 
 export default function AdminLayout() {
-  const [hasKey, setHasKey] = useState(() => !!getAdminKey());
-  const [keyInput, setKeyInput] = useState('');
-  const [keyRejected, setKeyRejected] = useState(false);
+  const navigate = useNavigate();
+  const [loggedIn, setLoggedIn] = useState(() => !!getAdminToken());
 
-  // adminFetch báo khi server trả 401 → hiện lại ô nhập mã
+  // adminFetch báo khi server trả 401 (token hết hạn) → về trang đăng nhập
   useEffect(() => {
-    const onInvalid = () => { setHasKey(false); setKeyRejected(true); };
-    window.addEventListener(ADMIN_KEY_INVALID, onInvalid);
-    return () => window.removeEventListener(ADMIN_KEY_INVALID, onInvalid);
+    const onExpired = () => setLoggedIn(false);
+    window.addEventListener(ADMIN_AUTH_EXPIRED, onExpired);
+    return () => window.removeEventListener(ADMIN_AUTH_EXPIRED, onExpired);
   }, []);
 
-  const saveKey = (e) => {
-    e.preventDefault();
-    if (!keyInput.trim()) return;
-    setAdminKey(keyInput.trim());
-    setKeyInput('');
-    setHasKey(true);
-    setKeyRejected(false);
+  const logout = () => {
+    setAdminToken('');
+    navigate('/admin/login', { replace: true });
   };
 
-  const clearKey = () => {
-    setAdminKey('');
-    setHasKey(false);
-  };
+  // Chưa đăng nhập thì chuyển hướng trước khi trang con kịp gọi API
+  if (!loggedIn) return <Navigate to="/admin/login" replace />;
 
   return (
     <div className="flex h-screen bg-slate-100 text-slate-800">
@@ -69,28 +62,10 @@ export default function AdminLayout() {
           </NavLink>
         </nav>
 
-        {/* Mã quản trị: cần cho mọi thao tác thêm/sửa/xóa và thống kê */}
         <div className="p-4 border-t border-slate-800 text-sm">
-          {hasKey ? (
-            <button onClick={clearKey} className="w-full px-4 py-2 rounded-xl font-bold text-slate-400 hover:bg-slate-800 text-left">
-              <i className="fa-solid fa-key mr-2"></i> Đổi mã quản trị
-            </button>
-          ) : (
-            <form onSubmit={saveKey} className="space-y-2">
-              <label htmlFor="admin-key" className="block font-bold text-slate-300">
-                {keyRejected ? 'Mã quản trị sai, nhập lại:' : 'Nhập mã quản trị:'}
-              </label>
-              <input
-                id="admin-key"
-                type="password"
-                autoComplete="off"
-                value={keyInput}
-                onChange={e => setKeyInput(e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-slate-800"
-              />
-              <button type="submit" className="w-full bg-zoo-600 hover:bg-zoo-500 rounded-lg py-2 font-bold">Lưu mã</button>
-            </form>
-          )}
+          <button onClick={logout} className="w-full px-4 py-2 rounded-xl font-bold text-slate-400 hover:bg-slate-800 text-left">
+            <i className="fa-solid fa-right-from-bracket mr-2"></i> Đăng xuất
+          </button>
         </div>
       </aside>
 

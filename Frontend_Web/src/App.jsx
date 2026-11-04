@@ -14,6 +14,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AnimalManager from './pages/admin/AnimalManager';
 import ZoneManager from './pages/admin/ZoneManager';
 import QrCodeIndex from './pages/admin/HomeAccessManager'
+import AdminLogin from './pages/admin/Login';
 // Khởi tạo GA4 một lần duy nhất ở ngoài Component
 ReactGA.initialize("G-XXXXXXXXXX"); // Đừng quên thay mã G- của em vào đây
 
@@ -37,7 +38,8 @@ export default function App() {
         <Route path="/a/:id" element={<AnimalDetail />} />
       </Route>
 
-      {/* 2. Phân hệ Quản trị viên */}
+      {/* 2. Phân hệ Quản trị viên (trang đăng nhập nằm ngoài AdminLayout để không bị chuyển hướng vòng lặp) */}
+      <Route path="/admin/login" element={<AdminLogin />} />
       <Route element={<AdminLayout />}>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/animals" element={<AnimalManager />} />
