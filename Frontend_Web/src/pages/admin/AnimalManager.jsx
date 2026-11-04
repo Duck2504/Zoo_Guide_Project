@@ -6,6 +6,7 @@ import { adminFetch } from '../../utils/adminFetch';
 export default function AnimalManager() {
   const [animals, setAnimals] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(''); // lỗi tải danh sách (khác lỗi form)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedZone, setSelectedZone] = useState('all');
@@ -41,9 +42,13 @@ export default function AnimalManager() {
       if (res.ok) {
         const data = await res.json();
         setAnimals(data);
+        setLoadError('');
+      } else {
+        setLoadError(`Không tải được danh sách động vật (HTTP ${res.status}). Vui lòng thử lại.`);
       }
     } catch (error) {
       console.error("Lỗi tải dữ liệu:", error);
+      setLoadError('Không kết nối được máy chủ. Kiểm tra backend rồi thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -248,6 +253,15 @@ export default function AnimalManager() {
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600"></i>Đang tải danh sách động vật...</td></tr>
+                ) : loadError ? (
+                  <tr>
+                    <td colSpan="4" className="px-5 py-16 text-center">
+                      <div role="alert" className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+                        <p className="font-bold">{loadError}</p>
+                        <button onClick={fetchAnimals} className="mt-3 min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-amber-800 shadow-sm transition-colors hover:bg-amber-100"><i className="fa-solid fa-rotate mr-2" aria-hidden="true"></i>Thử lại</button>
+                      </div>
+                    </td>
+                  </tr>
                 ) : filteredAnimals.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="px-5 py-16 text-center">

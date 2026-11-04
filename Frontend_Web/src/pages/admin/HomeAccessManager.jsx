@@ -64,7 +64,8 @@ export default function HomeAccessManager() {
               </div>
             </div>
 
-            <div className="grid gap-6 p-5 sm:p-7 md:grid-cols-[auto_minmax(0,1fr)] md:items-center">
+            {/* Cột trái ở màn lg quá hẹp cho 2 cột con (URL break-all cao vọt, đẩy QR xuống) nên chỉ chia 2 cột ở md và từ xl */}
+            <div className="grid gap-6 p-5 sm:p-7 md:grid-cols-[auto_minmax(0,1fr)] md:items-start lg:grid-cols-1 xl:grid-cols-[auto_minmax(0,1fr)]">
               <div className="mx-auto rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
                 <div className="rounded-2xl border border-slate-100 bg-white p-3 shadow-sm">
                   <QRCodeCanvas

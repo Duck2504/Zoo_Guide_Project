@@ -8,6 +8,7 @@ export default function ZoneManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
   const [error, setError] = useState(null); // State lưu lỗi trả về từ Backend
+  const [loadError, setLoadError] = useState(''); // lỗi tải danh sách (khác lỗi form)
   const [searchTerm, setSearchTerm] = useState('');
 
   const API_URL = `${API}/api/zones`;
@@ -28,9 +29,13 @@ export default function ZoneManager() {
       if (res.ok) {
         const data = await res.json();
         setZones(data);
+        setLoadError('');
+      } else {
+        setLoadError(`Không tải được danh sách khu vực (HTTP ${res.status}). Vui lòng thử lại.`);
       }
     } catch (error) {
       console.error("Lỗi tải danh sách Khu vực:", error);
+      setLoadError('Không kết nối được máy chủ. Kiểm tra backend rồi thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -181,6 +186,15 @@ export default function ZoneManager() {
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
                   <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600"></i>Đang tải danh sách khu vực...</td></tr>
+                ) : loadError ? (
+                  <tr>
+                    <td colSpan="4" className="px-5 py-16 text-center">
+                      <div role="alert" className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+                        <p className="font-bold">{loadError}</p>
+                        <button onClick={fetchZones} className="mt-3 min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-amber-800 shadow-sm transition-colors hover:bg-amber-100"><i className="fa-solid fa-rotate mr-2" aria-hidden="true"></i>Thử lại</button>
+                      </div>
+                    </td>
+                  </tr>
                 ) : filteredZones.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="px-5 py-16 text-center">
