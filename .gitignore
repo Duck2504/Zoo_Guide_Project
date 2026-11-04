@@ -46,3 +46,25 @@ appsettings.Local.json
 .env.*
 *.mp3
 cache/
+ban-do-tcv.jpg
+map.html
+
+# Công cụ AI & thiết kế (chỉ dùng trên máy cá nhân, không push)
+# - .claude/: cấu hình Claude Code, gồm cả .claude/CLAUDE.md
+# - PRODUCT.md, DESIGN.md: bối cảnh cho /impeccable, bắt buộc nằm ở gốc dự án
+# - graphify-out/: đồ thị code sinh tự động, có đường dẫn máy cá nhân
+.claude/
+CLAUDE.md
+PRODUCT.md
+DESIGN.md
+.impeccable/
+graphify-out/
+
+# Editor, log, kết quả test
+.vscode/
+.idea/
+*.log
+logs/*
+!logs/.gitkeep
+TestResults/
+coverage/

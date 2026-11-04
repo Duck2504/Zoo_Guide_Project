@@ -1,73 +1,41 @@
-name: Frontend (Web Admin & Mobile App) CI/CD Pipeline
+name: Deploy Frontend to SmarterASP
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: ["main"]
     paths:
       - 'Frontend_Web/**'
-      - 'Frondend_MobileApp/**'
-      - '.github/workflows/fe-ci.yml'
-  pull_request:
-    branches: [ main, develop ]
-    paths:
-      - 'Frontend_Web/**'
-      - 'Frondend_MobileApp/**'
+  workflow_dispatch:
 
 jobs:
-  # =======================================================
-  # 1. CI JOB CHO WEB ADMIN (REACT.JS)
-  # =======================================================
-  web-admin-ci:
-    name: Frontend Web Admin (React.js) CI Check
+  build-and-deploy:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Frontend_Web
-
     steps:
-      - name: 📥 Checkout Code
+      - name: Checkout mã nguồn
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js 20
+      - name: Thiết lập Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
-          cache-dependency-path: Frontend_Web/package-lock.json
+          cache-dependency-path: './Frontend_Web/package-lock.json'
 
-      - name: 📦 Install Dependencies
-        run: npm install
+      - name: Cài đặt thư viện
+        working-directory: ./Frontend_Web
+        run: npm ci
 
-      - name: 🔍 Linter Check
-        run: npm run lint --if-present
-
-      - name: 🧪 Unit Tests
-        run: npm test --if-present
-
-      - name: 🏗️ Build Production Bundle (Vite)
+      - name: Đóng gói (Build)
+        working-directory: ./Frontend_Web
         run: npm run build
 
-  # =======================================================
-  # 2. CI JOB CHO MOBILE APP (REACT NATIVE)
-  # =======================================================
-  mobile-app-ci:
-    name: Frontend Mobile App (React Native / Expo) CI Check
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./Frondend_MobileApp
-
-    steps:
-      - name: 📥 Checkout Code
-        uses: actions/checkout@v4
-
-      - name: ⚙️ Setup Node.js 20
-        uses: actions/setup-node@v4
+      - name: Đẩy file lên SmarterASP qua FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          node-version: 20
-
-      - name: 📦 Install Mobile Dependencies
-        run: npm install
-
-      - name: 🔍 Check React Native App.js Syntax
-        run: node -c App.js
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Thư mục chứa file sau khi build của React (bắt buộc có dấu / ở cuối)
+          local-dir: ./Frontend_Web/dist/
+          # Thư mục trên hosting SmarterASP (thường là /site1/wwwroot/)
+          server-dir: /ZooAudioGuide/

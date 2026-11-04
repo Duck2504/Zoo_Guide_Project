@@ -6,8 +6,7 @@ public record LangResult(string Lang, string Status, string? TranslatedText, str
 public class NarrationGenerator(ITranslator translator, ITtsService tts,
                                 IAudioStore store, ILogger<NarrationGenerator> log)
 {
-    // Chạy lần lượt từng ngôn ngữ cho ổn định (edge-tts hay lỗi khi gọi dồn dập)
-    private static readonly SemaphoreSlim Gate = new(1);
+    private static readonly SemaphoreSlim Gate = new(3);   // tối đa 3 ngôn ngữ chạy cùng lúc
 
     public async Task<LangResult> GenerateAsync(int animalId, string text, string lang)
     {
@@ -38,7 +37,7 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
             }
             finally { Gate.Release(); }
 
-            // await CleanupOldAsync(folder, lang, hash);
+            await CleanupOldAsync(folder, lang, hash);
             return new(lang, "DONE", translated, url, null);
         }
         catch (Exception ex)

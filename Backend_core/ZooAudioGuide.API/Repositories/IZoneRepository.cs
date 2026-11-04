@@ -12,5 +12,6 @@ namespace ZooAudioGuide.API.Repositories
         Task UpdateAsync(Zone zone);
         Task DeleteAsync(Zone zone);
         Task SaveChangesAsync();
+        Task<bool> HasAnimalsAsync(int zoneId);
     }
 }

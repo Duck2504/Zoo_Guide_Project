@@ -53,14 +53,14 @@ public class EdgeTtsService : ITtsService
         ["ko"] = "ko-KR-SunHiNeural",
         ["zh"] = "zh-CN-XiaoxiaoNeural",
         ["fr"] = "fr-FR-DeniseNeural",
-        ["de"] = "de-DE-KatjaNeural",      // Đức
-        ["es"] = "es-ES-ElviraNeural",     // Tây Ban Nha
-        ["it"] = "it-IT-ElsaNeural",       // Ý
-        ["ru"] = "ru-RU-DariyaNeural",     // Nga
-        ["pt"] = "pt-PT-FernandaNeural",   // Bồ Đào Nha
-        ["hi"] = "hi-IN-SwaraNeural",      // Ấn Độ
-        ["th"] = "th-TH-PremwadeeNeural",  // Thái Lan
-        ["tr"] = "tr-TR-AhmetNeural",      // Thổ Nhĩ Kỳ
+        ["de"] = "de-DE-KatjaNeural", //đức
+        ["es"] = "es-ES-ElviraNeural", // tây ban nha
+        ["it"] = "it-IT-ElsaNeural", // ý
+        ["ru"] = "ru-RU-DariyaNeural", // nga
+        ["pt"] = "pt-PT-FernandaNeural", // bồ đào nha
+        ["hi"] = "hi-IN-SwaraNeural", // ấn độ
+        ["th"] = "th-TH-PremwadeeNeural", // thái lan
+        ["tr"] = "tr-TR-AhmetNeural", // thổ nhĩ kỳ
     };
 
     public static bool IsSupported(string lang) => Voices.ContainsKey(lang);

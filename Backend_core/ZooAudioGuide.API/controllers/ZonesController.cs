@@ -2,11 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZooAudioGuide.API.DTOs;
+using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Services;
 
 namespace ZooAudioGuide.API.Controllers
 {
     [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class ZonesController : ControllerBase
     {
@@ -33,14 +35,15 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ZoneDto>> CreateZone(ZoneCreateDto dto)
+        [AdminKey]
+        public async Task<IActionResult> CreateZone(ZoneCreateDto dto)
         {
             var createdZone = await _zoneService.CreateZoneAsync(dto);
-            // Trả về HTTP 201 Created và kèm theo URL để lấy thông tin zone vừa tạo
             return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
         }
 
         [HttpPut("{id}")]
+        [AdminKey]
         public async Task<IActionResult> UpdateZone(int id, ZoneCreateDto dto)
         {
             var result = await _zoneService.UpdateZoneAsync(id, dto);
@@ -49,11 +52,19 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [AdminKey]
         public async Task<IActionResult> DeleteZone(int id)
         {
-            var result = await _zoneService.DeleteZoneAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var result = await _zoneService.DeleteZoneAsync(id);
+                if (!result) return NotFound();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
     }
 }

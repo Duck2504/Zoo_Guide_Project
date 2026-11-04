@@ -4,48 +4,32 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<ITranslator, GeminiTranslator>();
 builder.Services.AddSingleton<ITtsService, EdgeTtsService>();
-builder.Services.AddHttpClient<IAudioStore, SupabaseAudioStore>();   // lưu mp3 lên Supabase
+builder.Services.AddHttpClient<IAudioStore, SupabaseAudioStore>();
 builder.Services.AddScoped<NarrationGenerator>();
-
-// Để service hiểu đúng địa chỉ https khi đứng sau ngrok
-builder.Services.Configure<ForwardedHeadersOptions>(o =>
-    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor
-                       | ForwardedHeaders.XForwardedProto
-                       | ForwardedHeaders.XForwardedHost);
-
-// Cho phép web gọi trực tiếp (sau này nên giới hạn lại theo địa chỉ web của nhóm)
-builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
-    p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
-
 var app = builder.Build();
 
-app.UseForwardedHeaders();
-app.UseCors();
+app.MapGet("/health", () => "OK"); // để công khai cho health check
 
-// (Tùy chọn) Khóa các endpoint /api bằng mật khẩu chung khi đã mở ra internet.
-// Chỉ bật khi có cấu hình Service:ApiKey, nên test và chạy local không bị ảnh hưởng.
-var serviceKey = app.Configuration["Service:ApiKey"];
-if (!string.IsNullOrEmpty(serviceKey))
+const int MaxTextLength = 5000;
+
+// Gọi Gemini/edge-tts tốn tiền: yêu cầu header X-Admin-Key khớp cấu hình Admin:ApiKey (giống Backend_core).
+// Đọc cấu hình mỗi request; chưa cấu hình key thì từ chối hết.
+var narration = app.MapGroup("/api/narration").AddEndpointFilter(async (ctx, next) =>
 {
-    app.Use(async (ctx, next) =>
-    {
-        if (ctx.Request.Path.StartsWithSegments("/api") &&
-            ctx.Request.Headers["X-Api-Key"] != serviceKey)
-        {
-            ctx.Response.StatusCode = 401;
-            return;
-        }
-        await next();
-    });
-}
+    var expected = ctx.HttpContext.RequestServices.GetRequiredService<IConfiguration>()["Admin:ApiKey"]?.Trim();
+    var given = ctx.HttpContext.Request.Headers["X-Admin-Key"].ToString();
+    var ok = !string.IsNullOrEmpty(expected) && !string.IsNullOrEmpty(given) &&
+             CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(given), Encoding.UTF8.GetBytes(expected));
+    return ok ? await next(ctx)
+              : Results.Json(new { message = "Sai hoặc thiếu mã quản trị (X-Admin-Key)." }, statusCode: StatusCodes.Status401Unauthorized);
+});
 
-app.MapGet("/health", () => "OK");
-
-// ===== Core gọi endpoint này: tạo mp3, đẩy lên Supabase, trả về link =====
-app.MapPost("/api/narration/generate", async (GenerateRequest req, NarrationGenerator gen) =>
+// ===== Core gọi endpoint này: tạo mp3, đẩy lên đám mây, trả về link =====
+narration.MapPost("/generate", async (GenerateRequest req, NarrationGenerator gen) =>
 {
     if (req.AnimalId <= 0) return Results.BadRequest("AnimalId không hợp lệ");
     if (string.IsNullOrWhiteSpace(req.Text)) return Results.BadRequest("Text không được để trống");
+    if (req.Text.Length > MaxTextLength) return Results.BadRequest($"Text tối đa {MaxTextLength} ký tự");
 
     var langs = (req.TargetLangs ?? []).Distinct().ToArray();
     if (langs.Length == 0) return Results.BadRequest("Thiếu TargetLangs");
@@ -57,11 +41,13 @@ app.MapPost("/api/narration/generate", async (GenerateRequest req, NarrationGene
     return Results.Ok(new { req.AnimalId, results });
 });
 
-// ===== Endpoint cũ: trả thẳng mp3, không lưu (dùng để test nhanh) =====
-app.MapPost("/api/narration", async (NarrationRequest req, ITranslator translator, ITtsService tts) =>
+// ===== Endpoint cũ: trả thẳng mp3, không lưu đâu cả (dùng để test nhanh) =====
+narration.MapPost("", async (NarrationRequest req, ITranslator translator, ITtsService tts) =>
 {
     if (string.IsNullOrWhiteSpace(req.Text))
         return Results.BadRequest("Text không được để trống");
+    if (req.Text.Length > MaxTextLength)
+        return Results.BadRequest($"Text tối đa {MaxTextLength} ký tự");
     if (!EdgeTtsService.IsSupported(req.TargetLang))
         return Results.BadRequest($"Ngôn ngữ '{req.TargetLang}' chưa hỗ trợ");
 

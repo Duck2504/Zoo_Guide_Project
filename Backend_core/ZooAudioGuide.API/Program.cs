@@ -1,8 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using ZooAudioGuide.API.Data;
+using ZooAudioGuide.API.Filters;
 using ZooAudioGuide.API.Repositories;
 using ZooAudioGuide.API.Services;
+using Scalar.AspNetCore;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+
+// --- Thư viện bổ sung từ Microservice ---
+using System.Security.Cryptography;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Cấu hình Database
 builder.Services.AddDbContext<ZooDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -10,14 +21,43 @@ builder.Services.AddDbContext<ZooDbContext>(options =>
         sqlOptions => sqlOptions.UseNetTopologySuite() 
     )
 );
+
 builder.Services.AddControllers();
+
+// --- Đăng ký Services của Backend Core ---
 builder.Services.AddScoped<IZoneRepository, ZoneRepository>();
 builder.Services.AddScoped<IZoneService, ZoneService>();
 builder.Services.AddScoped<IAnimalRepository, AnimalRepository>();
 builder.Services.AddScoped<IAnimalService, AnimalService>();
+builder.Services.AddScoped<IScanLogRepository, ScanLogRepository>();
+builder.Services.AddScoped<IScanLogService, ScanLogService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+
+// --- Đăng ký Services gộp từ Microservice ---
+builder.Services.AddHttpClient<ITranslator, GeminiTranslator>(client => 
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+});
+builder.Services.AddSingleton<ITtsService, EdgeTtsService>();
+builder.Services.AddHttpClient<IAudioStore, SupabaseAudioStore>(client => 
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+});
+builder.Services.AddScoped<NarrationGenerator>();
+
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails(); // bắt buộc đi cùng UseExceptionHandler() bên dưới
+builder.Services.AddDataProtection(); // tạo/kiểm tra token đăng nhập admin (AdminToken)
+
+// Chống dò mật khẩu ở /api/auth/login: tối đa 5 lần/phút.
+// shortcut: sau proxy của Render mọi request chung 1 IP nên giới hạn là toàn cục (kẻ dò có thể làm admin chờ 1 phút); khi cần thì chia theo X-Forwarded-For.
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests; // mặc định là 503
+    o.AddFixedWindowLimiter("login", w => { w.PermitLimit = 5; w.Window = TimeSpan.FromMinutes(1); w.QueueLimit = 0; });
+});
 
 builder.Services.AddCors(options =>
 {
@@ -28,18 +68,83 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod(); // Cho phép mọi phương thức GET, POST, PUT, DELETE
     });
 });
+
 var app = builder.Build();
+// Development tự bật trang lỗi chi tiết; production chỉ trả ProblemDetails, không lộ stack trace
+if (!app.Environment.IsDevelopment()) app.UseExceptionHandler();
 
 // 1. KÍCH HOẠT CORS
 app.UseCors("AllowFE");
+app.UseRateLimiter(); // sau CORS để trang web đọc được lỗi 429
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// 2. CẤU HÌNH API DOCS & GIAO DIỆN SCALAR (Tương tự Swagger)
+app.MapOpenApi();
+app.MapScalarApiReference(); // Thêm dòng này để có UI đẹp test API
 
-// 2. Kích hoạt định tuyến cho các Controller (Zones, Animals...)
+// 3. Kích hoạt định tuyến cho các Controller (Zones, Animals...)
 app.MapControllers();
 
-app.Run();
+// ====================================================================
+// 4. CÁC ENDPOINT GỘP TỪ MICROSERVICE SANG (Minimal APIs)
+// ====================================================================
+
+app.MapGet("/health", () => "OK"); // để công khai: Render dùng để kiểm tra sống/chết
+
+const int MaxTextLength = 5000;
+
+// Các endpoint thuyết minh gọi Gemini/edge-tts tốn tiền, nên chỉ admin được gọi
+var narration = app.MapGroup("/api/narration").AddEndpointFilter(async (ctx, next) =>
+    AdminKeyAttribute.IsAuthorized(ctx.HttpContext)
+        ? await next(ctx)
+        : Results.Json(AdminKeyAttribute.DeniedBody, statusCode: StatusCodes.Status401Unauthorized));
+
+// Endpoint chính: tạo mp3, đẩy lên đám mây, trả về link
+narration.MapPost("/generate", async (GenerateRequest req, NarrationGenerator gen) =>
+{
+    if (req.AnimalId <= 0) return Results.BadRequest("AnimalId không hợp lệ");
+    if (string.IsNullOrWhiteSpace(req.Text)) return Results.BadRequest("Text không được để trống");
+    if (req.Text.Length > MaxTextLength) return Results.BadRequest($"Text tối đa {MaxTextLength} ký tự");
+
+    var langs = (req.TargetLangs ?? []).Distinct().ToArray();
+    if (langs.Length == 0) return Results.BadRequest("Thiếu TargetLangs");
+
+    var bad = langs.Where(l => !EdgeTtsService.IsSupported(l)).ToArray();
+    if (bad.Length > 0) return Results.BadRequest($"Chưa hỗ trợ: {string.Join(", ", bad)}");
+
+    var results = await Task.WhenAll(langs.Select(l => gen.GenerateAsync(req.AnimalId, req.Text, l)));
+    return Results.Ok(new { req.AnimalId, results });
+});
+
+// Endpoint phụ: trả thẳng mp3, không lưu đâu cả (dùng để test nhanh)
+narration.MapPost("", async (NarrationRequest req, ITranslator translator, ITtsService tts) =>
+{
+    if (string.IsNullOrWhiteSpace(req.Text))
+        return Results.BadRequest("Text không được để trống");
+    if (req.Text.Length > MaxTextLength)
+        return Results.BadRequest($"Text tối đa {MaxTextLength} ký tự");
+    if (!EdgeTtsService.IsSupported(req.TargetLang))
+        return Results.BadRequest($"Ngôn ngữ '{req.TargetLang}' chưa hỗ trợ");
+
+    try
+    {
+        var text = req.TargetLang == "vi" ? req.Text : await translator.TranslateAsync(req.Text, req.TargetLang);
+        var mp3 = await tts.SynthesizeAsync(text, req.TargetLang);
+        return Results.File(mp3, "audio/mpeg");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(ex.Message, statusCode: 502);
+    }
+});
+
+// ====================================================================
+// 5. CẤU HÌNH PORT VÀ CHẠY ỨNG DỤNG
+// ====================================================================
+
+// Lắng nghe Port của Render
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
+
+// --- KHAI BÁO DTO RECORDS Ở CUỐI FILE ---
+record NarrationRequest(string Text, string TargetLang);
+record GenerateRequest(int AnimalId, string Text, string[] TargetLangs);

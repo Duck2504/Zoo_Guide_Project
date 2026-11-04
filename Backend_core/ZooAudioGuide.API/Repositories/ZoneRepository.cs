@@ -54,5 +54,7 @@ namespace ZooAudioGuide.API.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public Task<bool> HasAnimalsAsync(int zoneId) => _context.Animals.AnyAsync(a => a.ZoneId == zoneId);
     }
 }

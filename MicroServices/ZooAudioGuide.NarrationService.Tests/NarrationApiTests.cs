@@ -59,6 +59,7 @@ public class NarrationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
     {
+        builder.UseSetting("Admin:ApiKey", "test-key");
         builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<ITranslator>(Translator);
@@ -77,6 +78,31 @@ public class NarrationApiTests : IClassFixture<NarrationFactory>
     {
         _factory = factory;
         _client = factory.CreateClient();
+        _client.DefaultRequestHeaders.Add("X-Admin-Key", "test-key");
+    }
+
+    [Fact]
+    public async Task Narration_WithoutKey_Returns401()
+    {
+        var anon = _factory.CreateClient();
+        var res = await anon.PostAsJsonAsync("/api/narration", new { text = UniqueText(), targetLang = "vi" });
+        Assert.Equal(HttpStatusCode.Unauthorized, res.StatusCode);
+        var gen = await anon.PostAsJsonAsync("/api/narration/generate", new { animalId = 1, text = UniqueText(), targetLangs = new[] { "vi" } });
+        Assert.Equal(HttpStatusCode.Unauthorized, gen.StatusCode);
+    }
+
+    [Fact]
+    public async Task Health_WithoutKey_StillOk()
+    {
+        var res = await _factory.CreateClient().GetAsync("/health");
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+    }
+
+    [Fact]
+    public async Task TooLongText_Returns400()
+    {
+        var res = await _client.PostAsJsonAsync("/api/narration", new { text = new string('a', 5001), targetLang = "vi" });
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
     }
 
     private static string UniqueText() => "Con voi " + Guid.NewGuid();

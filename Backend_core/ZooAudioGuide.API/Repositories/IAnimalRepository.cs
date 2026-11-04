@@ -9,6 +9,8 @@ namespace ZooAudioGuide.API.Repositories
         Task<IEnumerable<Animal>> GetAllAsync();
         Task<Animal?> GetByIdAsync(int id);
         Task AddAsync(Animal animal);
+        Task DeleteAsync(Animal animal);
         Task SaveChangesAsync();
+        Task EnsureLanguageAsync(string code);
     }
 }
