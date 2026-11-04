@@ -24,3 +24,10 @@
   background-color: #cbd5e1;
   border-radius: 10px;
 }
+
+/* Ẩn thanh cuộn nhưng vẫn cuộn được (dùng ở VisitorLayout, AnimalDetail, dải ảnh trang chủ) */
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Chừa chỗ cho thanh home trên iPhone; chỉ có tác dụng khi index.html bật viewport-fit=cover */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }

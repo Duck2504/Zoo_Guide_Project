@@ -53,8 +53,9 @@ export default function VisitorLayout() {
     { code: 'zh', label: '中文', flag: '🇨🇳' }
   ];
 
+  // Điện thoại: full màn hình; tablet/desktop: khung rộng dần để trang không bị bó thành cột hẹp
   return (
-    <div className="bg-gray-50 flex flex-col h-[100dvh] w-full max-w-md mx-auto relative shadow-2xl overflow-hidden ring-1 ring-gray-200">
+    <div className="bg-gray-50 flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative shadow-2xl overflow-hidden ring-1 ring-gray-200">
       
       {!isDetailPage && (
         <header className="h-14 bg-white/80 backdrop-blur-md shrink-0 px-4 flex items-center justify-between z-30 absolute top-0 left-0 right-0 border-b border-gray-100">
@@ -85,7 +86,7 @@ export default function VisitorLayout() {
 
       <div className={`flex-1 overflow-y-auto hide-scrollbar relative z-10 ${!isDetailPage ? 'pt-14 pb-20' : 'pb-0'}`}>
         <GeofenceController />
-        <Outlet />
+        <Outlet context={{ openQR: () => setIsQRModalOpen(true) }} />
       </div>
 
       {!isDetailPage && (
