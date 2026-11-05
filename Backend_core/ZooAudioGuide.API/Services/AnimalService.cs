@@ -36,6 +36,7 @@ namespace ZooAudioGuide.API.Services
                 ScientificName = dto.ScientificName,
                 AvatarUrl = dto.AvatarUrl
             };
+            CopyFacts(dto, animal);
 
             animal.AnimalContents.Add(new AnimalContent
             {
@@ -60,6 +61,7 @@ namespace ZooAudioGuide.API.Services
             a.ZoneId = dto.ZoneId;
             a.ScientificName = dto.ScientificName;
             a.AvatarUrl = dto.AvatarUrl;
+            CopyFacts(dto, a);
 
             var vi = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi");
             if (vi == null)
@@ -126,6 +128,14 @@ namespace ZooAudioGuide.API.Services
             return results;
         }
 
+        private static void CopyFacts(AnimalCreateDto dto, Animal a)
+        {
+            a.ConservationStatus = dto.ConservationStatus;
+            a.Diet = dto.Diet;
+            a.Habitat = dto.Habitat;
+            a.LifespanYears = dto.LifespanYears;
+        }
+
         // Lấy nội dung theo ngôn ngữ yêu cầu, không có thì dùng bản tiếng Việt.
         private static AnimalDto ToDto(Animal a, string lang = "vi")
         {
@@ -138,6 +148,10 @@ namespace ZooAudioGuide.API.Services
                 ZoneId = a.ZoneId,
                 ScientificName = a.ScientificName,
                 AvatarUrl = a.AvatarUrl,
+                ConservationStatus = a.ConservationStatus,
+                Diet = a.Diet,
+                Habitat = a.Habitat,
+                LifespanYears = a.LifespanYears,
                 DefaultLocalName = content?.LocalName ?? "Unknown",
                 ScriptText = content?.ScriptText ?? string.Empty,
                 AudioUrl = content?.AudioUrl ?? string.Empty,

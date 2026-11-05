@@ -45,11 +45,13 @@ public sealed class AnimalNarrationTests
         var repo = new FakeRepo(animal);
         var service = new AnimalService(repo);
 
-        var ok = await service.UpdateAnimalAsync(3, new() { ZoneId = 2, ScientificName = "New", LocalName = "Mới", ScriptText = "Bài mới" });
+        var ok = await service.UpdateAnimalAsync(3, new() { ZoneId = 2, ScientificName = "New", LocalName = "Mới", ScriptText = "Bài mới", ConservationStatus = "EN", LifespanYears = 40 });
 
         Assert.IsTrue(ok);
         Assert.IsTrue(repo.Saved);
         Assert.AreEqual(2, animal.ZoneId);
+        Assert.AreEqual("EN", animal.ConservationStatus);
+        Assert.AreEqual(40, (await service.GetAnimalByIdAsync(3))!.LifespanYears);
         var vi = animal.AnimalContents.Single(c => c.LanguageCode == "vi");
         Assert.AreEqual("Mới", vi.LocalName);
         Assert.AreEqual("Bài mới", vi.ScriptText);

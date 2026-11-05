@@ -10,6 +10,12 @@ namespace ZooAudioGuide.API.Models
         public string ScientificName { get; set; } = string.Empty;
         public string AvatarUrl { get; set; } = string.Empty;
 
+        // Thông tin nhanh lưu dạng mã (không phụ thuộc ngôn ngữ); frontend tự dịch. Null = chưa có.
+        public string? ConservationStatus { get; set; } // mã IUCN: LC, NT, VU, EN, CR, EW
+        public string? Diet { get; set; }               // carnivore, herbivore, omnivore
+        public string? Habitat { get; set; }            // rainforest, forest, savanna, wetland, coast
+        public int? LifespanYears { get; set; }
+
         // Navigation Properties
         public Zone Zone { get; set; } = null!; 
         public ICollection<AnimalContent> AnimalContents { get; set; } = new List<AnimalContent>();

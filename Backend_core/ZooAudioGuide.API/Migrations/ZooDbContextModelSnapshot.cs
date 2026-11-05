@@ -35,6 +35,18 @@ namespace ZooAudioGuide.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ConservationStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Diet")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Habitat")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LifespanYears")
+                        .HasColumnType("int");
+
                     b.Property<string>("ScientificName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -112,7 +124,7 @@ namespace ZooAudioGuide.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AnimalId")
+                    b.Property<int?>("AnimalId")
                         .HasColumnType("int");
 
                     b.Property<string>("LanguageCode")
@@ -204,9 +216,7 @@ namespace ZooAudioGuide.API.Migrations
                 {
                     b.HasOne("ZooAudioGuide.API.Models.Animal", "Animal")
                         .WithMany()
-                        .HasForeignKey("AnimalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AnimalId");
 
                     b.Navigation("Animal");
                 });
