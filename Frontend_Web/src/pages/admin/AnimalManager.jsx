@@ -2,6 +2,15 @@ import { useState, useEffect } from 'react';
 import { API } from '../../config';
 import { QRCodeCanvas } from 'qrcode.react';
 import { adminFetch } from '../../utils/adminFetch';
+import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
+
+const LANG_NAMES = { vi: 'Tiếng Việt', en: 'Tiếng Anh', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn', zh: 'Tiếng Trung' };
+const FACT_OPTIONS = {
+  conservationStatus: [['LC', 'Ít quan ngại (LC)'], ['NT', 'Sắp bị đe dọa (NT)'], ['VU', 'Sắp nguy cấp (VU)'], ['EN', 'Nguy cấp (EN)'], ['CR', 'Cực kỳ nguy cấp (CR)'], ['EW', 'Tuyệt chủng ngoài tự nhiên (EW)']],
+  diet: [['carnivore', 'Ăn thịt'], ['herbivore', 'Ăn thực vật'], ['omnivore', 'Ăn tạp']],
+  habitat: [['rainforest', 'Rừng mưa nhiệt đới'], ['forest', 'Rừng'], ['savanna', 'Đồng cỏ xavan'], ['wetland', 'Đầm lầy'], ['coast', 'Vùng ven biển']],
+};
+const FIELD = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10';
 
 export default function AnimalManager() {
   const [animals, setAnimals] = useState([]);
@@ -10,6 +19,10 @@ export default function AnimalManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedZone, setSelectedZone] = useState('all');
+  const [notice, setNotice] = useState(null);
+  const [formError, setFormError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [confirm, confirmDialog] = useConfirm();
   
   // Khởi tạo state khớp với AnimalCreateDto
   const initialFormState = { 
@@ -17,7 +30,11 @@ export default function AnimalManager() {
     scientificName: '', 
     avatarUrl: '',
     localName: '',
-    scriptText: ''
+    scriptText: '',
+    conservationStatus: null,
+    diet: null,
+    habitat: null,
+    lifespanYears: null
   };
   const [formData, setFormData] = useState(initialFormState);
 
@@ -60,6 +77,8 @@ export default function AnimalManager() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormError('');
+    setSaving(true);
     try {
       const isUpdate = formData.id;
       const url = isUpdate ? `${API_URL}/${formData.id}` : API_URL;
@@ -72,14 +91,18 @@ export default function AnimalManager() {
       });
 
       if (res.ok) {
-        alert(isUpdate ? "Cập nhật thành công!" : "Thêm mới thành công!");
+        setNotice({ type: 'success', text: isUpdate ? 'Đã lưu thay đổi.' : 'Đã thêm động vật mới.' });
         setIsModalOpen(false);
         fetchAnimals();
       } else {
-        alert("Lưu thất bại! Hãy kiểm tra tab Network để xem lỗi chi tiết.");
+        // Giữ form mở để admin sửa lại, không mất dữ liệu vừa nhập
+        setFormError(`Chưa lưu được: ${await errorText(res)}`);
       }
     } catch (error) {
       console.error("Lỗi lưu dữ liệu:", error);
+      setFormError('Không kết nối được máy chủ. Dữ liệu trong form vẫn còn, hãy thử lưu lại.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -94,35 +117,38 @@ export default function AnimalManager() {
         body: JSON.stringify(['vi', 'en', 'ja', 'ko'])
       });
       if (!res.ok) {
-        alert(`Tạo audio thất bại: ${await res.text()}`);
+        setNotice({ type: 'error', text: `Tạo audio thất bại: ${await errorText(res)}` });
         return;
       }
       const { results } = await res.json();
       const failed = results.filter(r => r.status !== 'DONE');
-      alert(failed.length === 0
-        ? 'Đã tạo audio cho tất cả ngôn ngữ!'
-        : `Lỗi ở: ${failed.map(r => `${r.lang} (${r.error})`).join(', ')}`);
+      setNotice({
+        type: failed.length === 0 ? 'success' : 'error',
+        text: failed.length === 0 ? 'Đã tạo audio cho tất cả ngôn ngữ.' : `Tạo audio lỗi ${failed.length}/${results.length} ngôn ngữ`,
+        lines: results.map(r => ({ label: LANG_NAMES[r.lang] || r.lang, ok: r.status === 'DONE', detail: r.status === 'DONE' ? '' : (r.error || '').slice(0, 160) })),
+      });
+      fetchAnimals();
     } catch (error) {
       console.error("Lỗi tạo audio:", error);
-      alert("Không gọi được server để tạo audio.");
+      setNotice({ type: 'error', text: 'Không gọi được server để tạo audio.' });
     } finally {
       setGeneratingId(null);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa động vật này?")) {
-      try {
-        const res = await adminFetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-          alert("Xóa thành công!");
-          fetchAnimals();
-        } else {
-          alert("Xóa thất bại!");
-        }
-      } catch (error) {
-        console.error("Lỗi khi xóa:", error);
+  const handleDelete = async (animal) => {
+    if (!(await confirm(`Xóa "${animal.defaultLocalName || 'động vật này'}"? Không hoàn tác được.`))) return;
+    try {
+      const res = await adminFetch(`${API_URL}/${animal.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setNotice({ type: 'success', text: 'Đã xóa.' });
+        fetchAnimals();
+      } else {
+        setNotice({ type: 'error', text: `Xóa thất bại: ${await errorText(res)}` });
       }
+    } catch (error) {
+      console.error("Lỗi khi xóa:", error);
+      setNotice({ type: 'error', text: 'Không kết nối được máy chủ.' });
     }
   };
 
@@ -135,11 +161,17 @@ export default function AnimalManager() {
         scientificName: animal.scientificName || '', 
         avatarUrl: animal.avatarUrl || '',
         localName: animal.defaultLocalName || '', // Lấy defaultLocalName gán vào localName
-        scriptText: animal.scriptText || ''
+        scriptText: animal.scriptText || '',
+        // PUT ghi đè cả bản ghi: phải gửi lại thông tin nhanh, nếu không sẽ bị xóa
+        conservationStatus: animal.conservationStatus ?? null,
+        diet: animal.diet ?? null,
+        habitat: animal.habitat ?? null,
+        lifespanYears: animal.lifespanYears ?? null
       });
     } else {
       setFormData(initialFormState);
     }
+    setFormError('');
     setIsModalOpen(true);
   };
 
@@ -309,7 +341,7 @@ export default function AnimalManager() {
                         <button onClick={() => handleOpenModal(animal)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100">
                           <i className="fa-solid fa-pen-to-square"></i>
                         </button>
-                        <button onClick={() => handleDelete(animal.id)} title="Xóa" aria-label={`Xóa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100">
+                        <button onClick={() => handleDelete(animal)} title="Xóa" aria-label={`Xóa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100">
                           <i className="fa-solid fa-trash"></i>
                         </button>
                       </div>
@@ -373,6 +405,25 @@ export default function AnimalManager() {
                 </div>
               )}
 
+              <fieldset className="rounded-2xl border border-slate-200 p-4">
+                <legend className="px-1 text-sm font-bold text-slate-700">Thông tin nhanh <span className="font-normal text-slate-500">(hiện trên trang du khách, tự dịch sang 5 ngôn ngữ)</span></legend>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {[['conservationStatus', 'Mức bảo tồn'], ['diet', 'Thức ăn'], ['habitat', 'Nơi sống']].map(([key, label]) => (
+                    <label key={key} className="block">
+                      <span className="mb-1.5 block text-sm font-semibold text-slate-600">{label}</span>
+                      <select value={formData[key] || ''} onChange={e => setFormData({ ...formData, [key]: e.target.value || null })} className={FIELD}>
+                        <option value="">Chưa có</option>
+                        {FACT_OPTIONS[key].map(([v, text]) => <option key={v} value={v}>{text}</option>)}
+                      </select>
+                    </label>
+                  ))}
+                  <label className="block">
+                    <span className="mb-1.5 block text-sm font-semibold text-slate-600">Tuổi thọ (năm)</span>
+                    <input type="number" min="1" max="200" value={formData.lifespanYears ?? ''} onChange={e => setFormData({ ...formData, lifespanYears: e.target.value ? parseInt(e.target.value) : null })} className={FIELD} />
+                  </label>
+                </div>
+              </fieldset>
+
               <div>
                 <label className="mb-1.5 block text-sm font-bold text-slate-700">Bài thuyết minh</label>
                 <textarea 
@@ -384,9 +435,11 @@ export default function AnimalManager() {
                 />
               </div>
 
+              {formError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-900">{formError}</p>}
+
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
-                <button type="submit" className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 disabled:opacity-60 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                   <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`}></i>{formData.id ? 'Lưu cập nhật' : 'Tạo hồ sơ'}
                 </button>
               </div>
@@ -394,6 +447,9 @@ export default function AnimalManager() {
           </div>
         </div>
       )}
+
+      {confirmDialog}
+      <Notice notice={notice} onClose={() => setNotice(null)} />
     </div>
   );
 }

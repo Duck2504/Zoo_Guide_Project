@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { API } from '../../config';
 import { adminFetch } from '../../utils/adminFetch';
+import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
 
 export default function ZoneManager() {
+  const [notice, setNotice] = useState(null);
+  const [confirm, confirmDialog] = useConfirm();
   const [zones, setZones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,20 +73,11 @@ export default function ZoneManager() {
       });
 
       if (res.ok) {
-        alert(isUpdate ? "Cập nhật thành công!" : "Thêm mới thành công!");
+        setNotice({ type: 'success', text: isUpdate ? 'Đã lưu thay đổi.' : 'Đã thêm khu mới.' });
         setIsModalOpen(false);
         fetchZones();
       } else {
-        // Đọc cục JSON báo lỗi từ C# trả về
-        const errorData = await res.json();
-        
-        // EF Core / ASP.NET thường gom lỗi Validation vào thuộc tính "errors"
-        if (errorData.errors) {
-          const errorMessages = Object.values(errorData.errors).flat();
-          setError(errorMessages.join('\n')); 
-        } else {
-          setError(errorData.title || errorData.message || "Lưu thất bại! Dữ liệu không hợp lệ.");
-        }
+        setError(await errorText(res));
       }
     } catch (error) {
       console.error("Lỗi lưu Khu vực:", error);
@@ -93,19 +87,18 @@ export default function ZoneManager() {
 
   // 3. Xóa Khu vực
   const handleDelete = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa khu vực này? (Khu còn động vật sẽ không xóa được.)")) {
-      try {
-        const res = await adminFetch(`${API_URL}/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-          alert("Xóa thành công!");
-          fetchZones();
-        } else {
-          const data = await res.json().catch(() => ({}));
-          alert(data.message || "Xóa thất bại!");
-        }
-      } catch (error) {
-        console.error("Lỗi khi xóa:", error);
+    if (!(await confirm('Xóa khu vực này? Khu còn động vật sẽ không xóa được.'))) return;
+    try {
+      const res = await adminFetch(`${API_URL}/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setNotice({ type: 'success', text: 'Đã xóa khu.' });
+        fetchZones();
+      } else {
+        setNotice({ type: 'error', text: `Xóa thất bại: ${await errorText(res)}` });
       }
+    } catch (error) {
+      console.error("Lỗi khi xóa:", error);
+      setNotice({ type: 'error', text: 'Không kết nối được máy chủ.' });
     }
   };
 
@@ -294,6 +287,8 @@ export default function ZoneManager() {
           </div>
         </div>
       )}
+      {confirmDialog}
+      <Notice notice={notice} onClose={() => setNotice(null)} />
     </div>
   );
 }

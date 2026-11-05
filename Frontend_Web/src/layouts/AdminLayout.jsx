@@ -51,14 +51,14 @@ export default function AdminLayout() {
             to="/admin/zones"
             className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-hippo mr-2"></i> Khu Động Vật
+            <i className="fa-solid fa-map-location-dot mr-2" aria-hidden="true"></i> Khu Động Vật
           </NavLink>
           
           <NavLink
             to="/admin/QrCode"
             className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-hippo mr-2"></i> Mã Trang Web
+            <i className="fa-solid fa-qrcode mr-2" aria-hidden="true"></i> Mã Trang Web
           </NavLink>
         </nav>
 
