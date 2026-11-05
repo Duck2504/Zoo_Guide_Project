@@ -89,8 +89,8 @@ namespace ZooAudioGuide.API.Services
 
         // Tạo mp3 cho từng ngôn ngữ từ bài tiếng Việt trong DB, rồi lưu bản dịch + link audio vào AnimalContents.
         // Trả null nếu không có con vật; ném InvalidOperationException nếu chưa có bài tiếng Việt.
-        // Nhận generator qua tham số (không qua constructor) để các API đọc không phụ thuộc cấu hình Supabase.
-        public async Task<LangResult[]?> GenerateNarrationAsync(int id, string[] langs, NarrationGenerator narration)
+        // Nhận client qua tham số (không qua constructor) để các API đọc không phụ thuộc cấu hình microservice.
+        public async Task<LangResult[]?> GenerateNarrationAsync(int id, string[] langs, INarrationClient narration)
         {
             var a = await _animalRepository.GetByIdAsync(id);
             if (a == null) return null;
@@ -99,8 +99,8 @@ namespace ZooAudioGuide.API.Services
             if (vi == null || string.IsNullOrWhiteSpace(vi.ScriptText))
                 throw new InvalidOperationException("Con vật chưa có bài thuyết minh tiếng Việt");
 
-            // Phần gọi Gemini/edge-tts/Supabase chạy song song; phần ghi DB làm tuần tự bên dưới.
-            var results = await Task.WhenAll(langs.Select(l => narration.GenerateAsync(id, vi.ScriptText, l)));
+            // Microservice lo dịch/đọc/lưu mp3; phần ghi DB làm ở đây.
+            var results = await narration.GenerateAsync(id, vi.ScriptText, langs);
 
             foreach (var r in results)
             {

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging.Abstractions;
 using ZooAudioGuide.API.Models;
 using ZooAudioGuide.API.Repositories;
 using ZooAudioGuide.API.Services;
@@ -15,7 +14,7 @@ public sealed class AnimalNarrationTests
         animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Hổ", ScriptText = "Con hổ" });
         var repo = new FakeRepo(animal);
         var service = new AnimalService(repo);
-        var gen = new NarrationGenerator(new FakeTranslator(), new FakeTts(), new FakeStore(), NullLogger<NarrationGenerator>.Instance);
+        var gen = new FakeNarration();
 
         var results = await service.GenerateNarrationAsync(7, ["vi", "en", "ko"], gen);
 
@@ -64,7 +63,7 @@ public sealed class AnimalNarrationTests
     public async Task Generate_WithoutVietnameseScript_Throws()
     {
         var service = new AnimalService(new FakeRepo(new Animal { Id = 1 }));
-        var gen = new NarrationGenerator(new FakeTranslator(), new FakeTts(), new FakeStore(), NullLogger<NarrationGenerator>.Instance);
+        var gen = new FakeNarration();
 
         await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => service.GenerateNarrationAsync(1, ["vi"], gen));
     }
@@ -81,23 +80,12 @@ public sealed class AnimalNarrationTests
         public Task EnsureLanguageAsync(string code) { EnsuredLanguages.Add(code); return Task.CompletedTask; }
     }
 
-    private sealed class FakeTranslator : ITranslator
+    // Giả microservice: ko lỗi, các ngôn ngữ khác trả bản dịch + link mp3
+    private sealed class FakeNarration : INarrationClient
     {
-        public Task<string> TranslateAsync(string text, string lang) =>
-            lang == "ko" ? throw new Exception("Gemini lỗi") : Task.FromResult($"{lang.ToUpper()}:{text}");
-    }
-
-    private sealed class FakeTts : ITtsService
-    {
-        public Task<byte[]> SynthesizeAsync(string text, string lang) => Task.FromResult(new byte[] { 1 });
-    }
-
-    private sealed class FakeStore : IAudioStore
-    {
-        public string GetPublicUrl(string path) => $"https://cdn/{path}";
-        public Task<string?> TryReadTextAsync(string path) => Task.FromResult<string?>(null);
-        public Task UploadAsync(string path, byte[] data, string contentType) => Task.CompletedTask;
-        public Task DeleteAsync(IEnumerable<string> paths) => Task.CompletedTask;
-        public Task<IReadOnlyList<string>> ListAsync(string folder) => Task.FromResult<IReadOnlyList<string>>([]);
+        public Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs) =>
+            Task.FromResult(langs.Select(l => l == "ko"
+                ? new LangResult(l, "FAILED", null, null, "Gemini lỗi")
+                : new LangResult(l, "DONE", l == "vi" ? text : $"{l.ToUpper()}:{text}", $"https://cdn/animals/{animalId}/{l}-x.mp3", null)).ToArray());
     }
 }

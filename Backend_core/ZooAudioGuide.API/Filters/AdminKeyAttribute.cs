@@ -17,7 +17,7 @@ namespace ZooAudioGuide.API.Filters
                 context.Result = new UnauthorizedObjectResult(DeniedBody);
         }
 
-        // Dùng chung cho controller (attribute) và minimal API (endpoint filter trong Program.cs)
+        // public để test/endpoint khác dùng lại được
         public static bool IsAuthorized(HttpContext http)
         {
             var header = http.Request.Headers.Authorization.ToString();

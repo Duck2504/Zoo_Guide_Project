@@ -37,13 +37,10 @@ namespace ZooAudioGuide.API.Controllers
         // Body: ["vi","en","ja","ko"]. Văn bản lấy từ bài tiếng Việt trong DB, không nhận text từ client.
         [HttpPost("{id}/narration")]
         [AdminKey]
-        public async Task<IActionResult> GenerateNarration(int id, [FromBody] string[] targetLangs, [FromServices] NarrationGenerator narration)
+        public async Task<IActionResult> GenerateNarration(int id, [FromBody] string[] targetLangs, [FromServices] INarrationClient narration)
         {
             var langs = (targetLangs ?? []).Distinct().ToArray();
             if (langs.Length == 0) return BadRequest("Thiếu danh sách ngôn ngữ");
-
-            var bad = langs.Where(l => !EdgeTtsService.IsSupported(l)).ToArray();
-            if (bad.Length > 0) return BadRequest($"Chưa hỗ trợ: {string.Join(", ", bad)}");
 
             try
             {
