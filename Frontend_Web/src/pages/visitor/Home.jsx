@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
 import { API } from '../../config';
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
@@ -20,7 +20,6 @@ const translations = {
     scan: 'Quét mã QR tại chuồng', map: 'Xem bản đồ khu',
     howTitle: 'Cách nghe thuyết minh',
     steps: [['Quét mã', 'Mã QR gắn ở mỗi chuồng'], ['Nghe', 'Chọn ngôn ngữ của bạn'], ['Đi tiếp', 'Theo bản đồ tới chuồng kế']],
-    animals: 'Động vật trong vườn', species: n => `${n} loài`, empty: 'Danh sách động vật đang được cập nhật.', failed: 'Chưa tải được danh sách động vật.',
     panelTitle: 'Bảng giới thiệu', panelText: 'Mỗi chuồng thú có một mã QR. Quét mã để nghe câu chuyện của loài sống ở đó, bằng ngôn ngữ của bạn.', photoAlt: 'Ảnh minh họa:',
     wild: { elephant: 'Voi', giraffe: 'Hươu cao cổ', panda: 'Gấu trúc', parrot: 'Vẹt', zebra: 'Ngựa vằn' },
     credit: 'Ảnh minh họa, không chụp tại vườn',
@@ -31,7 +30,6 @@ const translations = {
     scan: 'Scan the QR code at an enclosure', map: 'See the zone map',
     howTitle: 'How the audio guide works',
     steps: [['Scan', 'A QR code at every enclosure'], ['Listen', 'Pick your language'], ['Move on', 'Follow the map to the next one']],
-    animals: 'Animals at the zoo', species: n => `${n} species`, empty: 'The animal list is being updated.', failed: 'The animal list could not be loaded.',
     panelTitle: 'Visitor panel', panelText: 'Every enclosure has a QR code. Scan it to hear the story of the animal that lives there, in your language.', photoAlt: 'Illustrative photo:',
     wild: { elephant: 'Elephant', giraffe: 'Giraffe', panda: 'Panda', parrot: 'Parrot', zebra: 'Zebra' },
     credit: 'Illustrative photos, not taken at the zoo',
@@ -42,7 +40,6 @@ const translations = {
     scan: '우리 앞 QR 코드 스캔', map: '구역 지도 보기',
     howTitle: '오디오 가이드 이용 방법',
     steps: [['스캔', '모든 우리에 QR 코드'], ['듣기', '언어 선택'], ['이동', '지도를 따라 다음 우리로']],
-    animals: '동물원의 동물들', species: n => `${n}종`, empty: '동물 목록을 업데이트하는 중입니다.', failed: '동물 목록을 불러오지 못했습니다.',
     panelTitle: '안내판', panelText: '모든 우리에 QR 코드가 있습니다. 스캔하면 그곳에 사는 동물의 이야기를 원하는 언어로 들을 수 있습니다.', photoAlt: '참고 사진:',
     wild: { elephant: '코끼리', giraffe: '기린', panda: '판다', parrot: '앵무새', zebra: '얼룩말' },
     credit: '참고 사진이며 동물원에서 촬영하지 않았습니다',
@@ -53,7 +50,6 @@ const translations = {
     scan: '展示場のQRコードをスキャン', map: 'エリアマップを見る',
     howTitle: '音声ガイドの使い方',
     steps: [['スキャン', '各展示場にQRコード'], ['聞く', '言語を選ぶ'], ['次へ', 'マップで次の展示場へ']],
-    animals: '園内の動物', species: n => `${n}種`, empty: '動物リストを更新中です。', failed: '動物リストを読み込めませんでした。',
     panelTitle: '案内板', panelText: '各展示場にQRコードがあります。スキャンすると、そこに暮らす動物の話をあなたの言語で聞けます。', photoAlt: 'イメージ写真:',
     wild: { elephant: 'ゾウ', giraffe: 'キリン', panda: 'パンダ', parrot: 'オウム', zebra: 'シマウマ' },
     credit: 'イメージ写真です（園内で撮影したものではありません）',
@@ -64,7 +60,6 @@ const translations = {
     scan: '扫描围栏处的QR码', map: '查看区域地图',
     howTitle: '如何收听导览',
     steps: [['扫描', '每个围栏都有QR码'], ['收听', '选择您的语言'], ['继续', '按地图前往下一个']],
-    animals: '园内动物', species: n => `${n} 种`, empty: '动物列表正在更新。', failed: '无法加载动物列表。',
     panelTitle: '介绍牌', panelText: '每个围栏都有一个QR码。扫码即可用您的语言收听那里动物的故事。', photoAlt: '示意图片：',
     wild: { elephant: '大象', giraffe: '长颈鹿', panda: '熊猫', parrot: '鹦鹉', zebra: '斑马' },
     credit: '示意图片，并非在园内拍摄',
@@ -80,7 +75,7 @@ export default function Home() {
   const { language } = useVisitor();
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source') || 'web_home';
-  const [animals, setAnimals] = useState(null); // null = đang tải, 'error' = lỗi
+
 
   const t = translations[language] || translations['vi'];
 
@@ -115,15 +110,6 @@ export default function Home() {
     // Không đưa `language` vào: đổi ngôn ngữ không phải một lượt truy cập mới
   }, [source]);
 
-  useEffect(() => {
-    fetch(`${API}/api/animals`)
-      .then(res => (res.ok ? res.json() : 'error'))
-      .then(setAnimals)
-      .catch(() => setAnimals('error'));
-  }, []);
-
-  const list = Array.isArray(animals) ? animals : [];
-
   return (
     <div className="px-4 pt-5 pb-28 sm:px-6 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-10 lg:px-8 lg:pt-8">
 
@@ -157,7 +143,7 @@ export default function Home() {
 
         {/* Cách dùng: ba ký hiệu như biển pictogram */}
         <section aria-labelledby="how-title">
-          {/* Điện thoại: dải ký hiệu gọn một hàng để biển con vật đầu tiên lộ ra ngay màn hình đầu */}
+          {/* Điện thoại: dải ký hiệu gọn một hàng */}
           <h2 id="how-title" className="sr-only font-sign text-xl font-extrabold text-post lg:not-sr-only">{t.howTitle}</h2>
           <ol className="grid grid-cols-3 gap-2 lg:mt-3 lg:gap-3">
             {t.steps.map(([title, desc], i) => (
@@ -181,48 +167,8 @@ export default function Home() {
         </section>
       </div>
 
-      {/* CỘT PHẢI: trụ biển với các biển con vật */}
+      {/* CỘT PHẢI: bảng giới thiệu và giờ mở cửa */}
       <div className="mt-7 space-y-10 lg:mt-0">
-        <section aria-labelledby="animals-title">
-          <div className="flex items-baseline justify-between">
-            <h2 id="animals-title" className="font-sign text-2xl font-extrabold text-post">{t.animals}</h2>
-            {list.length > 0 && <p className="font-sign text-sm font-bold uppercase tracking-wider text-post-soft">{t.species(list.length)}</p>}
-          </div>
-
-          <div className="relative mt-4 pl-6">
-            {/* Trụ biển */}
-            <div className="absolute bottom-0 left-1 top-0 w-2 rounded-full bg-post" aria-hidden="true" />
-
-            {animals === null ? (
-              <div className="space-y-3">
-                {[0, 1, 2].map(i => <div key={i} className="h-20 rounded-md bg-sign/15 motion-safe:animate-pulse" />)}
-              </div>
-            ) : list.length === 0 ? (
-              <p className="rounded-md border border-trail-line bg-white p-5 text-sm text-post-soft">{animals === 'error' ? t.failed : t.empty}</p>
-            ) : (
-              <ul className="space-y-3">
-                {list.map((a, i) => (
-                  <li key={a.id} className="sign-hang relative" style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}>
-                    {/* Giá đỡ nối biển vào trụ */}
-                    <span className="absolute -left-5 top-1/2 h-1.5 w-5 -translate-y-1/2 bg-post" aria-hidden="true" />
-                    <Link
-                      to={`/a/${a.id}`}
-                      className="group flex min-h-20 items-center gap-4 rounded-md bg-sign p-2.5 pr-4 text-trail transition-colors hover:bg-sign-deep"
-                    >
-                      <AnimalImage src={a.avatarUrl} alt={a.defaultLocalName} className="h-16 w-16 shrink-0 rounded" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-sign text-xl font-bold leading-tight line-clamp-2">{a.defaultLocalName}</span>
-                        <span className="block truncate text-sm italic text-trail/75">{a.scientificName}</span>
-                      </span>
-                      <i className="fa-solid fa-chevron-right text-lg transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden="true"></i>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </section>
-
         {/* Bảng giới thiệu kiểu biển diễn giải ngoài trời: khung xanh, thân trắng, ảnh có chú thích */}
         <section aria-labelledby="panel-title" className="overflow-hidden rounded-md border-2 border-sign bg-white">
           <div className="flex items-center justify-between bg-sign px-5 py-3 text-trail">
