@@ -80,25 +80,25 @@ export default function QRScannerModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-post/80 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title">
-      <div className="w-full max-w-md overflow-hidden rounded-t-md bg-trail shadow-[0_25px_50px_-12px_rgb(0_0_0/0.4)] sm:rounded-md">
-        <div className="flex items-center justify-between bg-sign px-5 py-3 text-trail">
-          <h2 id="qr-title" className="font-sign text-2xl font-extrabold">{t.title}</h2>
-          <button autoFocus onClick={onClose} aria-label={t.close} className="flex h-11 w-11 items-center justify-center rounded transition-colors hover:bg-trail/10">
-            <i className="fa-solid fa-xmark text-2xl" aria-hidden="true"></i>
+      <div className="w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-[0_25px_50px_-12px_rgb(0_0_0/0.4)] sm:rounded-3xl">
+        <div className="flex items-center justify-between px-5 pb-1 pt-4 text-post">
+          <h2 id="qr-title" className="text-lg font-semibold">{t.title}</h2>
+          <button autoFocus onClick={onClose} aria-label={t.close} className="flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-trail">
+            <i className="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
           </button>
         </div>
 
-        <div className="p-5 pb-8">
-          <div className="relative aspect-square w-full overflow-hidden rounded border-2 border-sign bg-post">
+        <div className="p-5 pb-8 pt-3">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-post">
             {/* Thư viện chèn video camera vào đây */}
             <div id={READER_ID} className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover" />
             {state !== 'scanning' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-trail">
-                <i className={`fa-solid ${problem ? 'fa-video-slash' : 'fa-qrcode'} text-5xl text-trail/70`} aria-hidden="true"></i>
-                {state === 'starting' && <p className="font-sign text-lg font-bold">{t.starting}</p>}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-white">
+                <i className={`fa-solid ${problem ? 'fa-video-slash' : 'fa-qrcode'} text-5xl text-white/70`} aria-hidden="true"></i>
+                {state === 'starting' && <p className="text-base font-semibold">{t.starting}</p>}
                 {problem && <p role="alert" className="text-base">{problem}</p>}
                 {(problem || state === 'idle') && (
-                  <button onClick={start} className="min-h-12 rounded bg-arrow px-5 font-sign text-lg font-extrabold text-post transition-colors hover:bg-arrow-deep">
+                  <button onClick={start} className="min-h-12 rounded-2xl bg-white px-5 text-base font-semibold text-sign-deep transition-colors hover:bg-sage-soft">
                     {problem ? t.retry : t.start}
                   </button>
                 )}
@@ -106,8 +106,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
             )}
           </div>
           {invalid
-            ? <p role="alert" className="mt-4 rounded bg-sage-soft px-4 py-3 text-center text-sm font-semibold text-post">{t.invalid}</p>
-            : <p className="mt-4 text-center text-base font-semibold text-post-soft">{t.hint}</p>}
+            ? <p role="alert" className="mt-4 rounded-2xl bg-sage-soft px-4 py-3 text-center text-sm font-medium text-post">{t.invalid}</p>
+            : <p className="mt-4 text-center text-sm text-post-soft">{t.hint}</p>}
         </div>
       </div>
     </div>

@@ -16,14 +16,14 @@ const translations = {
 
 // Mục điều hướng kiểu biển: chữ đứng in hoa, mục đang chọn có vạch vàng "bạn đang ở đây"
 const tabClass = ({ isActive }) =>
-  `relative flex min-h-11 w-20 flex-col items-center justify-center gap-1 font-sign text-xs font-bold uppercase tracking-wider transition-colors ${
+  `relative flex min-h-11 w-20 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors ${
     isActive ? 'text-sign' : 'text-post-soft hover:text-post'
   }`;
 const headerLinkClass = ({ isActive }) =>
-  `relative flex min-h-11 items-center gap-2 px-3 font-sign text-base font-bold uppercase tracking-wider transition-colors ${
+  `relative flex min-h-11 items-center gap-2 px-3 text-sm font-semibold transition-colors ${
     isActive ? 'text-sign' : 'text-post-soft hover:text-post'
   }`;
-const HereMark = ({ className }) => <span className={`absolute h-1 w-10 rounded bg-arrow ${className}`} aria-hidden="true" />;
+const HereMark = ({ className }) => <span className={`absolute h-1 w-8 rounded-full bg-sign ${className}`} aria-hidden="true" />;
 
 export default function VisitorLayout() {
   const { language } = useVisitor();
@@ -65,13 +65,12 @@ export default function VisitorLayout() {
     <div className="visitor-world font-trail text-post bg-trail flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative overflow-hidden md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]">
       {!isDetailPage && (
         <header className="h-14 bg-trail/95 backdrop-blur-sm shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 absolute top-0 left-0 right-0 border-b border-trail-line">
-          <NavLink to="/" className="flex min-w-0 items-center gap-2.5 font-sign text-xl font-extrabold text-sign">
+          <NavLink to="/" className="flex min-w-0 items-center gap-2.5 text-base font-semibold text-post">
             {/* Con dấu của vườn: luôn ở đúng một chỗ trên mọi trang */}
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sign text-trail" aria-hidden="true">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-sign text-white" aria-hidden="true">
               <i className="fa-solid fa-leaf text-sm"></i>
             </span>
-            {/* Trang chủ đã có tên vườn trên biển lớn, không lặp lại ở header */}
-            <span className={isHome ? 'sr-only' : 'truncate'}>{t.title}</span>
+                        <span className="truncate">{t.title}</span>
           </NavLink>
 
           <div className="flex items-center gap-2">
@@ -83,7 +82,7 @@ export default function VisitorLayout() {
               <NavLink to="/map" className={headerLinkClass}>
                 {({ isActive }) => (<>{isActive && <HereMark className="-bottom-2 left-3" />}{t.map}</>)}
               </NavLink>
-              <button onClick={() => setIsQRModalOpen(true)} className="ml-2 flex min-h-11 items-center gap-2 rounded-md bg-sign px-4 font-sign text-base font-bold uppercase tracking-wider text-trail transition-colors hover:bg-sign-deep">
+              <button onClick={() => setIsQRModalOpen(true)} className="ml-2 flex min-h-11 items-center gap-2 rounded-full bg-sign px-5 text-sm font-semibold text-white transition-colors hover:bg-sign-deep">
                 <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scan}
               </button>
             </nav>
@@ -93,8 +92,8 @@ export default function VisitorLayout() {
               aria-pressed={geoEnabled}
               aria-label={geoEnabled ? t.geoOn : t.geoOff}
               title={geoEnabled ? t.geoOn : t.geoOff}
-              className={`flex h-11 w-11 items-center justify-center rounded-md border transition-colors ${
-                geoEnabled ? 'border-sign bg-sign text-trail' : 'border-trail-line bg-white text-post hover:border-sage'
+              className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${
+                geoEnabled ? 'border-sign bg-sign text-white' : 'border-trail-line bg-white text-post hover:border-sign/40'
               }`}
             >
               <i className={`fa-solid ${geoEnabled ? 'fa-location-crosshairs' : 'fa-location-arrow'}`} aria-hidden="true"></i>
@@ -121,7 +120,7 @@ export default function VisitorLayout() {
           <button
             onClick={() => setIsQRModalOpen(true)}
             aria-label={t.scan}
-            className="relative -top-5 flex h-16 w-16 items-center justify-center rounded-md bg-sign text-2xl text-trail shadow-[0_10px_20px_-6px_rgb(20_83_45/0.55)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95"
+            className="relative -top-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-sign text-2xl text-white shadow-[0_10px_20px_-8px_rgb(21_128_61/0.6)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95"
           >
             <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
           </button>

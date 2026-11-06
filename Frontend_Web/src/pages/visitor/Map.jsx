@@ -19,10 +19,10 @@ const translations = {
 const signIcon = count => L.divIcon({
   className: '',
   html: `<div style="display:flex;flex-direction:column;align-items:center">
-    <div style="display:flex;align-items:center;gap:4px;min-width:40px;height:36px;padding:0 10px;border-radius:6px;background:#14532d;color:#f5f7f2;font:800 15px 'Barlow Semi Condensed',system-ui;box-shadow:0 6px 12px -6px rgb(0 0 0/.5)">
+    <div style="display:flex;align-items:center;gap:4px;min-width:40px;height:36px;padding:0 10px;border-radius:12px;background:#15803d;color:#ffffff;font:600 14px 'Be Vietnam Pro',system-ui;box-shadow:0 6px 12px -6px rgb(0 0 0/.5)">
       <i class="fa-solid fa-paw" aria-hidden="true"></i>${count}
     </div>
-    <div style="width:4px;height:12px;background:#1c2b22"></div>
+    <div style="width:4px;height:12px;background:#15803d"></div>
   </div>`,
   iconSize: [48, 48],
   iconAnchor: [24, 48],
@@ -73,11 +73,11 @@ export default function Map() {
         {zones.map(zone => (
           <Marker key={zone.id} position={[zone.lat, zone.lng]} icon={signIcon(zone.animals.length)} ref={m => { if (m && zone === focused) setTimeout(() => m.openPopup(), 0); }}>
             <Popup>
-              <p className="!mb-1 !mt-0 font-sign text-base font-extrabold text-sign">{zone.name}</p>
+              <p className="!mb-1.5 !mt-0 text-sm font-semibold text-post">{zone.name}</p>
               <ul className="min-w-44 space-y-1 font-trail">
                 {zone.animals.map(a => (
                   <li key={a.id}>
-                    <Link to={`/a/${a.id}?source=map`} className="flex min-h-11 items-center justify-between gap-3 rounded bg-sign px-3 font-sign text-base font-bold !text-trail no-underline">
+                    <Link to={`/a/${a.id}?source=map`} className="flex min-h-11 items-center justify-between gap-3 rounded-xl bg-sign px-3 text-sm font-semibold !text-white no-underline">
                       {a.defaultLocalName}
                       <i className="fa-solid fa-headphones" aria-hidden="true"></i>
                     </Link>
@@ -90,25 +90,25 @@ export default function Map() {
 
         {/* Chế độ thử: hiện vòng bán kính của từng khu để biết chạm vào đâu là "vào khu" */}
         {demo && zones.map(z => (
-          <Circle key={`r${z.id}`} center={[z.lat, z.lng]} radius={z.radius} pathOptions={{ color: '#14532d', weight: 1, fillOpacity: 0.08 }} />
+          <Circle key={`r${z.id}`} center={[z.lat, z.lng]} radius={z.radius} pathOptions={{ color: '#15803d', weight: 1, fillOpacity: 0.08 }} />
         ))}
         {demo && <DemoClicks onPick={geo.setDemoPosition} />}
 
         {/* Vị trí của du khách (GPS hoặc vị trí thử) */}
         {geo.position && (
-          <CircleMarker center={[geo.position.lat, geo.position.lng]} radius={9} pathOptions={{ color: '#ffffff', weight: 3, fillColor: '#f2b705', fillOpacity: 1 }} />
+          <CircleMarker center={[geo.position.lat, geo.position.lng]} radius={9} pathOptions={{ color: '#ffffff', weight: 3, fillColor: '#2563eb', fillOpacity: 1 }} />
         )}
       </MapContainer>
 
       {/* Biển tiêu đề nổi trên bản đồ */}
       <div className="pointer-events-none absolute inset-x-4 top-4 z-[400] sm:left-6 sm:right-auto sm:max-w-sm">
-        <div className="rounded-md bg-sign p-4 text-trail shadow-[0_14px_28px_-14px_rgb(15_63_34/0.6)]">
+        <div className="rounded-2xl bg-white/95 p-4 text-post shadow-[0_12px_28px_-14px_rgb(24_36_29/0.35)] backdrop-blur-sm">
           <div className="flex items-baseline justify-between gap-3">
-            <h1 className="font-sign text-2xl font-extrabold">{t.title}</h1>
-            {Array.isArray(animals) && <span className="font-sign text-sm font-bold uppercase tracking-wider text-trail/75">{t.species(animals.length)}</span>}
+            <h1 className="text-lg font-semibold text-post">{t.title}</h1>
+            {Array.isArray(animals) && <span className="text-xs font-medium text-post-soft">{t.species(animals.length)}</span>}
           </div>
-          <p className="mt-1 text-sm text-trail/85">{animals === 'error' ? t.failed : t.hint}</p>
-          {demo && <p className="mt-2 rounded bg-arrow px-2 py-1 text-sm font-semibold text-post">{zt.demo}</p>}
+          <p className="mt-1 text-sm text-post-soft">{animals === 'error' ? t.failed : t.hint}</p>
+          {demo && <p className="mt-2 rounded-xl bg-sage-soft px-2.5 py-1 text-sm font-medium text-sign-deep">{zt.demo}</p>}
         </div>
       </div>
     </div>

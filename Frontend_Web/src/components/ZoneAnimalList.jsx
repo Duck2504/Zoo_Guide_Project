@@ -42,19 +42,19 @@ export default function ZoneAnimalList({ zone, language, onNavigate }) {
             <Link
               to={`/a/${a.id}?source=geo`}
               onClick={onNavigate}
-              className={`flex min-h-16 items-center gap-3 rounded-md p-2 pr-3 transition-colors ${playing?.id === a.id ? 'bg-arrow text-post' : 'bg-sign text-trail hover:bg-sign-deep'}`}
+              className={`flex min-h-16 items-center gap-3 rounded-2xl border bg-white p-2 pr-3 text-post transition-colors ${playing?.id === a.id ? 'border-sign ring-1 ring-sign' : 'border-trail-line hover:border-sign/40'}`}
             >
-              <AnimalImage src={a.avatarUrl} alt="" className="h-12 w-12 shrink-0 rounded" />
+              <AnimalImage src={a.avatarUrl} alt="" className="h-12 w-12 shrink-0 rounded-xl" />
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-sign text-lg font-bold leading-tight">{a.defaultLocalName}</span>
-                <span className="block truncate text-sm italic opacity-75">{a.scientificName}</span>
+                <span className="block truncate text-sm font-semibold">{a.defaultLocalName}</span>
+                <span className="block truncate text-xs italic text-post-soft">{a.scientificName}</span>
               </span>
               {listened.has(a.id) && (
-                <span className="flex shrink-0 items-center gap-1 rounded bg-trail/15 px-2 py-0.5 text-xs font-semibold">
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-sage-soft px-2 py-0.5 text-xs font-medium text-sign-deep">
                   <i className="fa-solid fa-check" aria-hidden="true"></i>{t.listened}
                 </span>
               )}
-              <i className="fa-solid fa-chevron-right shrink-0" aria-hidden="true"></i>
+              <i className="fa-solid fa-chevron-right shrink-0 text-xs text-post-soft" aria-hidden="true"></i>
             </Link>
           </li>
         ))}
@@ -66,12 +66,12 @@ export default function ZoneAnimalList({ zone, language, onNavigate }) {
         <div className="mt-3 flex items-center gap-3">
           <button
             onClick={() => setTrack(playing ? -1 : 0)}
-            className={`flex min-h-12 flex-1 items-center justify-center gap-2 rounded-md px-4 font-sign text-lg font-extrabold transition-colors ${playing ? 'border-2 border-sign text-sign hover:bg-sage-soft' : 'bg-arrow text-post hover:bg-arrow-deep'}`}
+            className={`flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl px-4 text-sm font-semibold transition-colors ${playing ? 'border border-sign bg-white text-sign hover:bg-sage-soft' : 'bg-sign text-white hover:bg-sign-deep'}`}
           >
             <i className={`fa-solid ${playing ? 'fa-stop' : 'fa-play'}`} aria-hidden="true"></i>
             {playing ? t.stop : `${t.playAll} (${tracks.length})`}
           </button>
-          {playing && <span className="shrink-0 font-sign text-sm font-bold text-post-soft" aria-live="polite">{t.nowPlaying(track + 1, tracks.length)}</span>}
+          {playing && <span className="shrink-0 text-xs font-medium text-post-soft" aria-live="polite">{t.nowPlaying(track + 1, tracks.length)}</span>}
         </div>
       )}
       <audio

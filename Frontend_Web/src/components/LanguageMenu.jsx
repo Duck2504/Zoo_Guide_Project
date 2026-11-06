@@ -34,8 +34,8 @@ export default function LanguageMenu({ onPhoto = false }) {
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={`${menuLabel}: ${current?.label ?? language}`}
-        className={`flex min-h-11 items-center gap-2 rounded-md px-3 font-sign text-sm font-bold uppercase tracking-wider transition-colors ${
-          onPhoto ? 'bg-post/70 text-trail backdrop-blur-sm hover:bg-post/85' : 'border border-trail-line bg-white text-post hover:border-sage'
+        className={`flex min-h-11 items-center gap-2 rounded-full px-3.5 text-sm font-semibold uppercase transition-colors ${
+          onPhoto ? 'bg-white/90 text-post backdrop-blur-sm hover:bg-white' : 'border border-trail-line bg-white text-post hover:border-sign/40'
         }`}
       >
         <i className="fa-solid fa-language" aria-hidden="true"></i>
@@ -44,7 +44,7 @@ export default function LanguageMenu({ onPhoto = false }) {
       </button>
 
       {open && (
-        <ul aria-label={menuLabel} className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-md border border-trail-line bg-white py-1 shadow-[0_16px_32px_-12px_rgb(28_43_34/0.35)]">
+        <ul aria-label={menuLabel} className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-2xl border border-trail-line bg-white py-1 shadow-[0_16px_32px_-12px_rgb(28_43_34/0.35)]">
           {LANGUAGES.map(lang => (
             <li key={lang.code}>
               <button
@@ -52,11 +52,11 @@ export default function LanguageMenu({ onPhoto = false }) {
                 aria-current={language === lang.code ? 'true' : undefined}
                 onClick={() => { setLanguage(lang.code); setOpen(false); }}
                 className={`flex min-h-11 w-full items-center justify-between px-4 text-left text-sm font-semibold transition-colors ${
-                  language === lang.code ? 'bg-sign text-trail' : 'text-post hover:bg-sage-soft'
+                  language === lang.code ? 'bg-sage-soft text-sign-deep' : 'text-post hover:bg-trail'
                 }`}
               >
                 {lang.label}
-                <span className="font-sign text-xs font-bold uppercase tracking-wider opacity-70">{lang.code}</span>
+                <span className="text-xs font-semibold uppercase opacity-70">{lang.code}</span>
               </button>
             </li>
           ))}

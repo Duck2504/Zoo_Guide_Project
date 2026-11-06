@@ -13,19 +13,19 @@ export default function AroundYou({ geo, language }) {
   }[status];
 
   return (
-    <section aria-labelledby="around-title" className="overflow-hidden rounded-md border-2 border-sign bg-white">
-      <div className="flex items-center justify-between gap-3 bg-sign px-5 py-3 text-trail">
-        <h2 id="around-title" className="font-sign text-xl font-extrabold">{t.aroundTitle}</h2>
-        <i className={`fa-solid ${geo.enabled ? 'fa-location-crosshairs' : 'fa-location-arrow'}`} aria-hidden="true"></i>
+    <section aria-labelledby="around-title" className="rounded-3xl border border-trail-line bg-white">
+      <div className="flex items-center justify-between gap-3 px-5 pt-4">
+        <h2 id="around-title" className="text-base font-semibold text-post">{t.aroundTitle}</h2>
+        <i className={`fa-solid fa-location-crosshairs ${geo.enabled ? 'text-sign' : 'text-post-soft'}`} aria-hidden="true"></i>
       </div>
 
-      <div className="p-4 sm:p-5" aria-live="polite">
+      <div className="px-5 pb-5 pt-2" aria-live="polite">
         {status === 'off' && (
           <>
-            <p className="text-base text-post">{t.offText}</p>
+            <p className="text-sm text-post-soft">{t.offText}</p>
             <button
               onClick={() => geo.setEnabled(true)}
-              className="mt-4 flex min-h-14 w-full items-center justify-center gap-3 rounded-md bg-arrow px-5 font-sign text-xl font-extrabold text-post transition-colors hover:bg-arrow-deep"
+              className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-sage-soft px-5 text-sm font-semibold text-sign-deep transition-colors hover:bg-arrow-deep"
             >
               <i className="fa-solid fa-location-crosshairs" aria-hidden="true"></i>{t.turnOn}
             </button>
@@ -36,7 +36,7 @@ export default function AroundYou({ geo, language }) {
           <div className="flex items-start gap-3">
             {['searching', 'loading', 'inaccurate'].includes(status) && <i className="fa-solid fa-circle-notch mt-1 text-sign motion-safe:animate-spin" aria-hidden="true"></i>}
             <div>
-              <p className="text-base font-semibold text-post">{message}</p>
+              <p className="text-sm font-medium text-post">{message}</p>
               {status === 'searching' && <p className="mt-1 text-sm text-post-soft">{t.searchingHint}</p>}
             </div>
           </div>
@@ -44,9 +44,9 @@ export default function AroundYou({ geo, language }) {
 
         {status === 'inZone' && geo.zone && (
           <>
-            <p className="font-sign text-sm font-bold uppercase tracking-wider text-post-soft">{t.youAreIn}</p>
-            <p className="mb-3 font-sign text-2xl font-extrabold leading-tight text-sign">
-              {geo.zone.name} <span className="text-base font-bold text-post-soft">· {t.species(geo.zone.animals.length)}</span>
+            <p className="text-xs text-post-soft">{t.youAreIn}</p>
+            <p className="mb-3 text-lg font-semibold leading-tight text-post">
+              {geo.zone.name} <span className="text-sm font-normal text-post-soft">· {t.species(geo.zone.animals.length)}</span>
             </p>
             <ZoneAnimalList zone={geo.zone} language={language} />
           </>
@@ -55,14 +55,14 @@ export default function AroundYou({ geo, language }) {
         {status === 'outside' && geo.nearest && (
           <Link
             to={`/map?zone=${geo.nearest.id}`}
-            className="flex min-h-16 items-center justify-between gap-3 rounded-md border border-trail-line p-3 transition-colors hover:border-sage"
+            className="flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-trail-line p-3 transition-colors hover:border-sign/40"
           >
             <span>
-              <span className="block font-sign text-sm font-bold uppercase tracking-wider text-post-soft">{t.nearest}</span>
-              <span className="block font-sign text-xl font-extrabold text-sign">{geo.nearest.name}</span>
+              <span className="block text-xs text-post-soft">{t.nearest}</span>
+              <span className="block text-base font-semibold text-post">{geo.nearest.name}</span>
               <span className="block text-sm text-post-soft">{t.meters(geo.distance)} · {t.showWay}</span>
             </span>
-            <i className="fa-solid fa-map-location-dot text-2xl text-sign" aria-hidden="true"></i>
+            <i className="fa-solid fa-map text-xl text-sign" aria-hidden="true"></i>
           </Link>
         )}
 
