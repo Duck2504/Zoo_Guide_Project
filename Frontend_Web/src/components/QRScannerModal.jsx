@@ -87,8 +87,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
   const problem = state === 'denied' ? t.denied : state === 'failed' ? t.noCamera : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-wall-deep/85 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title">
-      <div ref={panelRef} className="w-full max-w-md bg-label font-label text-ink shadow-[0_25px_50px_-12px_rgb(0_0_0/0.5)]">
+    <div className="qr-scrim fixed inset-0 z-50 flex items-end justify-center bg-wall-deep/85 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title">
+      <div ref={panelRef} className="qr-sheet w-full max-w-md bg-label font-label text-ink shadow-[0_25px_50px_-12px_rgb(0_0_0/0.5)]">
         <div className="flex items-center justify-between px-5 pb-1 pt-4">
           <h2 id="qr-title" className="text-xl font-extrabold">{t.title}</h2>
           <button autoFocus onClick={onClose} aria-label={t.close} className="-mr-2 flex h-11 w-11 items-center justify-center transition-colors hover:bg-ink/5">

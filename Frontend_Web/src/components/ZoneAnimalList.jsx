@@ -10,11 +10,18 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
   const wall = variant === 'wall';
   const t = getZoneText(language);
   const [listened, setListened] = useState(getListened);
+  const listenedRef = useRef(listened);
+  const [fresh, setFresh] = useState(() => new Set()); // dấu vừa đóng trong lúc đang xem, để chạy hiệu ứng đóng dấu
   const [track, setTrack] = useState(-1); // vị trí đang phát trong danh sách có audio, -1 = không phát
   const audioRef = useRef(null);
 
   useEffect(() => {
-    const update = () => setListened(getListened());
+    const update = () => {
+      const next = getListened();
+      setFresh(new Set([...next].filter(id => !listenedRef.current.has(id))));
+      listenedRef.current = next;
+      setListened(next);
+    };
     window.addEventListener(LISTENED_EVENT, update);
     return () => window.removeEventListener(LISTENED_EVENT, update);
   }, []);
@@ -38,8 +45,8 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
   return (
     <div>
       <ul className="space-y-2">
-        {zone.animals.map(a => (
-          <li key={a.id}>
+        {zone.animals.map((a, i) => (
+          <li key={a.id} className={wall && i < 4 ? 'label-in' : undefined} style={wall && i < 4 ? { animationDelay: `${80 + i * 50}ms` } : undefined}>
             <Link
               to={`/a/${a.id}?source=geo`}
               onClick={onNavigate}
@@ -51,7 +58,7 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
                 <span className={`block truncate italic ${wall ? 'font-latin text-[13px] text-ink-soft' : 'text-xs text-post-soft'}`}>{a.scientificName}</span>
               </span>
               {listened.has(a.id) && (
-                <span className={wall ? 'shrink-0 -rotate-3 border-2 border-wall px-1.5 text-xs font-bold uppercase leading-5 text-wall' : 'flex shrink-0 items-center gap-1 rounded-full bg-sage-soft px-2 py-0.5 text-xs font-medium text-sign-deep'}>
+                <span className={wall ? `${fresh.has(a.id) ? 'stamp-in ' : ''}shrink-0 -rotate-3 border-2 border-wall px-1.5 text-xs font-bold uppercase leading-5 text-wall` : 'flex shrink-0 items-center gap-1 rounded-full bg-sage-soft px-2 py-0.5 text-xs font-medium text-sign-deep'}>
                   {!wall && <i className="fa-solid fa-check" aria-hidden="true"></i>}{t.listened}
                 </span>
               )}
@@ -67,7 +74,7 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
         <div className="mt-3 flex items-center gap-3">
           <button
             onClick={() => setTrack(playing ? -1 : 0)}
-            className={`flex min-h-12 flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-colors ${wall ? (playing ? 'border-2 border-ink bg-white text-ink hover:bg-label' : 'bg-ink text-label hover:bg-wall') : `rounded-2xl ${playing ? 'border border-sign bg-white text-sign hover:bg-sage-soft' : 'bg-sign text-white hover:bg-sign-deep'}`}`}
+            className={`flex min-h-12 flex-1 items-center justify-center gap-2 px-4 text-sm font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-out active:scale-[0.97] ${wall ? (playing ? 'border-2 border-ink bg-white text-ink hover:bg-label' : 'bg-ink text-label hover:bg-wall') : `rounded-2xl ${playing ? 'border border-sign bg-white text-sign hover:bg-sage-soft' : 'bg-sign text-white hover:bg-sign-deep'}`}`}
           >
             <i className={`fa-solid ${playing ? 'fa-stop' : 'fa-play'}`} aria-hidden="true"></i>
             {playing ? t.stop : `${t.playAll} (${tracks.length})`}

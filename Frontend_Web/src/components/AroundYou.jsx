@@ -33,7 +33,7 @@ export default function AroundYou({ geo, language, languages, zoneCount }) {
             <p className="mt-3 max-w-[42ch] text-[15px] leading-relaxed">{t.heroBody}</p>
             <button
               onClick={() => geo.setEnabled(true)}
-              className="mt-5 flex min-h-14 w-full items-center justify-between bg-ink px-5 text-left text-[17px] font-semibold text-label transition-colors hover:bg-wall"
+              className="mt-5 flex min-h-14 w-full items-center justify-between bg-ink px-5 text-left text-[17px] font-semibold text-label transition-[color,background-color,border-color,scale] duration-150 ease-out active:scale-[0.97] hover:bg-wall"
             >
               <span className="flex items-center gap-3"><i className="fa-solid fa-location-crosshairs" aria-hidden="true"></i>{t.turnOn}</span>
               <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
@@ -61,8 +61,9 @@ export default function AroundYou({ geo, language, languages, zoneCount }) {
           </div>
         )}
 
+        {/* Bước vào khu: khối khu trượt vào chỗ (key theo khu để đổi khu cũng chạy lại) */}
         {status === 'inZone' && geo.zone && (
-          <div className="mt-5">
+          <div key={geo.zone.id} className="label-in mt-5">
             <p className="text-sm text-ink-soft">{t.youAreIn}</p>
             <h2 className="mb-3 text-2xl font-extrabold leading-tight">
               {geo.zone.name} <span className="text-base font-medium text-ink-soft">· {t.species(geo.zone.animals.length)}</span>

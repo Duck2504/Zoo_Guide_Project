@@ -71,6 +71,35 @@
   .label-in { animation: label-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 }
 
+/* Dấu "Đã nghe" đóng xuống khi vừa nghe xong (chỉ dấu mới, không chạy lúc tải trang) */
+@keyframes stamp-in { from { transform: scale(1.25) rotate(-5deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.stamp-in { animation: stamp-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Thanh phát nhỏ trượt lên từ mép đáy và lui về đúng mép đó */
+.mini-player { transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1), visibility 0s; }
+.mini-player[data-hidden] { transform: translateY(100%); visibility: hidden; transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 240ms; }
+
+/* Hộp quét QR: điện thoại trượt lên từ đáy, màn hình lớn hiện dần ở giữa; nền tối mờ dần */
+.qr-scrim { transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+.qr-sheet { transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+@starting-style {
+  .qr-scrim { opacity: 0; }
+  .qr-sheet { transform: translateY(100%); }
+}
+@media (min-width: 640px) {
+  @starting-style { .qr-sheet { transform: scale(0.96); opacity: 0; } }
+}
+
+/* Giảm chuyển động: không dịch chuyển, chỉ mờ dần nhanh */
+@media (prefers-reduced-motion: reduce) {
+  .stamp-in { animation: fade-in 150ms ease-out both; }
+  .mini-player, .mini-player[data-hidden] { transform: none; transition: opacity 150ms ease-out, visibility 0s 150ms; }
+  .mini-player[data-hidden] { opacity: 0; }
+  .qr-sheet { transition: opacity 150ms ease-out; }
+  @starting-style { .qr-sheet { transform: none; opacity: 0; } }
+}
+
 /* Custom Scrollbar cho giao diện mượt mà */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

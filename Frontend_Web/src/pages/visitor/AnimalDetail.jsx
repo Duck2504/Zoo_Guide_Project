@@ -369,8 +369,8 @@ export default function AnimalDetail() {
       )}
 
       {/* Thanh phát nhỏ (thanh dính đáy): chỉ hiện khi đã cuộn qua nhãn trình phát. Bóng là của thanh dính, không phải phần tử đứng yên: taste-skill-ignore */}
-      {hasAudio && showMini && (
-        <div className={'fixed inset-x-0 bottom-0 z-50 bg-wall-deep px-4 pb-safe shadow-[0_-10px_24px_-14px_rgb(0_0_0/0.6)]' /* taste-skill-ignore: thanh dính đáy */}>
+      {hasAudio && (
+        <div data-hidden={showMini ? undefined : ''} className={'mini-player fixed inset-x-0 bottom-0 z-50 bg-wall-deep px-4 pb-safe shadow-[0_-10px_24px_-14px_rgb(0_0_0/0.6)]' /* taste-skill-ignore: thanh dính đáy */}>
           <div className="mx-auto flex max-w-6xl items-center gap-3 py-2.5 sm:px-2 lg:px-4">
             <button onClick={togglePlayPause} aria-label={playLabel} className="flex h-11 w-11 shrink-0 items-center justify-center bg-label text-ink transition-colors hover:bg-white">
               {playIcon}

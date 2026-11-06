@@ -124,7 +124,7 @@ export default function Home() {
           </div>
           <button
             onClick={openQR}
-            className="mt-4 flex min-h-12 w-full items-center justify-between border-2 border-ink px-4 text-left text-[15px] font-semibold transition-colors hover:bg-white"
+            className="mt-4 flex min-h-12 w-full items-center justify-between border-2 border-ink px-4 text-left text-[15px] font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-out active:scale-[0.97] hover:bg-white"
           >
             <span className="flex items-center gap-3"><i className="fa-solid fa-camera" aria-hidden="true"></i>{t.openCamera}</span>
             <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
