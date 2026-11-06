@@ -61,6 +61,12 @@
 .visitor-world .wall-page .bg-label ::selection { background: var(--color-wall); color: var(--color-label); }
 
 /* Nhãn loài trượt vào chỗ theo thứ tự, một lần khi mở trang; nội dung luôn hiện sẵn */
+/* Ảnh con vật lắng vào khung khi mở trang (một chuyển động chậm, chỉ transform) */
+@keyframes hero-drift { from { transform: scale(1.08); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-drift img, img.hero-drift { animation: hero-drift 1600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+
 @keyframes label-in { from { transform: translateY(12px); } to { transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
   .label-in { animation: label-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }

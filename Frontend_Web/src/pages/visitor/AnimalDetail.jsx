@@ -1,19 +1,26 @@
 import { useEffect, useState, useRef } from 'react';
 import { API } from '../../config';
-import { useParams, useNavigate, useSearchParams, useLocation, useOutletContext } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams, useLocation, useOutletContext } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
 import LanguageMenu from '../../components/LanguageMenu';
 import { markListened } from '../../utils/listened';
 
 const translations = {
-  vi: { scanNext: 'Quét chuồng kế tiếp', zoneMap: 'Xem khu này trên bản đồ', back: 'Quay lại', audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp' },
-  en: { scanNext: 'Scan the next enclosure', zoneMap: 'See this zone on the map', back: 'Back', audioTitle: 'Auto Audio Guide', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', viewOnMap: 'View on map', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', about: 'About', mapShort: 'Map', scanMore: 'Scan next' },
-  ko: { scanNext: '다음 우리 스캔', zoneMap: '지도에서 이 구역 보기', back: '뒤로', audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', viewOnMap: '지도에서 보기', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', about: '소개', mapShort: '지도', scanMore: '다음 스캔' },
-  ja: { scanNext: '次の展示場をスキャン', zoneMap: 'このエリアを地図で見る', back: '戻る', audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', viewOnMap: '地図で見る', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン' },
+  vi: { scanNext: 'Quét chuồng kế tiếp', zoneMap: 'Xem khu này trên bản đồ', back: 'Quay lại', audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
+  en: { scanNext: 'Scan the next enclosure', zoneMap: 'See this zone on the map', back: 'Back', audioTitle: 'Auto Audio Guide', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', viewOnMap: 'View on map', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', about: 'About', mapShort: 'Map', scanMore: 'Scan next', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
+  ko: { scanNext: '다음 우리 스캔', zoneMap: '지도에서 이 구역 보기', back: '뒤로', audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', viewOnMap: '지도에서 보기', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', about: '소개', mapShort: '지도', scanMore: '다음 스캔', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
+  ja: { scanNext: '次の展示場をスキャン', zoneMap: 'このエリアを地図で見る', back: '戻る', audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', viewOnMap: '地図で見る', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
 };
 
 const SPEEDS = [1, 1.25, 0.75];
+
+// Màu ô mã mức bảo tồn theo Sách Đỏ IUCN (giống trang chủ); chữ mực trên nền sáng
+const IUCN_TONE = {
+  EW: 'bg-[#542344] text-white', CR: 'bg-[#d81e05] text-white', EN: 'bg-[#fc7f3f] text-ink',
+  VU: 'bg-[#f9e814] text-ink', NT: 'bg-[#cce226] text-ink', LC: 'bg-[#60c659] text-ink'
+};
+const NEIGHBOUR_COUNT = 3;
 
 // Tên file trên Commons lấy từ link ảnh, để dẫn về trang ghi tác giả/giấy phép của ảnh
 const commonsPage = (url) => {
@@ -53,6 +60,7 @@ export default function AnimalDetail() {
   const scrollRef = useRef(null);
   const playerRef = useRef(null);
   const [showMini, setShowMini] = useState(false);
+  const [zoneAnimals, setZoneAnimals] = useState([]); // các con khác cùng khu, để đi tiếp
 
   const t = translations[language] || translations['vi'];
 
@@ -129,6 +137,16 @@ export default function AnimalDetail() {
     fetchAnimalData();
   }, [id, language]);
 
+  // Các con cùng khu (ảnh thật + tên theo ngôn ngữ đang chọn) cho mục "Cùng khu"
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`${API}/api/animals?lang=${language}`)
+      .then(res => (res.ok ? res.json() : []))
+      .then(list => { if (!cancelled && Array.isArray(list)) setZoneAnimals(list); })
+      .catch(() => { /* mục Cùng khu chỉ ẩn đi */ });
+    return () => { cancelled = true; };
+  }, [language]);
+
   // Thẻ trình phát khuất khỏi màn hình (đã cuộn xuống đọc) thì hiện thanh phát nhỏ ở đáy
   useEffect(() => {
     const el = playerRef.current;
@@ -139,6 +157,7 @@ export default function AnimalDetail() {
   }, [animal, isLoading]);
 
   const hasAudio = !!animal?.audioUrl && !audioFailed;
+  const neighbours = animal ? zoneAnimals.filter(a => a.zoneId === animal.zoneId && a.id !== animal.id).slice(0, NEIGHBOUR_COUNT) : [];
   const photoPage = commonsPage(animal?.imageUrl);
   // Chỉ hiện mục có dữ liệu và có bản dịch (mã lạ thì bỏ qua)
   const facts = animal ? [
@@ -185,65 +204,65 @@ export default function AnimalDetail() {
   };
 
   if (isLoading) return (
-    <div className="h-full bg-trail" aria-busy="true">
-      <div className="h-56 w-full bg-sign/10 motion-safe:animate-pulse md:h-80" />
-      <div className="-mt-6 space-y-3 rounded-t-3xl bg-trail px-4 pt-6">
-        <div className="h-8 w-2/3 rounded-xl bg-sign/10 motion-safe:animate-pulse" />
-        <div className="h-24 rounded-2xl bg-sign/10 motion-safe:animate-pulse" />
+    <div className="h-full bg-wall" aria-busy="true">
+      <div className="h-[56vh] w-full bg-label/10 md:h-[62vh] lg:h-[52vh]" />
+      <div className="mx-auto max-w-6xl space-y-4 px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="h-14 w-2/3 bg-label/10" />
+        <div className="h-28 bg-label/10" />
       </div>
     </div>
   );
   if (!animal) return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 bg-trail p-8 text-center">
-      <p className="text-xl font-semibold text-post">{t.notFound}</p>
-      <button onClick={() => navigate('/')} className="min-h-12 rounded-2xl bg-sign px-5 text-base font-semibold text-white">{t.back}</button>
+    <div className="flex h-full flex-col items-center justify-center gap-4 bg-wall p-8 text-center font-label text-label">
+      <p className="text-xl font-bold">{t.notFound}</p>
+      <button onClick={() => navigate('/')} className="min-h-12 bg-label px-5 text-base font-semibold text-ink">{t.back}</button>
     </div>
   );
 
-  const statusTone = { CR: 'text-red-700', EN: 'text-red-700', VU: 'text-orange-700', NT: 'text-amber-700', LC: 'text-sign', EW: 'text-red-800' }[animal.status] || 'text-post';
   const playIcon = <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} ${!isPlaying ? 'ml-0.5' : ''}`} aria-hidden="true"></i>;
   const playLabel = !hasAudio ? t.noAudio : isPlaying ? t.pause : t.play;
+  const ctrl = 'flex min-h-11 items-center justify-center gap-2 bg-ink/5 px-3 text-sm font-semibold text-ink transition-colors hover:bg-ink/10';
 
   return (
-    <div ref={scrollRef} className="relative h-full overflow-y-auto bg-trail hide-scrollbar">
+    <div ref={scrollRef} className="wall-page relative h-full overflow-y-auto bg-wall font-label text-label hide-scrollbar">
 
-      {/* Ảnh con vật; nút quay lại và ngôn ngữ dạng nút tròn đè trên ảnh */}
-      <div className="relative h-56 w-full md:h-80">
-        <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" className="h-full w-full" />
-        <button onClick={goBack} aria-label={t.back} className="absolute left-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-post backdrop-blur-sm transition-colors hover:bg-white">
+      {/* Ảnh con vật chiếm phần lớn màn hình đầu; nút quay lại và ngôn ngữ là nhãn vuông đặt trên ảnh */}
+      <div className="relative h-[56vh] w-full overflow-hidden md:h-[62vh] lg:h-[52vh]">
+        <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" className="hero-drift h-full w-full" />
+        <button onClick={goBack} aria-label={t.back} className="absolute left-4 top-4 z-20 flex h-11 w-11 items-center justify-center bg-label text-ink transition-colors hover:bg-white sm:left-6 lg:left-8">
           <i className="fa-solid fa-arrow-left" aria-hidden="true"></i>
         </button>
-        <div className="absolute right-4 top-4 z-20"><LanguageMenu onPhoto /></div>
-        {photoPage && (
-          <a href={photoPage} target="_blank" rel="noopener noreferrer" className="absolute bottom-9 right-3 z-20 rounded-full bg-black/45 px-2.5 py-0.5 text-[11px] text-white/90 backdrop-blur-sm hover:bg-black/60">
-            {t.photo}
-          </a>
-        )}
+        <div className="absolute right-4 top-4 z-20 sm:right-6 lg:right-8"><LanguageMenu onPhoto /></div>
       </div>
 
-      <div className="relative z-10 -mt-6 rounded-t-3xl bg-trail">
-        <div className="mx-auto max-w-2xl px-4 pb-32 pt-5 sm:px-6">
-          <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="inline-flex min-h-8 items-center gap-1.5 rounded-full bg-sage-soft px-3 text-xs font-medium text-sign-deep transition-colors hover:bg-arrow-deep">
-            <i className="fa-solid fa-location-dot" aria-hidden="true"></i>{animal.zoneName}
-          </button>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight text-post">{animal.name}</h1>
-          <p className="text-sm italic text-post-soft">{animal.scientificName}</p>
-
-          {/* Trình phát: hành động chính của trang, nằm ngay màn hình đầu */}
-          <section ref={playerRef} aria-label={t.listen} className="mt-4 rounded-2xl border border-trail-line bg-white p-4">
+      <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:px-8">
+        {/* Tên và trình phát cùng một hàng trên màn hình lớn, để nút phát luôn ở màn hình đầu */}
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-14">
+          <div>
+          <h1 className="label-in text-[clamp(3rem,9vw,7.5rem)] font-extrabold leading-[0.95] tracking-[-0.03em] text-balance">{animal.name}</h1>
+          <p className="label-in mt-3 max-w-[40ch] text-xl leading-snug" style={{ animationDelay: '70ms' }}>
+            {t.lives(animal.zoneName)}
+            <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="font-semibold underline decoration-label/40 underline-offset-4 hover:decoration-label">{animal.zoneName}</button>
+            {t.livesEnd}
+            {animal.status && t.iucn[animal.status] ? t.statusIs(t.iucn[animal.status]) : '.'}
+          </p>
+          <p className="label-in mt-1 font-latin text-base italic text-label/80" style={{ animationDelay: '140ms' }}>{animal.scientificName}</p>
+          </div>
+          {/* Trình phát: hành động chính của trang */}
+          <section ref={playerRef} aria-label={t.listen} className="label-in bg-label p-5 text-ink sm:p-6" style={{ animationDelay: '210ms' }}>
             <div className="flex items-center gap-4">
               <button
                 onClick={togglePlayPause}
                 disabled={!hasAudio}
                 aria-label={playLabel}
-                className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl transition-[background-color,transform] duration-150 ${
-                  hasAudio ? 'bg-sign text-white hover:bg-sign-deep active:scale-95' : 'cursor-not-allowed bg-trail-line text-post-soft'
+                className={`flex h-16 w-16 shrink-0 items-center justify-center text-2xl transition-[background-color,transform] duration-150 ${
+                  hasAudio ? 'bg-ink text-label hover:bg-wall active:scale-95' : 'cursor-not-allowed bg-ink/10 text-ink-soft'
                 }`}
               >
                 {playIcon}
               </button>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-post">{hasAudio ? t.listen : t.noAudio}</p>
+                <p className="text-xl font-bold">{hasAudio ? t.listen : t.noAudio}</p>
                 {hasAudio && (
                   <>
                     <input
@@ -255,10 +274,10 @@ export default function AnimalDetail() {
                       onChange={e => seekTo(Number(e.target.value))}
                       aria-label={t.seek}
                       aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
-                      className="block h-7 w-full cursor-pointer accent-sign"
+                      className="block h-7 w-full cursor-pointer accent-ink"
                       style={{ background: 'transparent' }}
                     />
-                    <div className="flex justify-between text-xs tabular-nums text-post-soft">
+                    <div className="flex justify-between text-sm tabular-nums text-ink-soft">
                       <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
                     </div>
                   </>
@@ -266,40 +285,79 @@ export default function AnimalDetail() {
               </div>
             </div>
             {hasAudio && (
-              <div className="mt-2 flex items-center justify-between border-t border-trail-line pt-2">
-                <button onClick={() => seekTo(audioRef.current.currentTime - 10)} aria-label={t.rewind} className="flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-medium text-post transition-colors hover:bg-trail">
+              <div className="mt-4 flex gap-2">
+                <button onClick={() => seekTo(audioRef.current.currentTime - 10)} aria-label={t.rewind} className={ctrl}>
                   <i className="fa-solid fa-rotate-left" aria-hidden="true"></i>10s
                 </button>
-                <button onClick={nextSpeed} aria-label={`${t.speed}: ${speed}×`} className="flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-trail px-3 text-sm font-semibold tabular-nums text-post transition-colors hover:bg-trail-line">
-                  {speed}×
-                </button>
+                <button onClick={nextSpeed} aria-label={`${t.speed}: ${speed}×`} className={`${ctrl} min-w-11 tabular-nums`}>{speed}×</button>
               </div>
             )}
           </section>
+        </div>
 
-          {facts.length > 0 && (
-            <dl className="mt-3 grid grid-cols-2 gap-2">
-              {facts.map(([label, value], i) => (
-                <div key={label} className="rounded-2xl border border-trail-line bg-white px-3.5 py-2.5">
-                  <dt className="text-xs text-post-soft">{label}</dt>
-                  <dd className={`text-sm font-semibold ${i === 0 ? statusTone : 'text-post'}`}>{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
+        <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+          <div className="space-y-10">
 
-          <h2 className="mt-6 text-base font-semibold text-post">{t.about}</h2>
-          <p className="mt-1 max-w-[65ch] whitespace-pre-wrap text-[16px] leading-relaxed text-post/90">{animal.content}</p>
+            <section aria-labelledby="about-title" className="label-in" style={{ animationDelay: '280ms' }}>
+              <h2 id="about-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.about}</h2>
+              <p className="mt-3 max-w-[60ch] whitespace-pre-wrap text-xl leading-relaxed">{animal.content}</p>
+            </section>
+          </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-trail-line bg-white text-sm font-semibold text-post transition-colors hover:border-sign/40">
-              <i className="fa-solid fa-map" aria-hidden="true"></i>{t.mapShort}
-            </button>
-            <button onClick={openQR} className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-trail-line bg-white text-sm font-semibold text-post transition-colors hover:border-sign/40">
-              <i className="fa-solid fa-qrcode" aria-hidden="true"></i>{t.scanMore}
-            </button>
+          <div className="space-y-10">
+            {facts.length > 0 && (
+              <section aria-labelledby="facts-title" className="label-in" style={{ animationDelay: '350ms' }}>
+                <h2 id="facts-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.factsTitle}</h2>
+                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
+                  {facts.map(([label, value], i) => (
+                    <div key={label} className="label-in" style={{ animationDelay: `${380 + i * 70}ms` }}>
+                      <dt className="text-sm text-label/75">{label}</dt>
+                      <dd className="mt-1 flex items-center gap-2 text-xl font-bold leading-tight">
+                        {i === 0 && animal.status && <span className={`shrink-0 px-1.5 text-sm font-bold ${IUCN_TONE[animal.status] || 'bg-label text-ink'}`}>{animal.status}</span>}
+                        {value}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            )}
+
+            {neighbours.length > 0 && (
+              <section aria-labelledby="zone-title" className="label-in" style={{ animationDelay: '420ms' }}>
+                <h2 id="zone-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.sameZone(animal.zoneName)}</h2>
+                <ul className="mt-4 space-y-2">
+                  {neighbours.map((a, i) => (
+                    <li key={a.id} className="label-in" style={{ animationDelay: `${450 + i * 70}ms` }}>
+                      <Link to={`/a/${a.id}?source=zone`} className="group flex items-center gap-4 bg-wall-deep p-2 pr-4 transition-colors hover:bg-label hover:text-ink">
+                        <AnimalImage src={a.avatarUrl} alt="" loading="eager" className="h-[120px] w-40 shrink-0" />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-xl font-bold">{a.defaultLocalName}</span>
+                          <span className="block truncate font-latin text-base italic opacity-80">{a.scientificName}</span>
+                        </span>
+                        <i className="fa-solid fa-arrow-right transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden="true"></i>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <div className="label-in grid grid-cols-2 gap-3" style={{ animationDelay: '490ms' }}>
+              <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="flex min-h-12 items-center justify-center gap-2 border-2 border-label px-3 text-base font-semibold transition-colors hover:bg-label hover:text-ink">
+                <i className="fa-solid fa-map" aria-hidden="true"></i>{t.mapShort}
+              </button>
+              <button onClick={openQR} className="flex min-h-12 items-center justify-center gap-2 border-2 border-label px-3 text-base font-semibold transition-colors hover:bg-label hover:text-ink">
+                <i className="fa-solid fa-qrcode" aria-hidden="true"></i>{t.scanMore}
+              </button>
+            </div>
           </div>
         </div>
+
+        {photoPage && (
+          <p className="mt-14 text-sm text-label/75">
+            <a href={photoPage} target="_blank" rel="noopener noreferrer" className="underline decoration-label/40 underline-offset-4 hover:decoration-label">{t.photo}</a>
+          </p>
+        )}
       </div>
 
       {animal.audioUrl && (
@@ -315,20 +373,20 @@ export default function AnimalDetail() {
         />
       )}
 
-      {/* Thanh phát nhỏ: chỉ hiện khi đã cuộn qua thẻ trình phát, để vẫn dừng/phát được lúc đọc */}
+      {/* Thanh phát nhỏ (thanh dính đáy): chỉ hiện khi đã cuộn qua nhãn trình phát. Bóng là của thanh dính, không phải phần tử đứng yên: taste-skill-ignore */}
       {hasAudio && showMini && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-trail-line bg-white/95 px-4 pb-safe backdrop-blur-sm">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 py-2.5">
-            <button onClick={togglePlayPause} aria-label={playLabel} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sign text-white transition-colors hover:bg-sign-deep">
+        <div className={'fixed inset-x-0 bottom-0 z-50 bg-wall-deep px-4 pb-safe shadow-[0_-10px_24px_-14px_rgb(0_0_0/0.6)]' /* taste-skill-ignore: thanh dính đáy */}>
+          <div className="mx-auto flex max-w-6xl items-center gap-3 py-2.5 sm:px-2 lg:px-4">
+            <button onClick={togglePlayPause} aria-label={playLabel} className="flex h-11 w-11 shrink-0 items-center justify-center bg-label text-ink transition-colors hover:bg-white">
               {playIcon}
             </button>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-post">{animal.name}</p>
-              <div className="mt-1 h-1 overflow-hidden rounded-full bg-trail-line">
-                <div className="h-full rounded-full bg-sign" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
+              <p className="truncate text-base font-semibold">{animal.name}</p>
+              <div className="mt-1 h-1 bg-label/20">
+                <div className="h-full bg-label" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
               </div>
             </div>
-            <span className="shrink-0 text-xs tabular-nums text-post-soft">{formatTime(currentTime)} / {formatTime(duration)}</span>
+            <span className="shrink-0 text-sm tabular-nums text-label/75">{formatTime(currentTime)} / {formatTime(duration)}</span>
           </div>
         </div>
       )}

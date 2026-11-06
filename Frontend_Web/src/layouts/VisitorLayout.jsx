@@ -35,8 +35,8 @@ export default function VisitorLayout() {
 
   const isDetailPage = location.pathname.startsWith('/a/');
   const isHome = location.pathname === '/';
-  // Trang chủ và bản đồ dùng tường nhãn xanh; các trang khác giữ kiểu ứng dụng
-  const isWall = isHome || location.pathname === '/map';
+  // Mọi trang du khách dùng tường nhãn xanh
+  const isWall = isHome || location.pathname === '/map' || location.pathname.startsWith('/a/');
   const t = translations[language] || translations['vi'];
 
   // Trình đọc màn hình và trình dịch biết đúng ngôn ngữ đang hiển thị

@@ -50,8 +50,8 @@ export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onP
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={`${menuLabel}: ${current?.name ?? language}`}
-        className={`flex min-h-11 items-center gap-2 rounded-full px-3.5 text-sm font-semibold uppercase transition-colors ${
-          variant === 'onPhoto' ? 'bg-white/90 text-post backdrop-blur-sm hover:bg-white' : 'border border-trail-line bg-white text-post hover:border-sign/40'
+        className={`flex min-h-11 items-center gap-2 px-3.5 text-sm font-semibold uppercase transition-colors ${
+          variant === 'onPhoto' ? 'bg-label font-label text-ink hover:bg-white' : 'rounded-full border border-trail-line bg-white text-post hover:border-sign/40'
         }`}
       >
         <i className="fa-solid fa-language" aria-hidden="true"></i>
