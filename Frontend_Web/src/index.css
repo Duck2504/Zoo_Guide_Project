@@ -27,6 +27,17 @@
   --color-sage-soft: #e3f2e7;
   --font-sign: "Be Vietnam Pro", system-ui, sans-serif;
   --font-trail: "Be Vietnam Pro", system-ui, sans-serif;
+
+  /* Trang chủ: tường nhãn trưng bày */
+  --color-wall: #12372a;       /* tường phòng trưng bày */
+  --color-wall-deep: #0c271d;
+  --color-label: #f6f8f7;      /* nhãn trắng lạnh */
+  --color-ink: #101614;        /* chữ trên nhãn */
+  --color-ink-soft: #46544e;
+  --color-onair: #ff6b35;      /* chỉ dành cho nhãn đang phát */
+  --font-label: "Archivo", system-ui, sans-serif;
+  --font-label-narrow: "Archivo Narrow", "Archivo", system-ui, sans-serif;
+  --font-latin: "Source Serif 4", Georgia, serif; /* tên Latin và tên ngôn ngữ, có dấu tiếng Việt */
 }
 
 /* Bề mặt trình duyệt trong khu du khách mang màu của hệ biển */
@@ -43,10 +54,16 @@
 .visitor-world .leaflet-popup-tip { background: #ffffff; }
 .visitor-world .leaflet-container a.leaflet-popup-close-button { width: 32px; height: 32px; font: 700 22px/30px var(--font-trail); color: var(--color-post); }
 
-/* Biển rơi vào trụ khi mở trang: chỉ dịch chuyển, nội dung luôn hiện sẵn */
-@keyframes sign-hang { from { transform: translateY(-10px) rotate(-1.2deg); } to { transform: none; } }
+/* Trang chủ (tường nhãn): focus trắng trên tường xanh, mực trên nhãn trắng; bôi đen chữ theo màu nhãn */
+.visitor-world .wall-page :focus-visible { outline-color: var(--color-label); }
+.visitor-world .wall-page .bg-label :focus-visible, .visitor-world .wall-page .bg-label:focus-visible { outline-color: var(--color-ink); }
+.visitor-world .wall-page ::selection { background: var(--color-label); color: var(--color-wall); }
+.visitor-world .wall-page .bg-label ::selection { background: var(--color-wall); color: var(--color-label); }
+
+/* Nhãn loài trượt vào chỗ theo thứ tự, một lần khi mở trang; nội dung luôn hiện sẵn */
+@keyframes label-in { from { transform: translateY(12px); } to { transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
-  .sign-hang { animation: sign-hang 420ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .label-in { animation: label-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 }
 
 /* Custom Scrollbar cho giao diện mượt mà */

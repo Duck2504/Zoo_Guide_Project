@@ -7,23 +7,22 @@ import QRScannerModal from '../components/QRScannerModal';
 import LanguageMenu from '../components/LanguageMenu';
 
 const translations = {
-  vi: { title: 'Thảo Cầm Viên', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', nav: 'Điều hướng', geoOn: 'Đang theo dõi vị trí (bấm để tắt)', geoOff: 'Bật định vị để xem con vật quanh bạn' },
-  en: { title: 'Saigon Zoo', home: 'Home', map: 'Map', scan: 'Scan QR code', nav: 'Navigation', geoOn: 'Tracking your location (tap to stop)', geoOff: 'Turn on location to see animals around you' },
-  ko: { title: '사이공 동물원', home: '홈', map: '지도', scan: 'QR 스캔', nav: '탐색', geoOn: '위치 추적 중 (눌러서 끄기)', geoOff: '위치를 켜고 주변 동물 보기' },
-  ja: { title: 'サイゴン動植物園', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', nav: 'ナビゲーション', geoOn: '現在地を追跡中（タップで停止）', geoOff: '位置情報をオンにして近くの動物を見る' },
-  zh: { title: '西贡动植物园', home: '首页', map: '地图', scan: '扫描QR码', nav: '导航', geoOn: '正在跟踪位置（点击关闭）', geoOff: '开启定位查看附近动物' }
+  vi: { title: 'Thảo Cầm Viên', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', scanShort: 'Quét mã', nav: 'Điều hướng', geoOn: 'Đang theo dõi vị trí (bấm để tắt)', geoOff: 'Bật định vị để xem con vật quanh bạn' },
+  en: { title: 'Saigon Zoo', home: 'Home', map: 'Map', scan: 'Scan QR code', scanShort: 'Scan', nav: 'Navigation', geoOn: 'Tracking your location (tap to stop)', geoOff: 'Turn on location to see animals around you' },
+  ko: { title: '사이공 동물원', home: '홈', map: '지도', scan: 'QR 스캔', scanShort: '스캔', nav: '탐색', geoOn: '위치 추적 중 (눌러서 끄기)', geoOff: '위치를 켜고 주변 동물 보기' },
+  ja: { title: 'サイゴン動植物園', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', scanShort: 'スキャン', nav: 'ナビゲーション', geoOn: '現在地を追跡中（タップで停止）', geoOff: '位置情報をオンにして近くの動物を見る' },
 };
 
-// Mục điều hướng kiểu biển: chữ đứng in hoa, mục đang chọn có vạch vàng "bạn đang ở đây"
-const tabClass = ({ isActive }) =>
+// Mục điều hướng: mục đang chọn có vạch "bạn đang ở đây". wall = trang chủ (tường nhãn xanh đậm)
+const tabClass = wall => ({ isActive }) =>
   `relative flex min-h-11 w-20 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors ${
-    isActive ? 'text-sign' : 'text-post-soft hover:text-post'
+    wall ? (isActive ? 'font-label text-label' : 'font-label text-label/70 hover:text-label') : (isActive ? 'text-sign' : 'text-post-soft hover:text-post')
   }`;
-const headerLinkClass = ({ isActive }) =>
+const headerLinkClass = wall => ({ isActive }) =>
   `relative flex min-h-11 items-center gap-2 px-3 text-sm font-semibold transition-colors ${
-    isActive ? 'text-sign' : 'text-post-soft hover:text-post'
+    wall ? (isActive ? 'font-label text-label' : 'font-label text-label/75 hover:text-label') : (isActive ? 'text-sign' : 'text-post-soft hover:text-post')
   }`;
-const HereMark = ({ className }) => <span className={`absolute h-1 w-8 rounded-full bg-sign ${className}`} aria-hidden="true" />;
+const HereMark = ({ className, wall }) => <span className={`absolute h-1 w-8 ${wall ? 'bg-label' : 'rounded-full bg-sign'} ${className}`} aria-hidden="true" />;
 
 export default function VisitorLayout() {
   const { language } = useVisitor();
@@ -40,6 +39,12 @@ export default function VisitorLayout() {
 
   // Trình đọc màn hình và trình dịch biết đúng ngôn ngữ đang hiển thị
   useEffect(() => { document.documentElement.lang = language; }, [language]);
+
+  // Trang chủ: tường xanh phủ tới mép màn hình (khung giữa không còn lề sáng hai bên trên máy tính)
+  useEffect(() => {
+    document.body.style.backgroundColor = isHome ? 'var(--color-wall)' : '';
+    return () => { document.body.style.backgroundColor = ''; };
+  }, [isHome]);
 
   // Chỉ một thuyết minh phát cùng lúc: thẻ audio nào bắt đầu phát thì dừng các thẻ còn lại
   useEffect(() => {
@@ -62,27 +67,28 @@ export default function VisitorLayout() {
 
   // Điện thoại: full màn hình; tablet/desktop: khung rộng dần để trang không bị bó thành cột hẹp
   return (
-    <div className="visitor-world font-trail text-post bg-trail flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative overflow-hidden md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]">
+    <div className={`visitor-world font-trail text-post ${isHome ? 'bg-wall' : 'bg-trail'} flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative overflow-hidden ${isHome ? '' : 'md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]'}`}>
       {!isDetailPage && (
-        <header className="h-14 bg-trail/95 backdrop-blur-sm shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 absolute top-0 left-0 right-0 border-b border-trail-line">
-          <NavLink to="/" className="flex min-w-0 items-center gap-2.5 text-base font-semibold text-post">
+        <header className={`h-14 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 absolute top-0 left-0 right-0 border-b ${isHome ? 'bg-wall border-transparent' : 'bg-trail/95 backdrop-blur-sm border-trail-line'}`}>
+          <NavLink to="/" className={`flex min-w-0 items-center gap-2.5 text-base font-semibold ${isHome ? 'font-label text-label' : 'text-post'}`}>
             {/* Con dấu của vườn: luôn ở đúng một chỗ trên mọi trang */}
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-sign text-white" aria-hidden="true">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center ${isHome ? 'bg-label text-wall' : 'rounded-[10px] bg-sign text-white'}`} aria-hidden="true">
               <i className="fa-solid fa-leaf text-sm"></i>
             </span>
-                        <span className="truncate">{t.title}</span>
+            {/* Trang chủ trên điện thoại hẹp: 4 nút ngôn ngữ cần chỗ, chỉ giữ con dấu */}
+            <span className={isHome ? 'hidden truncate min-[420px]:inline' : 'truncate'}>{t.title}</span>
           </NavLink>
 
           <div className="flex items-center gap-2">
             {/* Máy tính: điều hướng nằm trên header thay cho thanh tab dưới */}
             <nav className="hidden items-center lg:flex" aria-label={t.nav}>
-              <NavLink to="/" end className={headerLinkClass}>
-                {({ isActive }) => (<>{isActive && <HereMark className="-bottom-2 left-3" />}{t.home}</>)}
+              <NavLink to="/" end className={headerLinkClass(isHome)}>
+                {({ isActive }) => (<>{isActive && <HereMark wall={isHome} className="-bottom-2 left-3" />}{t.home}</>)}
               </NavLink>
-              <NavLink to="/map" className={headerLinkClass}>
-                {({ isActive }) => (<>{isActive && <HereMark className="-bottom-2 left-3" />}{t.map}</>)}
+              <NavLink to="/map" className={headerLinkClass(isHome)}>
+                {({ isActive }) => (<>{isActive && <HereMark wall={isHome} className="-bottom-2 left-3" />}{t.map}</>)}
               </NavLink>
-              <button onClick={() => setIsQRModalOpen(true)} className="ml-2 flex min-h-11 items-center gap-2 rounded-full bg-sign px-5 text-sm font-semibold text-white transition-colors hover:bg-sign-deep">
+              <button onClick={() => setIsQRModalOpen(true)} className={`ml-2 min-h-11 items-center gap-2 px-5 text-sm font-semibold transition-colors ${isHome ? 'hidden' : 'flex rounded-full bg-sign text-white hover:bg-sign-deep'}`}>
                 <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scan}
               </button>
             </nav>
@@ -92,13 +98,15 @@ export default function VisitorLayout() {
               aria-pressed={geoEnabled}
               aria-label={geoEnabled ? t.geoOn : t.geoOff}
               title={geoEnabled ? t.geoOn : t.geoOff}
-              className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors ${
-                geoEnabled ? 'border-sign bg-sign text-white' : 'border-trail-line bg-white text-post hover:border-sign/40'
+              className={`flex h-11 w-11 items-center justify-center border transition-colors ${
+                isHome
+                  ? (geoEnabled ? 'border-label bg-label text-wall' : 'border-label/35 text-label hover:bg-label/10')
+                  : `rounded-full ${geoEnabled ? 'border-sign bg-sign text-white' : 'border-trail-line bg-white text-post hover:border-sign/40'}`
               }`}
             >
               <i className={`fa-solid ${geoEnabled ? 'fa-location-crosshairs' : 'fa-location-arrow'}`} aria-hidden="true"></i>
             </button>
-            <LanguageMenu />
+            <LanguageMenu variant={isHome ? 'wall' : 'menu'} />
           </div>
         </header>
       )}
@@ -108,10 +116,10 @@ export default function VisitorLayout() {
       </div>
 
       {!isDetailPage && (
-        <nav className="h-20 bg-trail border-t border-trail-line shrink-0 z-40 absolute bottom-0 left-0 right-0 flex justify-around items-center px-2 pb-safe lg:hidden" aria-label={t.nav}>
-          <NavLink to="/" end className={tabClass}>
+        <nav className={`h-20 border-t shrink-0 z-40 absolute bottom-0 left-0 right-0 flex justify-around items-center px-2 pb-safe lg:hidden ${isHome ? 'bg-wall-deep border-label/15' : 'bg-trail border-trail-line'}`} aria-label={t.nav}>
+          <NavLink to="/" end className={tabClass(isHome)}>
             {({ isActive }) => (<>
-              {isActive && <HereMark className="-top-px" />}
+              {isActive && <HereMark wall={isHome} className="-top-px" />}
               <i className="fa-solid fa-house text-xl" aria-hidden="true"></i>
               <span>{t.home}</span>
             </>)}
@@ -120,14 +128,15 @@ export default function VisitorLayout() {
           <button
             onClick={() => setIsQRModalOpen(true)}
             aria-label={t.scan}
-            className="relative -top-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-sign text-2xl text-white shadow-[0_10px_20px_-8px_rgb(21_128_61/0.6)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95"
+            className={isHome ? tabClass(true)({ isActive: false }) : 'relative -top-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-sign text-2xl text-white shadow-[0_10px_20px_-8px_rgb(21_128_61/0.6)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95'}
           >
-            <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
+            <i className={`fa-solid fa-qrcode ${isHome ? 'text-xl' : ''}`} aria-hidden="true"></i>
+            {isHome && <span>{t.scanShort}</span>}
           </button>
 
-          <NavLink to="/map" className={tabClass}>
+          <NavLink to="/map" className={tabClass(isHome)}>
             {({ isActive }) => (<>
-              {isActive && <HereMark className="-top-px" />}
+              {isActive && <HereMark wall={isHome} className="-top-px" />}
               <i className="fa-solid fa-map-location-dot text-xl" aria-hidden="true"></i>
               <span>{t.map}</span>
             </>)}

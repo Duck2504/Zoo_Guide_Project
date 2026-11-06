@@ -1,6 +1,11 @@
 // Chữ dùng chung cho khối "Quanh bạn" ở trang chủ, ngăn kéo khu và danh sách con vật trong khu.
 const zoneText = {
   vi: {
+    heroTitle: 'Đi tới đâu, nghe tới đó',
+    heroBody: 'Bật định vị rồi cứ đi dạo. Khi bạn bước vào một khu, danh sách con vật ở đó hiện ra và bạn nghe cả khu chỉ với một chạm.',
+    heroSteps: [['Bật định vị', 'một lần'], ['Đi vào một khu', 'danh sách tự hiện'], ['Nghe cả khu', 'phát lần lượt']],
+    howTo: 'Cách nghe theo vị trí', zonesCaption: 'khu tự nhận biết',
+    privacy: 'Vị trí chỉ được xử lý trên điện thoại của bạn, không gửi đi đâu.',
     aroundTitle: 'Con vật quanh bạn',
     offText: 'Bật định vị, khi bạn bước vào một khu, danh sách con vật ở đó sẽ tự hiện ra.',
     turnOn: 'Bật định vị', turnOff: 'Tắt định vị',
@@ -16,6 +21,11 @@ const zoneText = {
     close: 'Đóng', openZone: 'Mở danh sách khu', demo: 'Chế độ thử: chạm bản đồ để đặt vị trí của bạn'
   },
   en: {
+    heroTitle: 'Walk anywhere, hear what is there',
+    heroBody: 'Turn on location and just stroll. When you walk into a zone, its animals appear and you can hear the whole zone with one tap.',
+    heroSteps: [['Turn on location', 'once'], ['Walk into a zone', 'the list appears'], ['Play the zone', 'one after another']],
+    howTo: 'How location guiding works', zonesCaption: 'zones detected automatically',
+    privacy: 'Your location is processed only on your phone and is never sent anywhere.',
     aroundTitle: 'Animals around you',
     offText: 'Turn on location and the animals of each zone appear as you walk into it.',
     turnOn: 'Turn on location', turnOff: 'Turn off location',
@@ -31,6 +41,11 @@ const zoneText = {
     close: 'Close', openZone: 'Open zone list', demo: 'Demo mode: tap the map to set your position'
   },
   ko: {
+    heroTitle: '걷는 곳마다 해설이 함께합니다',
+    heroBody: '위치를 켜고 산책하세요. 구역에 들어가면 그곳 동물 목록이 나타나고, 한 번 눌러 구역 전체 해설을 들을 수 있습니다.',
+    heroSteps: [['위치 켜기', '한 번만'], ['구역에 들어가기', '목록이 나타남'], ['구역 전체 듣기', '차례로 재생']],
+    howTo: '위치 기반 해설 이용 방법', zonesCaption: '자동 인식 구역',
+    privacy: '위치는 휴대폰 안에서만 처리되며 어디에도 전송되지 않습니다.',
     aroundTitle: '주변 동물',
     offText: '위치를 켜면 구역에 들어갈 때 그곳 동물 목록이 자동으로 나타납니다.',
     turnOn: '위치 켜기', turnOff: '위치 끄기',
@@ -46,6 +61,11 @@ const zoneText = {
     close: '닫기', openZone: '구역 목록 열기', demo: '데모 모드: 지도를 눌러 위치를 정하세요'
   },
   ja: {
+    heroTitle: '歩いた場所で、その場の話を',
+    heroBody: '位置情報をオンにして歩くだけ。エリアに入るとそこの動物一覧が表示され、ワンタップでエリア全体のガイドを聞けます。',
+    heroSteps: [['位置情報をオン', '一度だけ'], ['エリアに入る', '一覧が表示'], ['エリアを聞く', '順番に再生']],
+    howTo: '位置情報ガイドの使い方', zonesCaption: '自動で認識するエリア',
+    privacy: '位置情報は端末内だけで処理され、どこにも送信されません。',
     aroundTitle: '近くの動物',
     offText: '位置情報をオンにすると、エリアに入ったときにそこの動物一覧が表示されます。',
     turnOn: '位置情報をオン', turnOff: '位置情報をオフ',
@@ -59,21 +79,6 @@ const zoneText = {
     playAll: 'エリアをまとめて聞く', stop: '停止', nowPlaying: (i, n) => `再生中 ${i}/${n}`,
     noAudioZone: 'このエリアにはまだあなたの言語の音声ガイドがありません。', listened: '聞いた',
     close: '閉じる', openZone: 'エリア一覧を開く', demo: 'デモモード：地図をタップして現在地を設定'
-  },
-  zh: {
-    aroundTitle: '你附近的动物',
-    offText: '开启定位后，走进某个区域时会自动显示那里的动物列表。',
-    turnOn: '开启定位', turnOff: '关闭定位',
-    loading: '正在加载园区区域…', error: '无法加载区域，请检查网络后重试。',
-    searching: '正在查找你的位置…', searchingHint: '到开阔处GPS会更快定位。',
-    inaccurate: acc => `位置还不够精确（±${Math.round(acc)} 米），正在等待GPS…`,
-    denied: '位置权限被阻止。请在浏览器设置中允许，或扫描围栏处的二维码。',
-    unsupported: '此浏览器不支持定位，请扫描围栏处的二维码。',
-    youAreIn: '你在', species: n => `${n} 种`,
-    nearest: '最近的区域', meters: d => `约 ${Math.round(d)} 米`, showWay: '在地图上查看',
-    playAll: '收听整个区域', stop: '停止', nowPlaying: (i, n) => `正在播放 ${i}/${n}`,
-    noAudioZone: '此区域暂无你的语言的语音导览。', listened: '已听',
-    close: '关闭', openZone: '打开区域列表', demo: '演示模式：点击地图设置你的位置'
   }
 };
 
