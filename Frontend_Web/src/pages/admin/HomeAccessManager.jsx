@@ -40,7 +40,7 @@ export default function HomeAccessManager() {
           <div className="pointer-events-none absolute -bottom-28 right-40 h-64 w-64 rounded-full bg-emerald-400/10 blur-2xl" />
           <div className="relative max-w-2xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-50">
-              <i className="fa-solid fa-qrcode"></i> CÔNG CỤ DÀNH CHO KHÁCH THAM QUAN
+              <i className="fa-solid fa-qrcode" aria-hidden="true"></i> CÔNG CỤ DÀNH CHO KHÁCH THAM QUAN
             </div>
             <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Mã QR trang chủ</h1>
             <p className="mt-2 text-sm leading-6 text-emerald-100 sm:text-base">
@@ -55,7 +55,7 @@ export default function HomeAccessManager() {
             <div className="border-b border-slate-100 px-5 py-5 sm:px-7">
               <div className="flex items-start gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-lg text-emerald-700">
-                  <i className="fa-solid fa-qrcode"></i>
+                  <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
                 </div>
                 <div>
                   <h2 className="font-bold text-slate-800">Mã truy cập của bạn</h2>
@@ -78,7 +78,7 @@ export default function HomeAccessManager() {
                   />
                 </div>
                 <div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold text-emerald-800">
-                  <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                  <i className="fa-solid fa-circle-check text-emerald-600" aria-hidden="true"></i>
                   Sẵn sàng để quét
                 </div>
               </div>
@@ -97,13 +97,13 @@ export default function HomeAccessManager() {
                     onClick={handleDownloadQR}
                     className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20"
                   >
-                    <i className="fa-solid fa-download"></i> Tải mã QR PNG
+                    <i className="fa-solid fa-download" aria-hidden="true"></i> Tải mã QR PNG
                   </button>
                   <button
                     onClick={handleCopyLink}
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
                   >
-                    <i className={`fa-solid ${isCopied ? 'fa-check' : 'fa-copy'}`}></i>
+                    <i className={`fa-solid ${isCopied ? 'fa-check' : 'fa-copy'}`} aria-hidden="true"></i>
                     {isCopied ? 'Đã sao chép' : 'Sao chép liên kết'}
                   </button>
                 </div>
@@ -114,7 +114,7 @@ export default function HomeAccessManager() {
           <aside className="space-y-6">
             <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
               <h2 className="flex items-center gap-2 font-bold text-slate-800">
-                <i className="fa-solid fa-lightbulb text-amber-500"></i> Cách sử dụng
+                <i className="fa-solid fa-lightbulb text-amber-500" aria-hidden="true"></i> Cách sử dụng
               </h2>
               <ol className="mt-5 space-y-4">
                 <li className="flex gap-3">
@@ -135,7 +135,7 @@ export default function HomeAccessManager() {
             <section className="rounded-2xl border border-sky-100 bg-sky-50/80 p-5 sm:p-6">
               <div className="flex gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-sky-700 shadow-sm">
-                  <i className="fa-solid fa-shield-halved"></i>
+                  <i className="fa-solid fa-shield-halved" aria-hidden="true"></i>
                 </div>
                 <div>
                   <h2 className="font-bold text-sky-950">Mẹo để quét tốt hơn</h2>

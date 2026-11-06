@@ -122,7 +122,7 @@ export default function ZoneManager() {
           <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-50">
-                <i className="fa-solid fa-map-location-dot"></i> QUẢN LÝ KHÔNG GIAN SỞ THÚ
+                <i className="fa-solid fa-map-location-dot" aria-hidden="true"></i> QUẢN LÝ KHÔNG GIAN SỞ THÚ
               </div>
               <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Quản lý khu vực</h1>
               <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-100 sm:text-base">
@@ -130,22 +130,22 @@ export default function ZoneManager() {
               </p>
             </div>
             <button onClick={() => handleOpenModal()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-emerald-800 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25">
-              <i className="fa-solid fa-plus"></i> Thêm khu vực
+              <i className="fa-solid fa-plus" aria-hidden="true"></i> Thêm khu vực
             </button>
           </div>
         </section>
 
         <section className="grid gap-4 sm:grid-cols-3">
           <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-700"><i className="fa-solid fa-map"></i></div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-700"><i className="fa-solid fa-map" aria-hidden="true"></i></div>
             <div><p className="text-sm font-medium text-slate-500">Tổng khu vực</p><p className="mt-1 text-2xl font-black text-slate-800">{zones.length}</p></div>
           </div>
           <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-xl text-sky-700"><i className="fa-solid fa-crosshairs"></i></div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-xl text-sky-700"><i className="fa-solid fa-crosshairs" aria-hidden="true"></i></div>
             <div><p className="text-sm font-medium text-slate-500">Bán kính trung bình</p><p className="mt-1 text-2xl font-black text-slate-800">{averageRadius}<span className="ml-1 text-sm font-semibold text-slate-500">m</span></p></div>
           </div>
           <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl text-amber-600"><i className="fa-solid fa-filter"></i></div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl text-amber-600"><i className="fa-solid fa-filter" aria-hidden="true"></i></div>
             <div><p className="text-sm font-medium text-slate-500">Kết quả hiển thị</p><p className="mt-1 text-2xl font-black text-slate-800">{filteredZones.length}</p></div>
           </div>
         </section>
@@ -158,11 +158,11 @@ export default function ZoneManager() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <label className="relative block sm:w-72">
-                <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true"></i>
                 <input type="search" value={searchTerm} onChange={event => setSearchTerm(event.target.value)} placeholder="Tìm mã khu vực, tọa độ..." aria-label="Tìm khu vực" className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
               </label>
               <button onClick={fetchZones} disabled={isLoading} title="Làm mới danh sách" aria-label="Làm mới danh sách" className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-50">
-                <i className={`fa-solid fa-rotate ${isLoading ? 'fa-spin' : ''}`}></i><span className="sm:hidden">Làm mới</span>
+                <i className={`fa-solid fa-rotate ${isLoading ? 'fa-spin' : ''}`} aria-hidden="true"></i><span className="sm:hidden">Làm mới</span>
               </button>
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function ZoneManager() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
-                  <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600"></i>Đang tải danh sách khu vực...</td></tr>
+                  <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600" aria-hidden="true"></i>Đang tải danh sách khu vực...</td></tr>
                 ) : loadError ? (
                   <tr>
                     <td colSpan="4" className="px-5 py-16 text-center">
@@ -192,34 +192,34 @@ export default function ZoneManager() {
                 ) : filteredZones.length === 0 ? (
                   <tr>
                     <td colSpan="4" className="px-5 py-16 text-center">
-                      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-xl text-slate-400"><i className={`fa-solid ${zones.length ? 'fa-magnifying-glass' : 'fa-map'}`}></i></div>
+                      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-xl text-slate-400"><i className={`fa-solid ${zones.length ? 'fa-magnifying-glass' : 'fa-map'}`} aria-hidden="true"></i></div>
                       <p className="mt-4 font-bold text-slate-700">{zones.length ? 'Không tìm thấy khu vực phù hợp' : 'Chưa có khu vực nào'}</p>
                       <p className="mt-1 text-sm text-slate-500">{zones.length ? 'Thử tìm bằng mã khu vực hoặc tọa độ khác.' : 'Thêm khu vực để bắt đầu cấu hình bản đồ sở thú.'}</p>
-                      {!zones.length && <button onClick={() => handleOpenModal()} className="mt-4 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-800"><i className="fa-solid fa-plus mr-2"></i>Thêm khu vực</button>}
+                      {!zones.length && <button onClick={() => handleOpenModal()} className="mt-4 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-800"><i className="fa-solid fa-plus mr-2" aria-hidden="true"></i>Thêm khu vực</button>}
                     </td>
                   </tr>
                 ) : filteredZones.map(zone => (
                   <tr key={zone.id} className="transition hover:bg-emerald-50/30">
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i className="fa-solid fa-location-dot"></i></div>
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i className="fa-solid fa-location-dot" aria-hidden="true"></i></div>
                         <div><p className="font-bold text-slate-800">{zone.name || zone.zoneCode}</p><p className="mt-0.5 text-xs text-slate-500">{zone.zoneCode} · #{zone.id}</p></div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <div className="inline-flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700">
-                        <i className="fa-solid fa-globe text-xs text-slate-400"></i>{zone.latitude}, {zone.longitude}
+                        <i className="fa-solid fa-globe text-xs text-slate-400" aria-hidden="true"></i>{zone.latitude}, {zone.longitude}
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <span className="inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-2 text-sm font-bold text-sky-800">
-                        <i className="fa-solid fa-bullseye text-xs text-sky-600"></i>{zone.radius} m
+                        <i className="fa-solid fa-bullseye text-xs text-sky-600" aria-hidden="true"></i>{zone.radius} m
                       </span>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => handleOpenModal(zone)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${zone.zoneCode}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100"><i className="fa-solid fa-pen-to-square"></i></button>
-                        <button onClick={() => handleDelete(zone.id)} title="Xóa" aria-label={`Xóa ${zone.zoneCode}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100"><i className="fa-solid fa-trash"></i></button>
+                        <button onClick={() => handleOpenModal(zone)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${zone.zoneCode}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100"><i className="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
+                        <button onClick={() => handleDelete(zone.id)} title="Xóa" aria-label={`Xóa ${zone.zoneCode}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100"><i className="fa-solid fa-trash" aria-hidden="true"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -239,17 +239,17 @@ export default function ZoneManager() {
                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">{formData.id ? 'Cập nhật thông tin' : 'Danh mục khu vực'}</p>
                 <h2 className="mt-1 text-xl font-black text-slate-800">{formData.id ? 'Chỉnh sửa khu vực' : 'Thêm khu vực mới'}</h2>
               </div>
-              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Đóng biểu mẫu" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"><i className="fa-solid fa-xmark text-lg"></i></button>
+              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Đóng biểu mẫu" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"><i className="fa-solid fa-xmark text-lg" aria-hidden="true"></i></button>
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-5 px-6 py-6">
               <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 px-4 py-3 text-sm leading-5 text-emerald-900">
-                <i className="fa-solid fa-circle-info mr-2 text-emerald-700"></i>
+                <i className="fa-solid fa-circle-info mr-2 text-emerald-700" aria-hidden="true"></i>
                 Nhập mã định danh, tọa độ GPS và bán kính nhận diện của khu vực.
               </div>
               {error && (
                 <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">
-                  <i className="fa-solid fa-circle-exclamation mr-2"></i>
+                  <i className="fa-solid fa-circle-exclamation mr-2" aria-hidden="true"></i>
                   <span className="whitespace-pre-line">{error}</span>
                 </div>
               )}
@@ -286,7 +286,7 @@ export default function ZoneManager() {
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
                 <button type="submit" className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
-                  <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`}></i>{formData.id ? 'Lưu cập nhật' : 'Tạo khu vực'}
+                  <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`} aria-hidden="true"></i>{formData.id ? 'Lưu cập nhật' : 'Tạo khu vực'}
                 </button>
               </div>
             </form>
