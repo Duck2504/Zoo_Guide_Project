@@ -47,12 +47,12 @@
 .visitor-world :focus-visible { outline: 3px solid var(--color-sign); outline-offset: 2px; }
 .visitor-world [class*="bg-sign"] :focus-visible { outline-color: #ffffff; }
 
-/* Bản đồ nền dịu màu để ghim khu và chấm vị trí nổi lên */
+/* Bản đồ nền dịu màu để ghim khu và chấm vị trí nổi lên; popup là nhãn trắng vuông như trang chủ */
 .visitor-world .leaflet-tile-pane { filter: grayscale(0.85) contrast(0.9) brightness(1.05); }
-.visitor-world .leaflet-popup-content-wrapper { border-radius: 16px; background: #ffffff; box-shadow: 0 16px 32px -12px rgb(28 43 34 / 0.45); }
+.visitor-world .leaflet-popup-content-wrapper { border-radius: 0; background: var(--color-label); box-shadow: 0 16px 32px -12px rgb(28 43 34 / 0.45); }
 .visitor-world .leaflet-popup-content { margin: 10px; }
-.visitor-world .leaflet-popup-tip { background: #ffffff; }
-.visitor-world .leaflet-container a.leaflet-popup-close-button { width: 32px; height: 32px; font: 700 22px/30px var(--font-trail); color: var(--color-post); }
+.visitor-world .leaflet-popup-tip { background: var(--color-label); }
+.visitor-world .leaflet-container a.leaflet-popup-close-button { width: 32px; height: 32px; font: 700 22px/30px var(--font-label); color: var(--color-ink); }
 
 /* Trang chủ (tường nhãn): focus trắng trên tường xanh, mực trên nhãn trắng; bôi đen chữ theo màu nhãn */
 .visitor-world .wall-page :focus-visible { outline-color: var(--color-label); }
