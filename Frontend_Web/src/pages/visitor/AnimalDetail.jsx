@@ -4,6 +4,7 @@ import { useParams, useNavigate, useSearchParams, useLocation, useOutletContext 
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
 import LanguageMenu from '../../components/LanguageMenu';
+import { markListened } from '../../utils/listened';
 
 const translations = {
   vi: { scanNext: 'Quét chuồng kế tiếp', zoneMap: 'Xem khu này trên bản đồ', back: 'Quay lại', audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' } },
@@ -245,7 +246,7 @@ export default function AnimalDetail() {
           {animal.audioUrl && (
             <audio
               onError={() => { setAudioFailed(true); setIsPlaying(false); }}
-              onPlay={() => setIsPlaying(true)}
+              onPlay={() => { setIsPlaying(true); markListened(animal.id); }}
               onPause={() => setIsPlaying(false)}
               ref={audioRef}
               src={animal.audioUrl}
