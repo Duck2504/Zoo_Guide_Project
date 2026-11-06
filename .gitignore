@@ -68,3 +68,6 @@ logs/*
 !logs/.gitkeep
 TestResults/
 coverage/
+
+# Ảnh chụp và báo cáo của taste-skill
+.taste-skill/
