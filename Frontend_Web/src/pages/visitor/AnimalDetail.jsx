@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { API } from '../../config';
+import { getAnimals } from '../../utils/animalsApi';
+import { IUCN_TONE } from '../../utils/iucn';
 import { Link, useParams, useNavigate, useSearchParams, useLocation, useOutletContext } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
@@ -7,19 +9,14 @@ import LanguageMenu from '../../components/LanguageMenu';
 import { markListened } from '../../utils/listened';
 
 const translations = {
-  vi: { scanNext: 'Quét chuồng kế tiếp', zoneMap: 'Xem khu này trên bản đồ', back: 'Quay lại', audioTitle: 'Thuyết minh tự động', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', viewOnMap: 'Xem trên bản đồ', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
-  en: { scanNext: 'Scan the next enclosure', zoneMap: 'See this zone on the map', back: 'Back', audioTitle: 'Auto Audio Guide', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', viewOnMap: 'View on map', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', about: 'About', mapShort: 'Map', scanMore: 'Scan next', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
-  ko: { scanNext: '다음 우리 스캔', zoneMap: '지도에서 이 구역 보기', back: '뒤로', audioTitle: '자동 오디오 가이드', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', viewOnMap: '지도에서 보기', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', about: '소개', mapShort: '지도', scanMore: '다음 스캔', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
-  ja: { scanNext: '次の展示場をスキャン', zoneMap: 'このエリアを地図で見る', back: '戻る', audioTitle: '自動音声ガイド', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', viewOnMap: '地図で見る', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
+  vi: { back: 'Quay lại', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
+  en: { back: 'Back', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', about: 'About', mapShort: 'Map', scanMore: 'Scan next', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
+  ko: { back: '뒤로', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', about: '소개', mapShort: '지도', scanMore: '다음 스캔', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
+  ja: { back: '戻る', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
 };
 
 const SPEEDS = [1, 1.25, 0.75];
 
-// Màu ô mã mức bảo tồn theo Sách Đỏ IUCN (giống trang chủ); chữ mực trên nền sáng
-const IUCN_TONE = {
-  EW: 'bg-[#542344] text-white', CR: 'bg-[#d81e05] text-white', EN: 'bg-[#fc7f3f] text-ink',
-  VU: 'bg-[#f9e814] text-ink', NT: 'bg-[#cce226] text-ink', LC: 'bg-[#60c659] text-ink'
-};
 const NEIGHBOUR_COUNT = 3;
 
 // Tên file trên Commons lấy từ link ảnh, để dẫn về trang ghi tác giả/giấy phép của ảnh
@@ -57,7 +54,6 @@ export default function AnimalDetail() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const scrollRef = useRef(null);
   const playerRef = useRef(null);
   const [showMini, setShowMini] = useState(false);
   const [zoneAnimals, setZoneAnimals] = useState([]); // các con khác cùng khu, để đi tiếp
@@ -140,8 +136,7 @@ export default function AnimalDetail() {
   // Các con cùng khu (ảnh thật + tên theo ngôn ngữ đang chọn) cho mục "Cùng khu"
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API}/api/animals?lang=${language}`)
-      .then(res => (res.ok ? res.json() : []))
+    getAnimals(language)
       .then(list => { if (!cancelled && Array.isArray(list)) setZoneAnimals(list); })
       .catch(() => { /* mục Cùng khu chỉ ẩn đi */ });
     return () => { cancelled = true; };
@@ -151,7 +146,7 @@ export default function AnimalDetail() {
   useEffect(() => {
     const el = playerRef.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => setShowMini(!e.isIntersecting), { root: scrollRef.current });
+    const io = new IntersectionObserver(([e]) => setShowMini(!e.isIntersecting), { rootMargin: '0px' });
     io.observe(el);
     return () => io.disconnect();
   }, [animal, isLoading]);
@@ -204,7 +199,7 @@ export default function AnimalDetail() {
   };
 
   if (isLoading) return (
-    <div className="h-full bg-wall" aria-busy="true">
+    <div className="min-h-[100dvh] bg-wall" aria-busy="true">
       <div className="h-[56vh] w-full bg-label/10 md:h-[62vh] lg:h-[52vh]" />
       <div className="mx-auto max-w-6xl space-y-4 px-4 pt-6 sm:px-6 lg:px-8">
         <div className="h-14 w-2/3 bg-label/10" />
@@ -213,7 +208,7 @@ export default function AnimalDetail() {
     </div>
   );
   if (!animal) return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 bg-wall p-8 text-center font-label text-label">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-wall p-8 text-center font-label text-label">
       <p className="text-xl font-bold">{t.notFound}</p>
       <button onClick={() => navigate('/')} className="min-h-12 bg-label px-5 text-base font-semibold text-ink">{t.back}</button>
     </div>
@@ -224,7 +219,7 @@ export default function AnimalDetail() {
   const ctrl = 'flex min-h-11 items-center justify-center gap-2 bg-ink/5 px-3 text-sm font-semibold text-ink transition-colors hover:bg-ink/10';
 
   return (
-    <div ref={scrollRef} className="wall-page relative h-full overflow-y-auto bg-wall font-label text-label hide-scrollbar">
+    <div className="wall-page relative bg-wall font-label text-label">
 
       {/* Ảnh con vật chiếm phần lớn màn hình đầu; nút quay lại và ngôn ngữ là nhãn vuông đặt trên ảnh */}
       <div className="relative h-[56vh] w-full overflow-hidden md:h-[62vh] lg:h-[52vh]">
@@ -237,7 +232,7 @@ export default function AnimalDetail() {
 
       <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:px-8">
         {/* Tên và trình phát cùng một hàng trên màn hình lớn, để nút phát luôn ở màn hình đầu */}
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-14">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-14">
           <div>
           <h1 className="label-in text-[clamp(3rem,9vw,7.5rem)] font-extrabold leading-[0.95] tracking-[-0.03em] text-balance">{animal.name}</h1>
           <p className="label-in mt-3 max-w-[40ch] text-xl leading-snug" style={{ animationDelay: '70ms' }}>
@@ -295,7 +290,7 @@ export default function AnimalDetail() {
           </section>
         </div>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+        <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
           <div className="space-y-10">
 
             <section aria-labelledby="about-title" className="label-in" style={{ animationDelay: '280ms' }}>
@@ -329,9 +324,9 @@ export default function AnimalDetail() {
                   {neighbours.map((a, i) => (
                     <li key={a.id} className="label-in" style={{ animationDelay: `${450 + i * 70}ms` }}>
                       <Link to={`/a/${a.id}?source=zone`} className="group flex items-center gap-4 bg-wall-deep p-2 pr-4 transition-colors hover:bg-label hover:text-ink">
-                        <AnimalImage src={a.avatarUrl} alt="" loading="eager" className="h-[120px] w-40 shrink-0" />
+                        <AnimalImage src={a.avatarUrl} alt="" loading="eager" className="h-24 w-32 shrink-0 min-[400px]:h-[120px] min-[400px]:w-40" />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-xl font-bold">{a.defaultLocalName}</span>
+                          <span className="block text-xl font-bold leading-tight">{a.defaultLocalName}</span>
                           <span className="block truncate font-latin text-base italic opacity-80">{a.scientificName}</span>
                         </span>
                         <i className="fa-solid fa-arrow-right transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden="true"></i>

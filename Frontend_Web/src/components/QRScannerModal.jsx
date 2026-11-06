@@ -20,6 +20,7 @@ export default function QRScannerModal({ isOpen, onClose }) {
   const [state, setState] = useState('idle');
   const [invalid, setInvalid] = useState(false);
   const scannerRef = useRef(null);
+  const panelRef = useRef(null);
 
   const stop = async () => {
     const s = scannerRef.current;
@@ -65,10 +66,18 @@ export default function QRScannerModal({ isOpen, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // Esc đóng hộp quét
+  // Esc đóng hộp quét; Tab chỉ đi vòng trong hộp (trả focus về nút đã mở: VisitorLayout lo)
   useEffect(() => {
     if (!isOpen) return;
-    const onKey = e => { if (e.key === 'Escape') onClose(); };
+    const onKey = e => {
+      if (e.key === 'Escape') return onClose();
+      if (e.key !== 'Tab' || !panelRef.current) return;
+      const items = [...panelRef.current.querySelectorAll('button, [href], input, select, [tabindex]:not([tabindex="-1"])')].filter(el => !el.disabled);
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [isOpen, onClose]);
@@ -78,26 +87,26 @@ export default function QRScannerModal({ isOpen, onClose }) {
   const problem = state === 'denied' ? t.denied : state === 'failed' ? t.noCamera : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-post/80 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title">
-      <div className="w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-[0_25px_50px_-12px_rgb(0_0_0/0.4)] sm:rounded-3xl">
-        <div className="flex items-center justify-between px-5 pb-1 pt-4 text-post">
-          <h2 id="qr-title" className="text-lg font-semibold">{t.title}</h2>
-          <button autoFocus onClick={onClose} aria-label={t.close} className="flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-trail">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-wall-deep/85 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title">
+      <div ref={panelRef} className="w-full max-w-md bg-label font-label text-ink shadow-[0_25px_50px_-12px_rgb(0_0_0/0.5)]">
+        <div className="flex items-center justify-between px-5 pb-1 pt-4">
+          <h2 id="qr-title" className="text-xl font-extrabold">{t.title}</h2>
+          <button autoFocus onClick={onClose} aria-label={t.close} className="-mr-2 flex h-11 w-11 items-center justify-center transition-colors hover:bg-ink/5">
             <i className="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
           </button>
         </div>
 
         <div className="p-5 pb-8 pt-3">
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-post">
+          <div className="relative aspect-square w-full overflow-hidden bg-ink">
             {/* Thư viện chèn video camera vào đây */}
             <div id={READER_ID} className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover" />
             {state !== 'scanning' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-white">
-                <i className={`fa-solid ${problem ? 'fa-video-slash' : 'fa-qrcode'} text-5xl text-white/70`} aria-hidden="true"></i>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-label">
+                <i className={`fa-solid ${problem ? 'fa-video-slash' : 'fa-qrcode'} text-5xl text-label/70`} aria-hidden="true"></i>
                 {state === 'starting' && <p className="text-base font-semibold">{t.starting}</p>}
                 {problem && <p role="alert" className="text-base">{problem}</p>}
                 {(problem || state === 'idle') && (
-                  <button onClick={start} className="min-h-12 rounded-2xl bg-white px-5 text-base font-semibold text-sign-deep transition-colors hover:bg-sage-soft">
+                  <button onClick={start} className="min-h-12 bg-label px-5 text-base font-bold text-ink transition-colors hover:bg-white">
                     {problem ? t.retry : t.start}
                   </button>
                 )}
@@ -105,8 +114,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
             )}
           </div>
           {invalid
-            ? <p role="alert" className="mt-4 rounded-2xl bg-sage-soft px-4 py-3 text-center text-sm font-medium text-post">{t.invalid}</p>
-            : <p className="mt-4 text-center text-sm text-post-soft">{t.hint}</p>}
+            ? <p role="alert" className="mt-4 bg-ink/5 px-4 py-3 text-center text-base font-medium text-ink">{t.invalid}</p>
+            : <p className="mt-4 text-center text-base text-ink-soft">{t.hint}</p>}
         </div>
       </div>
     </div>

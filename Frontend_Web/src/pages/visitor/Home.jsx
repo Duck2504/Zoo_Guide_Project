@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { API } from '../../config';
+import { getAnimals } from '../../utils/animalsApi';
+import { IUCN_TONE } from '../../utils/iucn';
 import { useVisitor } from '../../context/VisitorContext';
 import AroundYou from '../../components/AroundYou';
 import AnimalImage from '../../components/AnimalImage';
@@ -52,10 +54,6 @@ const translations = {
 // Mức bảo tồn: nặng nhất lên trước; màu ô mã theo bảng màu Sách Đỏ IUCN, chữ mực ở nền sáng để đủ tương phản.
 // Ô mã là ô đặc; trạng thái "đang phát" là viền cam son quanh cả nhãn, nên ô EN cam không bị đọc nhầm.
 const SEVERITY = { EW: 5, CR: 4, EN: 3, VU: 2, NT: 1, LC: 0 };
-const IUCN_TONE = {
-  EW: 'bg-[#542344] text-white', CR: 'bg-[#d81e05] text-white', EN: 'bg-[#fc7f3f] text-ink',
-  VU: 'bg-[#f9e814] text-ink', NT: 'bg-[#cce226] text-ink', LC: 'bg-[#60c659] text-ink'
-};
 const FEATURED_COUNT = 4;
 const stopNo = id => String(id).padStart(2, '0');
 
@@ -87,8 +85,7 @@ export default function Home() {
   // Danh sách loài theo ngôn ngữ đang chọn (tên và mức bảo tồn cho các nhãn nổi bật)
   useEffect(() => {
     let cancelled = false;
-    fetch(`${API}/api/animals?lang=${language}`)
-      .then(res => (res.ok ? res.json() : 'error'))
+    getAnimals(language)
       .then(data => { if (!cancelled) setAnimals(data); })
       .catch(() => { if (!cancelled) setAnimals('error'); });
     return () => { cancelled = true; };
@@ -110,7 +107,7 @@ export default function Home() {
     <div className="wall-page mx-auto max-w-5xl px-4 pb-10 pt-4 font-label text-label sm:px-6 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:items-start lg:gap-10 lg:px-8 lg:pt-8">
 
       {/* Cột trái: nhãn lớn nghe theo vị trí, rồi nhãn quét mã (dính khi cuộn trên máy tính) */}
-      <div className="lg:sticky lg:top-8">
+      <div className="lg:sticky lg:top-22">
         {/* Cách nghe chính: theo vị trí */}
         <AroundYou geo={geo} language={language} languages={languages} zoneCount={zoneCount} />
 
@@ -118,7 +115,7 @@ export default function Home() {
         <section aria-labelledby="scan-title" className="mt-3 bg-label p-5 text-ink sm:p-7">
           <div className="flex items-start gap-4">
             <span className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink text-2xl" aria-hidden="true">
-              <i className="fa-solid fa-qrcode"></i>
+              <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
             </span>
             <div>
               <h2 id="scan-title" className="text-lg font-extrabold leading-tight">{t.orScan}</h2>
@@ -153,24 +150,24 @@ export default function Home() {
                 <li key={a.id} className="label-in" style={{ animationDelay: `${i * 70}ms` }}>
                   <Link
                     to={`/a/${a.id}?source=web_home`}
-                    className="group grid min-h-[88px] grid-cols-[4.25rem_4rem_minmax(0,1fr)] items-center gap-3 bg-label p-3 pr-4 text-ink transition-colors hover:bg-white"
+                    className="group grid min-h-[88px] grid-cols-[3.5rem_3.5rem_minmax(0,1fr)] items-center gap-2.5 bg-label p-3 pr-3 min-[400px]:grid-cols-[4.25rem_4rem_minmax(0,1fr)] min-[400px]:gap-3 min-[400px]:pr-4 text-ink transition-colors hover:bg-white"
                   >
                     <span className="text-center">
                       <span className="block font-label-narrow text-[2rem] font-bold leading-none text-wall">{stopNo(a.id)}</span>
-                      <span className="mt-0.5 block whitespace-nowrap text-[11px] font-medium text-ink-soft">{t.stop}</span>
+                      <span className="mt-0.5 block text-xs font-medium leading-tight text-ink-soft min-[400px]:whitespace-nowrap">{t.stop}</span>
                     </span>
-                    <AnimalImage src={a.avatarUrl} alt="" className="h-16 w-16" />
+                    <AnimalImage src={a.avatarUrl} alt="" className="h-14 w-14 min-[400px]:h-16 min-[400px]:w-16" />
                     <span className="min-w-0">
                       <span className="flex items-start justify-between gap-2">
-                        <span className="truncate text-base font-bold">{a.defaultLocalName}</span>
+                        <span className="line-clamp-2 text-base font-bold leading-tight">{a.defaultLocalName}</span>
                         {listened.has(a.id) && (
-                          <span className="shrink-0 -rotate-3 border-2 border-wall px-1.5 text-[11px] font-bold uppercase leading-5 text-wall">{t.listened}</span>
+                          <span className="shrink-0 -rotate-3 border-2 border-wall px-1.5 text-xs font-bold uppercase leading-5 text-wall">{t.listened}</span>
                         )}
                       </span>
                       <span className="block truncate font-latin text-[13px] italic text-ink-soft">{a.scientificName}</span>
                       {a.conservationStatus && (
                         <span className="mt-1 flex items-center gap-2 text-xs text-ink-soft">
-                          <span className={`px-1.5 font-label-narrow text-[11px] font-bold leading-5 ${IUCN_TONE[a.conservationStatus] || 'bg-ink text-label'}`}>{a.conservationStatus}</span>
+                          <span className={`px-1.5 font-label-narrow text-xs font-bold leading-5 ${IUCN_TONE[a.conservationStatus] || 'bg-ink text-label'}`}>{a.conservationStatus}</span>
                           <span className="truncate">{t.iucn[a.conservationStatus]}</span>
                         </span>
                       )}

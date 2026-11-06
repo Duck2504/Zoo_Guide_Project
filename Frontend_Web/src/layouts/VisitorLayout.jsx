@@ -1,9 +1,11 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+
+const QRScannerModal = lazy(() => import('../components/QRScannerModal')); // camera chỉ tải khi mở hộp quét
 import useZoneTracker from '../hooks/useZoneTracker';
 import ZoneSheet from '../components/ZoneSheet';
-import QRScannerModal from '../components/QRScannerModal';
+
 import LanguageMenu from '../components/LanguageMenu';
 
 const translations = {
@@ -27,6 +29,9 @@ const HereMark = ({ className, wall }) => <span className={`absolute h-1 w-8 ${w
 export default function VisitorLayout() {
   const { language } = useVisitor();
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const qrOpener = useRef(null); // nút đã mở hộp quét, để đóng hộp thì focus quay về đó
+  const openQR = () => { qrOpener.current = document.activeElement; setIsQRModalOpen(true); };
+  const closeQR = () => { setIsQRModalOpen(false); qrOpener.current?.focus?.(); };
   const location = useLocation();
   const geo = useZoneTracker(language);
   const geoEnabled = geo.enabled;
@@ -35,8 +40,9 @@ export default function VisitorLayout() {
 
   const isDetailPage = location.pathname.startsWith('/a/');
   const isHome = location.pathname === '/';
+  const isMap = location.pathname === '/map';
   // Mọi trang du khách dùng tường nhãn xanh
-  const isWall = isHome || location.pathname === '/map' || location.pathname.startsWith('/a/');
+  const isWall = isHome || isMap || isDetailPage;
   const t = translations[language] || translations['vi'];
 
   // Trình đọc màn hình và trình dịch biết đúng ngôn ngữ đang hiển thị
@@ -45,8 +51,12 @@ export default function VisitorLayout() {
   // Trang tường nhãn: tường xanh phủ tới mép màn hình (khung giữa không còn lề sáng hai bên trên máy tính)
   useEffect(() => {
     document.body.style.backgroundColor = isWall ? 'var(--color-wall)' : '';
-    return () => { document.body.style.backgroundColor = ''; };
+    document.documentElement.style.scrollbarColor = isWall ? 'rgb(246 248 247 / 0.35) var(--color-wall)' : '';
+    return () => { document.body.style.backgroundColor = ''; document.documentElement.style.scrollbarColor = ''; };
   }, [isWall]);
+
+  // Trang cuộn bằng thanh cuộn của trình duyệt: sang trang mới thì bắt đầu từ đầu trang
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [location.pathname]);
 
   // Chỉ một thuyết minh phát cùng lúc: thẻ audio nào bắt đầu phát thì dừng các thẻ còn lại
   useEffect(() => {
@@ -69,13 +79,13 @@ export default function VisitorLayout() {
 
   // Điện thoại: full màn hình; tablet/desktop: khung rộng dần để trang không bị bó thành cột hẹp
   return (
-    <div className={`visitor-world font-trail text-post ${isWall ? 'bg-wall' : 'bg-trail'} flex flex-col h-[100dvh] w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative overflow-hidden ${isWall ? '' : 'md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]'}`}>
+    <div className={`visitor-world font-trail text-post ${isWall ? 'bg-wall' : 'bg-trail'} flex flex-col ${isMap ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'} w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative ${isWall ? '' : 'md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]'}`}>
       {!isDetailPage && (
-        <header className={`h-14 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 absolute top-0 left-0 right-0 border-b ${isWall ? 'bg-wall border-transparent' : 'bg-trail/95 backdrop-blur-sm border-trail-line'}`}>
+        <header className={`h-14 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 sticky top-0 border-b ${isWall ? 'bg-wall border-transparent' : 'bg-trail/95 backdrop-blur-sm border-trail-line'}`}>
           <NavLink to="/" className={`flex min-w-0 items-center gap-2.5 text-base font-semibold ${isWall ? 'font-label text-label' : 'text-post'}`}>
             {/* Con dấu của vườn: luôn ở đúng một chỗ trên mọi trang */}
             <span className={`flex h-8 w-8 shrink-0 items-center justify-center ${isWall ? 'bg-label text-wall' : 'rounded-[10px] bg-sign text-white'}`} aria-hidden="true">
-              <i className="fa-solid fa-leaf text-sm"></i>
+              <i className="fa-solid fa-leaf text-sm" aria-hidden="true"></i>
             </span>
             {/* Trang chủ trên điện thoại hẹp: 4 nút ngôn ngữ cần chỗ, chỉ giữ con dấu */}
             <span className={isWall ? 'hidden truncate min-[420px]:inline' : 'truncate'}>{t.title}</span>
@@ -90,7 +100,7 @@ export default function VisitorLayout() {
               <NavLink to="/map" className={headerLinkClass(isWall)}>
                 {({ isActive }) => (<>{isActive && <HereMark wall={isWall} className="-bottom-2 left-3" />}{t.map}</>)}
               </NavLink>
-              <button onClick={() => setIsQRModalOpen(true)} className={`ml-2 min-h-11 items-center gap-2 px-5 text-sm font-semibold transition-colors ${isWall ? 'hidden' : 'flex rounded-full bg-sign text-white hover:bg-sign-deep'}`}>
+              <button onClick={openQR} className={`ml-2 min-h-11 items-center gap-2 px-5 text-sm font-semibold transition-colors ${isWall ? 'hidden' : 'flex rounded-full bg-sign text-white hover:bg-sign-deep'}`}>
                 <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scan}
               </button>
             </nav>
@@ -113,12 +123,14 @@ export default function VisitorLayout() {
         </header>
       )}
 
-      <div className={`flex-1 overflow-y-auto hide-scrollbar relative z-10 ${!isDetailPage ? 'pt-14 pb-20 lg:pb-0' : 'pb-0'}`}>
-        <Outlet context={{ openQR: () => setIsQRModalOpen(true), geo }} />
+      <div className={`flex-1 relative z-10 ${isMap ? 'min-h-0' : ''} ${!isDetailPage ? 'pb-20 lg:pb-0' : ''}`}>
+        <Suspense fallback={null}>
+          <Outlet context={{ openQR, geo }} />
+        </Suspense>
       </div>
 
       {!isDetailPage && (
-        <nav className={`h-20 border-t shrink-0 z-40 absolute bottom-0 left-0 right-0 flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep border-label/15' : 'bg-trail border-trail-line'}`} aria-label={t.nav}>
+        <nav className={`h-20 border-t shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep border-label/15' : 'bg-trail border-trail-line'}`} aria-label={t.nav}>
           <NavLink to="/" end className={tabClass(isWall)}>
             {({ isActive }) => (<>
               {isActive && <HereMark wall={isWall} className="-top-px" />}
@@ -128,7 +140,7 @@ export default function VisitorLayout() {
           </NavLink>
 
           <button
-            onClick={() => setIsQRModalOpen(true)}
+            onClick={openQR}
             aria-label={t.scan}
             className={isWall ? tabClass(true)({ isActive: false }) : 'relative -top-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-sign text-2xl text-white shadow-[0_10px_20px_-8px_rgb(21_128_61/0.6)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95'}
           >
@@ -157,7 +169,11 @@ export default function VisitorLayout() {
         />
       )}
 
-      <QRScannerModal isOpen={isQRModalOpen} onClose={() => setIsQRModalOpen(false)} />
+      {isQRModalOpen && (
+        <Suspense fallback={null}>
+          <QRScannerModal isOpen onClose={closeQR} />
+        </Suspense>
+      )}
     </div>
   );
 }

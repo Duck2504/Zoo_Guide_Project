@@ -3,7 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, CircleMarker, useMapEve
 import L from 'leaflet';
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
-import { API } from '../../config';
+import 'leaflet/dist/leaflet.css';
+import { getAnimals } from '../../utils/animalsApi';
 import { calculateDistance, groupZones } from '../../utils/geoUtils';
 import { getZoneText } from '../../utils/zoneText';
 
@@ -14,14 +15,16 @@ const translations = {
   ja: { title: 'エリアマップ', hint: '下のエリアか地図上のピンをタップして動物を見ます。', failed: 'エリアの位置を読み込めませんでした。接続を確認してページを開き直してください。', count: (s, z) => `${s}種 · ${z}エリア`, species: n => `${n}種`, zones: '園内のエリア', here: '現在地', listen: '聞く' },
 };
 
-const WALL = '#12372a';
-const LABEL = '#f6f8f7';
-const INK = '#101614';
+// Ghim nằm trong trang nên đọc thẳng token CSS; riêng nét vẽ SVG của Leaflet cần giá trị thật
+const WALL = 'var(--color-wall)';
+const LABEL = 'var(--color-label)';
+const INK = 'var(--color-ink)';
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // Ghim khu kiểu nhãn: ô vuông xanh tường, số loài chữ hẹp; khu đang chọn đổi sang nhãn trắng viền mực
 const zoneIcon = (count, selected) => L.divIcon({
   className: '',
-  html: `<div style="display:flex;flex-direction:column;align-items:center">
+  html: `<div aria-hidden="true" style="display:flex;flex-direction:column;align-items:center">
     <div style="display:flex;align-items:center;gap:5px;min-width:44px;height:36px;padding:0 10px;background:${selected ? LABEL : WALL};color:${selected ? INK : LABEL};border:2px solid ${selected ? INK : WALL};font:700 17px 'Archivo Narrow',system-ui;box-shadow:0 6px 12px -6px rgb(0 0 0/.45)">
       <i class="fa-solid fa-paw" style="font-size:13px" aria-hidden="true"></i>${count}
     </div>
@@ -55,8 +58,7 @@ export default function Map() {
   const stripItems = useRef({});
 
   useEffect(() => {
-    fetch(`${API}/api/animals?lang=${language}`)
-      .then(res => (res.ok ? res.json() : 'error'))
+    getAnimals(language)
       .then(setAnimals)
       .catch(() => setAnimals('error'));
   }, [language]);
@@ -99,6 +101,7 @@ export default function Map() {
             key={zone.id}
             position={[zone.lat, zone.lng]}
             icon={zoneIcon(zone.animals.length, zone.id === selectedId)}
+            title={`${zone.name}, ${t.species(zone.animals.length)}`}
             eventHandlers={{ click: () => setSelectedId(zone.id) }}
             ref={m => {
               if (!m) return;
@@ -128,13 +131,13 @@ export default function Map() {
 
         {/* Chế độ thử: hiện vòng bán kính của từng khu để biết chạm vào đâu là "vào khu" */}
         {demo && zones.map(z => (
-          <Circle key={`r${z.id}`} center={[z.lat, z.lng]} radius={z.radius} pathOptions={{ color: WALL, weight: 1, fillOpacity: 0.08 }} />
+          <Circle key={`r${z.id}`} center={[z.lat, z.lng]} radius={z.radius} pathOptions={{ color: css('--color-wall'), weight: 1, fillOpacity: 0.08 }} />
         ))}
         {demo && <DemoClicks onPick={geo.setDemoPosition} />}
 
         {/* Vị trí của du khách (GPS hoặc vị trí thử): chấm xanh dương quen thuộc của bản đồ */}
         {geo.position && (
-          <CircleMarker center={[geo.position.lat, geo.position.lng]} radius={9} pathOptions={{ color: '#ffffff', weight: 3, fillColor: '#2563eb', fillOpacity: 1 }} />
+          <CircleMarker center={[geo.position.lat, geo.position.lng]} radius={9} pathOptions={{ color: css('--color-label'), weight: 3, fillColor: css('--color-you'), fillOpacity: 1 }} />
         )}
       </MapContainer>
 

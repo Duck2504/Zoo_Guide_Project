@@ -1,12 +1,12 @@
 import { useState } from 'react';
 
-// Ảnh động vật; thiếu link hoặc link hỏng thì hiện ô xanh có biểu tượng chân thú (không tải thêm ảnh từ xa để tránh lỗi lặp).
+// Ảnh động vật; thiếu link hoặc link hỏng thì hiện ô xanh tường có biểu tượng chân thú (không tải thêm ảnh từ xa để tránh lỗi lặp).
 export default function AnimalImage({ src, alt, className = '', loading = 'lazy', fetchPriority }) {
   const [failedSrc, setFailedSrc] = useState(null);
 
   if (!src || failedSrc === src) {
     return (
-      <div role="img" aria-label={alt} className={`flex items-center justify-center bg-sign-deep text-trail/70 ${className}`}>
+      <div role="img" aria-label={alt} className={`flex items-center justify-center bg-wall-deep text-label/60 ${className}`}>
         <i className="fa-solid fa-paw text-4xl" aria-hidden="true"></i>
       </div>
     );

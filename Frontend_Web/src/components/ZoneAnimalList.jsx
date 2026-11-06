@@ -51,7 +51,7 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
                 <span className={`block truncate italic ${wall ? 'font-latin text-[13px] text-ink-soft' : 'text-xs text-post-soft'}`}>{a.scientificName}</span>
               </span>
               {listened.has(a.id) && (
-                <span className={wall ? 'shrink-0 -rotate-3 border-2 border-wall px-1.5 text-[11px] font-bold uppercase leading-5 text-wall' : 'flex shrink-0 items-center gap-1 rounded-full bg-sage-soft px-2 py-0.5 text-xs font-medium text-sign-deep'}>
+                <span className={wall ? 'shrink-0 -rotate-3 border-2 border-wall px-1.5 text-xs font-bold uppercase leading-5 text-wall' : 'flex shrink-0 items-center gap-1 rounded-full bg-sage-soft px-2 py-0.5 text-xs font-medium text-sign-deep'}>
                   {!wall && <i className="fa-solid fa-check" aria-hidden="true"></i>}{t.listened}
                 </span>
               )}

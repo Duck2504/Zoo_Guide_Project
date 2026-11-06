@@ -30,7 +30,7 @@ export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onP
             key={lang.code}
             lang={lang.code}
             aria-pressed={language === lang.code}
-            aria-label={lang.name}
+            aria-label={`${lang.code.toUpperCase()} – ${lang.name}`}
             title={lang.name}
             onClick={() => setLanguage(lang.code)}
             className={`-ml-px flex h-11 min-w-11 items-center justify-center border px-2 font-label-narrow text-sm font-bold uppercase transition-colors ${
@@ -60,7 +60,7 @@ export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onP
       </button>
 
       {open && (
-        <ul aria-label={menuLabel} className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-2xl border border-trail-line bg-white py-1 shadow-[0_16px_32px_-12px_rgb(28_43_34/0.35)]">
+        <ul aria-label={menuLabel} className="absolute right-0 top-full z-50 mt-2 w-44 bg-label py-1 font-label shadow-[0_16px_32px_-12px_rgb(0_0_0/0.5)]">
           {languages.map(lang => (
             <li key={lang.code}>
               <button
@@ -68,7 +68,7 @@ export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onP
                 aria-current={language === lang.code ? 'true' : undefined}
                 onClick={() => { setLanguage(lang.code); setOpen(false); }}
                 className={`flex min-h-11 w-full items-center justify-between px-4 text-left text-sm font-semibold transition-colors ${
-                  language === lang.code ? 'bg-sage-soft text-sign-deep' : 'text-post hover:bg-trail'
+                  language === lang.code ? 'bg-ink text-label' : 'text-ink hover:bg-ink/5'
                 }`}
               >
                 {lang.name}
