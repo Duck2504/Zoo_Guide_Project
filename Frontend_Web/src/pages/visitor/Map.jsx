@@ -12,7 +12,6 @@ const translations = {
   en: { title: 'Zone map', hint: 'Tap a sign on the map to open its audio guide.', listen: 'Open audio guide', failed: 'Zone locations could not be loaded.', species: n => `${n} species` },
   ko: { title: '구역 지도', hint: '지도 위 표지판을 눌러 오디오 가이드를 여세요.', listen: '오디오 가이드 열기', failed: '구역 위치를 불러오지 못했습니다.', species: n => `${n}종` },
   ja: { title: 'エリアマップ', hint: 'マップ上の看板をタップして音声ガイドを開きます。', listen: '音声ガイドを開く', failed: 'エリアの位置を読み込めませんでした。', species: n => `${n}種` },
-  zh: { title: '区域地图', hint: '点击地图上的标牌打开语音导览。', listen: '打开语音导览', failed: '无法加载区域位置。', species: n => `${n} 种` }
 };
 
 // Ghim kiểu biển: ô vuông xanh có chân trụ, hiện số loài trong khu

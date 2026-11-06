@@ -4,7 +4,7 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { adminFetch } from '../../utils/adminFetch';
 import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
 
-const LANG_NAMES = { vi: 'Tiếng Việt', en: 'Tiếng Anh', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn', zh: 'Tiếng Trung' };
+const LANG_NAMES = { vi: 'Tiếng Việt', en: 'Tiếng Anh', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn' };
 const FACT_OPTIONS = {
   conservationStatus: [['LC', 'Ít quan ngại (LC)'], ['NT', 'Sắp bị đe dọa (NT)'], ['VU', 'Sắp nguy cấp (VU)'], ['EN', 'Nguy cấp (EN)'], ['CR', 'Cực kỳ nguy cấp (CR)'], ['EW', 'Tuyệt chủng ngoài tự nhiên (EW)']],
   diet: [['carnivore', 'Ăn thịt'], ['herbivore', 'Ăn thực vật'], ['omnivore', 'Ăn tạp']],

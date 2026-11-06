@@ -1,21 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useVisitor } from '../context/VisitorContext';
 
-// Dùng chung cho header du khách và trang con vật. Mã ngôn ngữ bằng chữ thay cho cờ emoji (Windows không vẽ được cờ).
-const LANGUAGES = [
-  { code: 'vi', label: 'Tiếng Việt' },
-  { code: 'en', label: 'English' },
-  { code: 'ko', label: '한국어' },
-  { code: 'ja', label: '日本語' },
-  { code: 'zh', label: '中文' }
-];
-const MENU_LABEL = { vi: 'Ngôn ngữ', en: 'Language', ko: '언어', ja: '言語', zh: '语言' };
+// Danh sách ngôn ngữ lấy từ bảng Languages (VisitorContext). Mã ngôn ngữ bằng chữ thay cho cờ emoji (Windows không vẽ được cờ).
+const MENU_LABEL = { vi: 'Ngôn ngữ', en: 'Language', ko: '언어', ja: '言語' };
 
-export default function LanguageMenu({ onPhoto = false }) {
-  const { language, setLanguage } = useVisitor();
+// variant: "menu" (nút + danh sách thả xuống), "onPhoto" (nút trắng đè lên ảnh), "wall" (các mã ngôn ngữ xếp liền trên tường xanh của trang chủ)
+export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onPhoto' : 'menu' }) {
+  const { language, setLanguage, languages } = useVisitor();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const current = LANGUAGES.find(l => l.code === language);
+  const current = languages.find(l => l.code === language);
   const menuLabel = MENU_LABEL[language] || MENU_LABEL.vi;
 
   // Đóng khi bấm ra ngoài hoặc nhấn Esc
@@ -28,14 +22,36 @@ export default function LanguageMenu({ onPhoto = false }) {
     return () => { document.removeEventListener('pointerdown', onDown); document.removeEventListener('keydown', onKey); };
   }, [open]);
 
+  if (variant === 'wall') {
+    return (
+      <div role="group" aria-label={menuLabel} className="flex">
+        {languages.map(lang => (
+          <button
+            key={lang.code}
+            lang={lang.code}
+            aria-pressed={language === lang.code}
+            aria-label={lang.name}
+            title={lang.name}
+            onClick={() => setLanguage(lang.code)}
+            className={`-ml-px flex h-11 min-w-11 items-center justify-center border px-2 font-label-narrow text-sm font-bold uppercase transition-colors ${
+              language === lang.code ? 'z-10 border-label bg-label text-wall' : 'border-label/35 text-label/90 hover:bg-label/10'
+            }`}
+          >
+            {lang.code}
+          </button>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        aria-label={`${menuLabel}: ${current?.label ?? language}`}
+        aria-label={`${menuLabel}: ${current?.name ?? language}`}
         className={`flex min-h-11 items-center gap-2 rounded-full px-3.5 text-sm font-semibold uppercase transition-colors ${
-          onPhoto ? 'bg-white/90 text-post backdrop-blur-sm hover:bg-white' : 'border border-trail-line bg-white text-post hover:border-sign/40'
+          variant === 'onPhoto' ? 'bg-white/90 text-post backdrop-blur-sm hover:bg-white' : 'border border-trail-line bg-white text-post hover:border-sign/40'
         }`}
       >
         <i className="fa-solid fa-language" aria-hidden="true"></i>
@@ -45,7 +61,7 @@ export default function LanguageMenu({ onPhoto = false }) {
 
       {open && (
         <ul aria-label={menuLabel} className="absolute right-0 top-full z-50 mt-2 w-44 overflow-hidden rounded-2xl border border-trail-line bg-white py-1 shadow-[0_16px_32px_-12px_rgb(28_43_34/0.35)]">
-          {LANGUAGES.map(lang => (
+          {languages.map(lang => (
             <li key={lang.code}>
               <button
                 lang={lang.code}
@@ -55,7 +71,7 @@ export default function LanguageMenu({ onPhoto = false }) {
                   language === lang.code ? 'bg-sage-soft text-sign-deep' : 'text-post hover:bg-trail'
                 }`}
               >
-                {lang.label}
+                {lang.name}
                 <span className="text-xs font-semibold uppercase opacity-70">{lang.code}</span>
               </button>
             </li>

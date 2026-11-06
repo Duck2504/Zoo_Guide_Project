@@ -8,7 +8,6 @@ const translations = {
   en: { title: 'Scan QR code', hint: 'Point the camera at the QR code on the enclosure sign.', close: 'Close', start: 'Turn on camera', starting: 'Starting camera…', denied: 'Camera access was not allowed. Allow it in your browser settings and try again.', noCamera: 'The camera could not be opened on this device.', retry: 'Try again', invalid: 'This code is not from the zoo. Try the code on the enclosure sign.' },
   ko: { title: 'QR 코드 스캔', hint: '우리 표지판의 QR 코드에 카메라를 맞추세요.', close: '닫기', start: '카메라 켜기', starting: '카메라를 켜는 중…', denied: '카메라 사용이 허용되지 않았습니다. 브라우저 설정에서 허용한 뒤 다시 시도하세요.', noCamera: '이 기기에서 카메라를 열 수 없습니다.', retry: '다시 시도', invalid: '동물원 코드가 아닙니다. 우리 표지판의 코드를 사용해 보세요.' },
   ja: { title: 'QRコードをスキャン', hint: '展示場の看板にあるQRコードにカメラを向けてください。', close: '閉じる', start: 'カメラをオン', starting: 'カメラを起動中…', denied: 'カメラの使用が許可されていません。ブラウザの設定で許可してから、もう一度お試しください。', noCamera: 'この端末ではカメラを開けませんでした。', retry: 'もう一度', invalid: '園のコードではありません。展示場の看板のコードをお試しください。' },
-  zh: { title: '扫描QR码', hint: '将摄像头对准围栏标牌上的QR码。', close: '关闭', start: '打开摄像头', starting: '正在打开摄像头…', denied: '未允许使用摄像头。请在浏览器设置中允许后重试。', noCamera: '无法在此设备上打开摄像头。', retry: '重试', invalid: '这不是本园的二维码，请扫描围栏标牌上的码。' }
 };
 
 const READER_ID = 'qr-reader';
