@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import ReactGA from 'react-ga4';
 
@@ -6,23 +6,26 @@ import ReactGA from 'react-ga4';
 import VisitorLayout from './layouts/VisitorLayout';
 import AdminLayout from './layouts/AdminLayout';
 
-// Pages
+// Trang chủ tải ngay; các trang khác tách gói riêng, chỉ tải khi mở tới
 import VisitorHome from './pages/visitor/Home';
-import VisitorMap from './pages/visitor/Map';
-import AnimalDetail from './pages/visitor/AnimalDetail';
-import AdminDashboard from './pages/admin/Dashboard';
-import AnimalManager from './pages/admin/AnimalManager';
-import ZoneManager from './pages/admin/ZoneManager';
-import QrCodeIndex from './pages/admin/HomeAccessManager'
-import AdminLogin from './pages/admin/Login';
-// Khởi tạo GA4 một lần duy nhất ở ngoài Component
-ReactGA.initialize("G-XXXXXXXXXX"); // Đừng quên thay mã G- của em vào đây
+const VisitorMap = lazy(() => import('./pages/visitor/Map'));
+const AnimalDetail = lazy(() => import('./pages/visitor/AnimalDetail'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AnimalManager = lazy(() => import('./pages/admin/AnimalManager'));
+const ZoneManager = lazy(() => import('./pages/admin/ZoneManager'));
+const QrCodeIndex = lazy(() => import('./pages/admin/HomeAccessManager'));
+const AdminLogin = lazy(() => import('./pages/admin/Login'));
+
+// Chỉ bật GA4 khi có mã thật trong biến môi trường VITE_GA_ID (không có thì không gửi gì cho Google)
+const GA_ID = import.meta.env.VITE_GA_ID;
+if (GA_ID) ReactGA.initialize(GA_ID);
 
 export default function App() {
   const location = useLocation();
 
   // Bắt sự kiện mỗi khi URL thay đổi (Route đổi) và báo cáo lên GA4
   useEffect(() => {
+    if (!GA_ID) return;
     ReactGA.send({ 
       hitType: "pageview", 
       page: location.pathname + location.search 
@@ -30,6 +33,7 @@ export default function App() {
   }, [location]);
 
   return (
+    <Suspense fallback={null}>
     <Routes>
       {/* 1. Phân hệ Du khách */}
       <Route element={<VisitorLayout />}>
@@ -47,5 +51,6 @@ export default function App() {
         <Route path="/admin/QrCode" element={<QrCodeIndex/>} />
       </Route>
     </Routes>
+    </Suspense>
   );
 }

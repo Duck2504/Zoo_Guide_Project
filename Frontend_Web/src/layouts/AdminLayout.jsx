@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
 import { getAdminToken, setAdminToken, ADMIN_AUTH_EXPIRED } from '../utils/adminFetch';
 
@@ -35,7 +35,7 @@ export default function AdminLayout() {
             end
             className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-chart-pie mr-2"></i> Dashboard
+            <i className="fa-solid fa-chart-pie mr-2" aria-hidden="true"></i> Dashboard
           </NavLink>
 
           {/* Nút Động vật */}
@@ -43,7 +43,7 @@ export default function AdminLayout() {
             to="/admin/animals"
             className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-hippo mr-2"></i> Động vật
+            <i className="fa-solid fa-hippo mr-2" aria-hidden="true"></i> Động vật
           </NavLink>
           
           {/* Nút Zones */}
@@ -64,14 +64,16 @@ export default function AdminLayout() {
 
         <div className="border-t border-slate-800 p-2 text-sm sm:p-3 lg:p-4">
           <button onClick={logout} className="w-full px-4 py-2 rounded-xl font-bold text-slate-400 hover:bg-slate-800 text-left">
-            <i className="fa-solid fa-right-from-bracket mr-2"></i> Đăng xuất
+            <i className="fa-solid fa-right-from-bracket mr-2" aria-hidden="true"></i> Đăng xuất
           </button>
         </div>
       </aside>
 
       {/* Vùng Nội Dung Chính */}
       <main className="min-h-0 min-w-0 flex-1 overflow-y-auto">
-        <Outlet />
+        <Suspense fallback={<p className="p-6 text-sm text-slate-500">Đang tải…</p>}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useGeolocation from './useGeolocation';
 import { groupZones, locateZone, MAX_ACCURACY_M } from '../utils/geoUtils';
-import { API } from '../config';
+import { getAnimals } from '../utils/animalsApi';
 
 // Theo dõi khu du khách đang đứng. Vị trí chỉ xử lý trên máy, không gửi lên server.
 // status: 'off' | 'loading' | 'error' | 'denied' | 'unsupported' | 'searching' | 'inaccurate' | 'inZone' | 'outside'
@@ -18,8 +18,7 @@ export default function useZoneTracker(language) {
   useEffect(() => {
     if (!enabled) return;
     let cancelled = false;
-    fetch(`${API}/api/animals?lang=${language}`)
-      .then(res => (res.ok ? res.json() : 'error'))
+    getAnimals(language)
       .then(data => { if (!cancelled) setAnimals(data); })
       .catch(() => { if (!cancelled) setAnimals('error'); });
     return () => { cancelled = true; };

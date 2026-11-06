@@ -1,28 +1,27 @@
 <!DOCTYPE html>
-<html lang="vi" class="scroll-smooth">
+<html lang="vi" class="motion-safe:scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#f5f7f4">
+  <meta name="theme-color" content="#12372a">
   <title>Sở Thú - Thuyết Minh Tự Động</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2210%22 fill=%22%2312372a%22/><rect x=%228%22 y=%228%22 width=%2248%22 height=%2248%22 rx=%226%22 fill=%22none%22 stroke=%22%23f6f8f7%22 stroke-opacity=%22.4%22 stroke-width=%222%22/><path d=%22M18 40h22l-6-6m6 6-6 6%22 fill=%22none%22 stroke=%22%23f6f8f7%22 stroke-width=%225%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/><circle cx=%2232%22 cy=%2222%22 r=%226%22 fill=%22%23f6f8f7%22/></svg>" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Trang du khách: Be Vietnam Pro (hiện đại, hiển thị tiếng Việt tốt) -->
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@600;700&family=Source+Serif+4:ital,wght@1,400&family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Archivo cho mọi chữ (có dấu tiếng Việt), Archivo Narrow cho số và mã, Source Serif 4 nghiêng cho tên Latin -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@600;700&family=Source+Serif+4:ital,wght@1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/fontawesome.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/solid.min.css" />
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { font-family: 'Archivo', system-ui, sans-serif; }
     /* Giấu thanh cuộn nhưng vẫn cuộn được */
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-trail text-gray-900 flex flex-col h-[100dvh] overflow-hidden antialiased">
-  <div id="root" class="w-full h-full flex flex-col"></div>
+<body class="bg-trail text-gray-900 antialiased">
+  <div id="root" class="w-full"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
