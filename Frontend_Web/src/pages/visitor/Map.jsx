@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, CircleMarker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 import { API } from '../../config';
+import { groupZones } from '../../utils/geoUtils';
+import { getZoneText } from '../../utils/zoneText';
 
 const translations = {
   vi: { title: 'Bản đồ khu', hint: 'Chạm vào một biển trên bản đồ để mở thuyết minh.', listen: 'Nghe thuyết minh', failed: 'Chưa tải được vị trí các khu.', species: n => `${n} loài` },
@@ -27,30 +29,31 @@ const signIcon = count => L.divIcon({
   popupAnchor: [0, -44]
 });
 
+// Chế độ thử (?demo=1): chạm bản đồ để đặt vị trí, thay cho đi bộ thật trong vườn
+function DemoClicks({ onPick }) {
+  useMapEvents({ click: e => onPick({ lat: e.latlng.lat, lng: e.latlng.lng, accuracy: 0 }) });
+  return null;
+}
+
 export default function Map() {
   const { language } = useVisitor();
   const t = translations[language] || translations['vi'];
   const [animals, setAnimals] = useState(null);
   const [searchParams] = useSearchParams();
   const focusZone = searchParams.get('zone'); // mở từ trang con vật: tập trung vào khu của con vật đó
+  const demo = searchParams.get('demo') === '1';
+  const { geo } = useOutletContext();
+  const zt = getZoneText(language);
 
   useEffect(() => {
-    fetch(`${API}/api/animals`)
+    fetch(`${API}/api/animals?lang=${language}`)
       .then(res => (res.ok ? res.json() : 'error'))
       .then(setAnimals)
       .catch(() => setAnimals('error'));
-  }, []);
+  }, [language]);
 
   // Mỗi khu một biển (con vật cùng khu dùng chung tọa độ của khu)
-  const zones = useMemo(() => {
-    if (!Array.isArray(animals)) return [];
-    const byZone = new globalThis.Map();
-    for (const a of animals) {
-      if (!byZone.has(a.zoneId)) byZone.set(a.zoneId, { id: a.zoneId, lat: a.latitude, lng: a.longitude, animals: [] });
-      byZone.get(a.zoneId).animals.push(a);
-    }
-    return [...byZone.values()];
-  }, [animals]);
+  const zones = useMemo(() => (Array.isArray(animals) ? groupZones(animals) : []), [animals]);
 
   // Khung bản đồ ôm vừa mọi khu; chưa có dữ liệu thì về trung tâm Thảo Cầm Viên
   const focused = zones.find(z => String(z.id) === focusZone);
@@ -70,6 +73,7 @@ export default function Map() {
         {zones.map(zone => (
           <Marker key={zone.id} position={[zone.lat, zone.lng]} icon={signIcon(zone.animals.length)} ref={m => { if (m && zone === focused) setTimeout(() => m.openPopup(), 0); }}>
             <Popup>
+              <p className="!mb-1 !mt-0 font-sign text-base font-extrabold text-sign">{zone.name}</p>
               <ul className="min-w-44 space-y-1 font-trail">
                 {zone.animals.map(a => (
                   <li key={a.id}>
@@ -83,6 +87,17 @@ export default function Map() {
             </Popup>
           </Marker>
         ))}
+
+        {/* Chế độ thử: hiện vòng bán kính của từng khu để biết chạm vào đâu là "vào khu" */}
+        {demo && zones.map(z => (
+          <Circle key={`r${z.id}`} center={[z.lat, z.lng]} radius={z.radius} pathOptions={{ color: '#14532d', weight: 1, fillOpacity: 0.08 }} />
+        ))}
+        {demo && <DemoClicks onPick={geo.setDemoPosition} />}
+
+        {/* Vị trí của du khách (GPS hoặc vị trí thử) */}
+        {geo.position && (
+          <CircleMarker center={[geo.position.lat, geo.position.lng]} radius={9} pathOptions={{ color: '#ffffff', weight: 3, fillColor: '#f2b705', fillOpacity: 1 }} />
+        )}
       </MapContainer>
 
       {/* Biển tiêu đề nổi trên bản đồ */}
@@ -93,6 +108,7 @@ export default function Map() {
             {Array.isArray(animals) && <span className="font-sign text-sm font-bold uppercase tracking-wider text-trail/75">{t.species(animals.length)}</span>}
           </div>
           <p className="mt-1 text-sm text-trail/85">{animals === 'error' ? t.failed : t.hint}</p>
+          {demo && <p className="mt-2 rounded bg-arrow px-2 py-1 text-sm font-semibold text-post">{zt.demo}</p>}
         </div>
       </div>
     </div>
