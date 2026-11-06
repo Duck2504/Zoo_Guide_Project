@@ -9,14 +9,14 @@ export default function ZoneManager() {
   const [zones, setZones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
+  const [formData, setFormData] = useState({ zoneCode: '', name: '', latitude: '', longitude: '', radius: 15 });
   const [error, setError] = useState(null); // State lưu lỗi trả về từ Backend
   const [loadError, setLoadError] = useState(''); // lỗi tải danh sách (khác lỗi form)
   const [searchTerm, setSearchTerm] = useState('');
 
   const API_URL = `${API}/api/zones`;
   const filteredZones = zones.filter(zone =>
-    `${zone.zoneCode || ''} ${zone.latitude ?? ''} ${zone.longitude ?? ''}`
+    `${zone.zoneCode || ''} ${zone.name || ''} ${zone.latitude ?? ''} ${zone.longitude ?? ''}`
       .toLocaleLowerCase('vi')
       .includes(searchTerm.trim().toLocaleLowerCase('vi'))
   );
@@ -61,6 +61,7 @@ export default function ZoneManager() {
       // Chuyển đổi dữ liệu về dạng số để khớp với Backend DTO
       const payload = {
         zoneCode: formData.zoneCode,
+        name: formData.name || null, // PUT ghi đè cả bản ghi: thiếu trường này là mất tên khu
         latitude: parseFloat(formData.latitude),
         longitude: parseFloat(formData.longitude),
         radius: parseInt(formData.radius)
@@ -105,9 +106,9 @@ export default function ZoneManager() {
   const handleOpenModal = (zone = null) => {
     setError(null); // Clear lỗi cũ mỗi khi mở form
     if (zone) {
-      setFormData(zone);
+      setFormData({ ...zone, name: zone.name || '' });
     } else {
-      setFormData({ zoneCode: '', latitude: '', longitude: '', radius: 15 });
+      setFormData({ zoneCode: '', name: '', latitude: '', longitude: '', radius: 15 });
     }
     setIsModalOpen(true);
   };
@@ -202,7 +203,7 @@ export default function ZoneManager() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i className="fa-solid fa-location-dot"></i></div>
-                        <div><p className="font-bold text-slate-800">{zone.zoneCode}</p><p className="mt-0.5 text-xs text-slate-500">Mã khu vực #{zone.id}</p></div>
+                        <div><p className="font-bold text-slate-800">{zone.name || zone.zoneCode}</p><p className="mt-0.5 text-xs text-slate-500">{zone.zoneCode} · #{zone.id}</p></div>
                       </div>
                     </td>
                     <td className="px-5 py-4">
@@ -255,6 +256,11 @@ export default function ZoneManager() {
               <div>
                 <label htmlFor="zone-code" className="mb-1.5 block text-sm font-bold text-slate-700">Mã khu vực <span className="text-rose-500">*</span></label>
                 <input id="zone-code" type="text" placeholder="Ví dụ: Z-TIGER" value={formData.zoneCode} onChange={e => setFormData({...formData, zoneCode: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+              </div>
+              <div>
+                <label htmlFor="zone-name" className="mb-1.5 block text-sm font-bold text-slate-700">Tên hiển thị cho du khách</label>
+                <input id="zone-name" type="text" maxLength={100} placeholder="Ví dụ: Khu Bò sát" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
+                <p className="mt-1 text-xs text-slate-500">Hiện trên trang du khách khi họ bước vào khu. Để trống thì dùng mã khu vực.</p>
               </div>
               <div>
                 <p className="mb-2 text-sm font-bold text-slate-700">Vị trí trên bản đồ</p>
