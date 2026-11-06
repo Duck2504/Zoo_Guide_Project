@@ -6,7 +6,7 @@ namespace ZooAudioGuide.API.Services
 {
     public interface IAnimalService
     {
-        Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync();
+        Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync(string lang = "vi");
         Task<AnimalDto?> GetAnimalByIdAsync(int id, string lang = "vi");
         Task<AnimalDto> CreateAnimalAsync(AnimalCreateDto dto);
         Task<bool> UpdateAnimalAsync(int id, AnimalCreateDto dto);

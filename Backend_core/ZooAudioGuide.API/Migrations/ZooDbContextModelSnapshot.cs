@@ -170,6 +170,9 @@ namespace ZooAudioGuide.API.Migrations
                         .IsRequired()
                         .HasColumnType("geography");
 
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Radius")
                         .HasColumnType("int");
 

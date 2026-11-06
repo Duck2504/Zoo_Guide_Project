@@ -16,7 +16,7 @@ public sealed class ZoneAndScanLogTests
         var repo = new FakeZoneRepo();
         var service = new ZoneService(repo);
 
-        await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z", Latitude = 10.78, Longitude = 106.70, Radius = 20 });
+        await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z", Name = "  Khu Bò sát ", Latitude = 10.78, Longitude = 106.70, Radius = 20 });
 
         var zone = repo.Added!;
         Assert.AreEqual(106.70, zone.Location.X);
@@ -26,6 +26,7 @@ public sealed class ZoneAndScanLogTests
         var dto = await service.GetZoneByIdAsync(zone.Id);
         Assert.AreEqual(10.78, dto!.Latitude);
         Assert.AreEqual(106.70, dto.Longitude);
+        Assert.AreEqual("Khu Bò sát", dto.Name); // tên được cắt khoảng trắng
     }
 
     [TestMethod]

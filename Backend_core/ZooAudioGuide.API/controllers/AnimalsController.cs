@@ -20,9 +20,9 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AnimalDto>>> GetAnimals()
+        public async Task<ActionResult<IEnumerable<AnimalDto>>> GetAnimals([FromQuery] string lang = "vi")
         {
-            var animals = await _animalService.GetAllAnimalsAsync();
+            var animals = await _animalService.GetAllAnimalsAsync(lang);
             return Ok(animals);
         }
 

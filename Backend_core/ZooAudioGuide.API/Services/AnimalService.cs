@@ -16,10 +16,10 @@ namespace ZooAudioGuide.API.Services
             _animalRepository = animalRepository;
         }
 
-        public async Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync()
+        public async Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync(string lang = "vi")
         {
             var animals = await _animalRepository.GetAllAsync();
-            return animals.Select(a => ToDto(a));
+            return animals.Select(a => ToDto(a, lang));
         }
 
         public async Task<AnimalDto?> GetAnimalByIdAsync(int id, string lang = "vi")
@@ -158,7 +158,7 @@ namespace ZooAudioGuide.API.Services
                 Latitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.Y : 10.7873,
                 Longitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.X : 106.7055,
                 RadiusMeters = a.Zone != null ? a.Zone.Radius : 25,
-                ZoneName = a.Zone != null ? a.Zone.ZoneCode : "Khu Vực Thảo Cầm Viên"
+                ZoneName = a.Zone != null ? (a.Zone.Name ?? a.Zone.ZoneCode) : "Khu Vực Thảo Cầm Viên"
             };
         }
     }

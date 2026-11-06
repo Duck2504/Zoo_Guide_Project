@@ -34,6 +34,10 @@ public sealed class AnimalNarrationTests
         var ko = await service.GetAnimalByIdAsync(7, "ko");
         Assert.AreEqual("Con hổ", ko!.ScriptText);
         Assert.AreEqual(vi.AudioUrl, ko.AudioUrl);
+
+        // Danh sách cũng theo ngôn ngữ (dùng cho danh sách con vật trong khu)
+        var list = await service.GetAllAnimalsAsync("en");
+        Assert.AreEqual("EN:Con hổ", list.Single().ScriptText);
     }
 
     [TestMethod]

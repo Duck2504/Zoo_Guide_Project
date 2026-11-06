@@ -7,6 +7,9 @@ namespace ZooAudioGuide.API.DTOs
         [Required]
         public string ZoneCode { get; set; } = string.Empty;
 
+        [MaxLength(100)]
+        public string? Name { get; set; }
+
         [Required]
         public double Latitude { get; set; }
 
