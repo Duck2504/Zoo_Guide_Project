@@ -40,12 +40,17 @@ namespace ZooAudioGuide.API.Repositories
 
         public async Task DeleteAsync(Animal animal)
         {
+            // Lượt quét của con này giữ lại cho thống kê (AnimalId = null); khóa ngoại không tự làm việc này
+            await using var tx = await _context.Database.BeginTransactionAsync();
+            await _context.ScanLogs.Where(s => s.AnimalId == animal.Id)
+                .ExecuteUpdateAsync(u => u.SetProperty(s => s.AnimalId, (int?)null));
             if (animal.AnimalContents != null && animal.AnimalContents.Any())
             {
                 _context.AnimalContents.RemoveRange(animal.AnimalContents);
             }
             _context.Animals.Remove(animal);
             await _context.SaveChangesAsync();
+            await tx.CommitAsync();
         }
 
         public async Task SaveChangesAsync()

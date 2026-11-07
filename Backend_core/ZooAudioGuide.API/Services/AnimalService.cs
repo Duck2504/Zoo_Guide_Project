@@ -102,7 +102,7 @@ namespace ZooAudioGuide.API.Services
                 throw new InvalidOperationException("Con vật chưa có bài thuyết minh tiếng Việt");
 
             // Microservice lo dịch/đọc/lưu mp3; phần ghi DB làm ở đây.
-            var results = await narration.GenerateAsync(id, vi.ScriptText, langs);
+            var results = await narration.GenerateAsync(id, vi.ScriptText, langs, name: vi.LocalName, scientificName: a.ScientificName);
 
             foreach (var r in results)
             {
@@ -119,6 +119,10 @@ namespace ZooAudioGuide.API.Services
                     content = new AnimalContent { LanguageCode = r.Lang, LocalName = vi.LocalName };
                     a.AnimalContents.Add(content);
                 }
+                // Chỉ thay tên còn trống hoặc còn là bản chép tiếng Việt; tên admin đã sửa thì giữ
+                if (r.Lang != "vi" && !string.IsNullOrWhiteSpace(r.TranslatedName) &&
+                    (string.IsNullOrWhiteSpace(content.LocalName) || content.LocalName == vi.LocalName))
+                    content.LocalName = r.TranslatedName;
                 content.ScriptText = r.TranslatedText ?? vi.ScriptText;
                 content.AudioUrl = r.AudioUrl ?? "";
                 content.SyncStatus = "Done";
@@ -126,6 +130,41 @@ namespace ZooAudioGuide.API.Services
 
             await _animalRepository.SaveChangesAsync();
             return results;
+        }
+
+        public async Task<IEnumerable<AnimalContentsDto>> GetAllContentsAsync()
+        {
+            var animals = await _animalRepository.GetAllAsync();
+            return animals.Select(a => new AnimalContentsDto
+            {
+                AnimalId = a.Id,
+                Contents = a.AnimalContents.OrderBy(c => c.LanguageCode == "vi" ? 0 : 1).ThenBy(c => c.LanguageCode)
+                    .Select(c => new AnimalContentDto { LanguageCode = c.LanguageCode, LocalName = c.LocalName, ScriptText = c.ScriptText, AudioUrl = c.AudioUrl, SyncStatus = c.SyncStatus })
+                    .ToList()
+            }).ToList();
+        }
+
+        // Lưu bản dịch đã sửa rồi đọc lại đúng chữ đó (không dịch lại). Trả null nếu không có con vật hoặc chưa có dòng ngôn ngữ đó.
+        // Tiếng Việt sửa ở form chính, không qua đây.
+        public async Task<LangResult?> UpdateContentAsync(int id, string lang, AnimalContentUpdateDto dto, INarrationClient narration)
+        {
+            if (lang == "vi") throw new InvalidOperationException("Bài tiếng Việt sửa ở form chỉnh sửa con vật");
+            var a = await _animalRepository.GetByIdAsync(id);
+            var content = a?.AnimalContents.FirstOrDefault(c => c.LanguageCode == lang);
+            if (content == null) return null;
+
+            content.LocalName = dto.LocalName.Trim();
+            content.ScriptText = dto.ScriptText.Trim();
+            var r = (await narration.GenerateAsync(id, content.ScriptText, [lang], textIsFinal: true)).Single();
+            if (r.Status == "DONE")
+            {
+                content.AudioUrl = r.AudioUrl ?? "";
+                content.SyncStatus = "Done";
+            }
+            else content.SyncStatus = "Failed"; // chữ đã lưu, audio cũ không còn khớp: đánh dấu để đọc lại sau
+
+            await _animalRepository.SaveChangesAsync();
+            return r;
         }
 
         private static void CopyFacts(AnimalCreateDto dto, Animal a)

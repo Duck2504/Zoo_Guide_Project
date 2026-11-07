@@ -21,16 +21,22 @@ public sealed class NarrationClientTests
     public async Task Success_ParsesResults_AndSendsKey()
     {
         HttpRequestMessage? sent = null;
+        var sentJson = "";
         var c = Client(r =>
         {
             sent = r;
+            sentJson = r.Content!.ReadAsStringAsync().Result; // nội dung bị hủy sau khi gửi xong
             return new(HttpStatusCode.OK)
             {
                 Content = new StringContent("""{"animalId":7,"results":[{"lang":"en","status":"DONE","translatedText":"Tiger","audioUrl":"u","error":null}]}""", System.Text.Encoding.UTF8, "application/json")
             };
         });
 
-        var res = await c.GenerateAsync(7, "Hổ", ["en"]);
+        var res = await c.GenerateAsync(7, "Hổ", ["en"], textIsFinal: true);
+        StringAssert.Contains(sentJson, "\"textIsFinal\":true");
+
+        await c.GenerateAsync(7, "Hổ", ["en"], name: "Hổ", scientificName: "Panthera tigris");
+        StringAssert.Contains(sentJson, "\"scientificName\":\"Panthera tigris\"");
 
         Assert.AreEqual("https://x.ngrok-free.app/api/narration/generate", sent!.RequestUri!.ToString());
         Assert.AreEqual("k", sent.Headers.GetValues("X-Admin-Key").Single());

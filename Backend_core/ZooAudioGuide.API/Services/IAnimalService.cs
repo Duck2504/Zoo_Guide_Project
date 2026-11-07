@@ -12,5 +12,7 @@ namespace ZooAudioGuide.API.Services
         Task<bool> UpdateAnimalAsync(int id, AnimalCreateDto dto);
         Task<bool> DeleteAnimalAsync(int id);
         Task<LangResult[]?> GenerateNarrationAsync(int id, string[] langs, INarrationClient narration);
+        Task<IEnumerable<AnimalContentsDto>> GetAllContentsAsync();
+        Task<LangResult?> UpdateContentAsync(int id, string lang, AnimalContentUpdateDto dto, INarrationClient narration);
     }
 }

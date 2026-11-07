@@ -54,6 +54,54 @@ namespace ZooAudioGuide.API.Controllers
             }
         }
 
+        // Nội dung từng ngôn ngữ của mọi con vật (trạng thái audio, nghe lại, xem bản dịch)
+        [HttpGet("contents")]
+        [AdminKey]
+        public async Task<ActionResult<IEnumerable<AnimalContentsDto>>> GetContents() =>
+            Ok(await _animalService.GetAllContentsAsync());
+
+        [HttpPut("{id}/contents/{lang}")]
+        [AdminKey]
+        public async Task<IActionResult> UpdateContent(int id, string lang, AnimalContentUpdateDto dto, [FromServices] INarrationClient narration)
+        {
+            try
+            {
+                var result = await _animalService.UpdateContentAsync(id, lang, dto, narration);
+                if (result == null) return NotFound();
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        public const int MaxImageBytes = 5 * 1024 * 1024;
+
+        // Ảnh con vật: chỉ JPG/PNG/WebP, nhận dạng từ chính nội dung file (không tin tên file hay Content-Type của trình duyệt)
+        [HttpPost("image")]
+        [AdminKey]
+        [RequestSizeLimit(MaxImageBytes + 64 * 1024)]
+        public async Task<IActionResult> UploadImage(IFormFile file, [FromServices] INarrationClient narration)
+        {
+            if (file == null || file.Length == 0 || file.Length > MaxImageBytes) return BadRequest("Ảnh trống hoặc lớn hơn 5 MB");
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+            var type = ImageType(bytes);
+            if (type == null) return BadRequest("Chỉ nhận ảnh JPG, PNG hoặc WebP");
+
+            var (url, error) = await narration.UploadImageAsync(bytes, type);
+            return url != null ? Ok(new { url }) : StatusCode(502, error);
+        }
+
+        public static string? ImageType(byte[] b) =>
+            b.Length >= 3 && b[0] == 0xFF && b[1] == 0xD8 && b[2] == 0xFF ? "image/jpeg"
+            : b.Length >= 8 && b[0] == 0x89 && b[1] == 0x50 && b[2] == 0x4E && b[3] == 0x47 ? "image/png"
+            : b.Length >= 12 && b[0] == (byte)'R' && b[1] == (byte)'I' && b[2] == (byte)'F' && b[3] == (byte)'F'
+              && b[8] == (byte)'W' && b[9] == (byte)'E' && b[10] == (byte)'B' && b[11] == (byte)'P' ? "image/webp"
+            : null;
+
         [HttpPost]
         [AdminKey]
         public async Task<ActionResult<AnimalDto>> CreateAnimal(AnimalCreateDto dto)
