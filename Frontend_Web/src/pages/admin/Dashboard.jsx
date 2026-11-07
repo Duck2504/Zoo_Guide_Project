@@ -27,7 +27,54 @@ const EMPTY_STATS = {
   onlineUsers: 0,
   dailyStats: [],
   topAnimals: [],
+  byLanguage: [],
+  bySource: [],
+  byZone: [],
 };
+
+const LANGUAGE_LABELS = { vi: 'Tiếng Việt', en: 'Tiếng Anh', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn' };
+// Giá trị `source` mà trang du khách ghi vào SCAN_LOGS
+const SOURCE_LABELS = {
+  web: 'Quét QR ở chuồng / mở link thẳng',
+  web_home: 'Mở trang chủ',
+  qr_home: 'Quét QR trang chủ',
+  geo: 'Định vị (vào khu)',
+  map: 'Từ bản đồ',
+  zone: 'Từ mục "Cùng khu"',
+};
+
+// Một bảng xếp hạng nhỏ: nhãn, số và thanh tỉ lệ
+function Breakdown({ title, subtitle, rows }) {
+  const total = rows.reduce((sum, r) => sum + r.count, 0);
+  const max = Math.max(1, ...rows.map(r => r.count));
+  return (
+    <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
+      <h2 className="text-base font-extrabold text-slate-900">{title}</h2>
+      <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      {rows.length ? (
+        <ul className="mt-4 space-y-3">
+          {rows.map(r => (
+            <li key={r.key}>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="min-w-0 truncate font-semibold text-slate-700">{r.label}</span>
+                <span className="shrink-0 font-extrabold tabular-nums text-slate-700">
+                  {numberFormat.format(r.count)} <span className="font-medium text-slate-400">· {Math.round((r.count / total) * 100)}%</span>
+                </span>
+              </div>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-full rounded-full bg-emerald-400" style={{ width: `${Math.max(3, (r.count / max) * 100)}%` }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-4 rounded-xl bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">Chưa có lượt nào trong 7 ngày qua.</p>
+      )}
+    </article>
+  );
+}
+
+const toRows = (list, labelOf) => (Array.isArray(list) ? list : []).map(b => ({ key: b.key, label: labelOf(b), count: Number(b.count) || 0 }));
 
 const numberFormat = new Intl.NumberFormat('vi-VN');
 
@@ -81,7 +128,7 @@ export default function AdminDashboard() {
       const res = await adminFetch(`${API}/api/admin/stats/overview`);
       if (!res.ok) {
         const message = res.status === 401
-          ? 'Mã quản trị chưa được nhập hoặc không hợp lệ. Hãy nhập mã ở thanh bên.'
+          ? 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.'
           : `Không tải được thống kê (HTTP ${res.status}). Vui lòng thử lại.`;
         setError(message);
         return;
@@ -99,6 +146,9 @@ export default function AdminDashboard() {
           }))
           : [],
         topAnimals: Array.isArray(data.topAnimals) ? data.topAnimals : [],
+        byLanguage: toRows(data.byLanguage, b => LANGUAGE_LABELS[b.key] || b.key),
+        bySource: toRows(data.bySource, b => SOURCE_LABELS[b.key] || b.key || 'Không rõ'),
+        byZone: toRows(data.byZone, b => b.label || b.key),
       });
       setLastUpdated(new Date());
       setError('');
@@ -117,14 +167,10 @@ export default function AdminDashboard() {
     return () => window.clearInterval(intervalId);
   }, [fetchStats]);
 
-  const todayKey = new Date().toLocaleDateString('vi-VN');
-  const todayScans = stats.dailyStats.reduce((total, item) => {
-    const itemDate = new Date(item.date);
-    return itemDate.toLocaleDateString('vi-VN') === todayKey ? total + item.count : total;
-  }, 0);
-  const averageScans = stats.dailyStats.length
-    ? Math.round(stats.dailyStats.reduce((sum, item) => sum + item.count, 0) / stats.dailyStats.length)
-    : 0;
+  // Server trả đúng 7 ngày theo giờ Việt Nam, ngày cuối là hôm nay, ngày trống = 0
+  const todayScans = stats.dailyStats.at(-1)?.count ?? 0;
+  const weekScans = stats.dailyStats.reduce((sum, item) => sum + item.count, 0);
+  const averageScans = stats.dailyStats.length ? Math.round(weekScans / stats.dailyStats.length) : 0;
   const maxAnimalScans = Math.max(1, ...stats.topAnimals.map(animal => Number(animal.scanCount) || 0));
 
   if (isLoading) {
@@ -199,28 +245,28 @@ export default function AdminDashboard() {
           <StatCard
             label="Tổng lượt quét"
             value={stats.totalScans}
-            detail="Tất cả lượt QR và GPS đã ghi nhận"
+            detail="Mọi lượt mở trang con vật và trang chủ"
             icon={QrCode}
             tone="bg-emerald-50 text-emerald-700"
           />
           <StatCard
-            label="Đang trực tuyến"
+            label="Phiên hoạt động"
             value={stats.onlineUsers}
-            detail="Số người dùng online hiện tại"
+            detail="Số phiên có lượt mở trang trong 5 phút qua"
             icon={UsersRound}
             tone="bg-sky-50 text-sky-700"
           />
           <StatCard
             label="Lượt quét hôm nay"
             value={todayScans}
-            detail="Theo dữ liệu thống kê trong ngày"
+            detail="Tính theo giờ Việt Nam"
             icon={CalendarDays}
             tone="bg-amber-50 text-amber-700"
           />
           <StatCard
             label="Trung bình mỗi ngày"
             value={averageScans}
-            detail={`Tính trên ${stats.dailyStats.length} ngày có dữ liệu`}
+            detail={`${numberFormat.format(weekScans)} lượt trong 7 ngày gần nhất`}
             icon={Activity}
             tone="bg-violet-50 text-violet-700"
           />
@@ -310,7 +356,10 @@ export default function AdminDashboard() {
                         </span>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
-                            <p className="truncate text-sm font-bold text-slate-700">{animal.animalName || 'Chưa đặt tên'}</p>
+                            <p className="min-w-0 truncate text-sm font-bold text-slate-700">
+                              {animal.animalName || 'Chưa đặt tên'}
+                              {animal.scientificName && animal.scientificName !== animal.animalName && <span className="ml-1.5 font-medium italic text-slate-400">{animal.scientificName}</span>}
+                            </p>
                             <span className="shrink-0 text-xs font-extrabold text-slate-600">{numberFormat.format(scans)}</span>
                           </div>
                           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
@@ -341,6 +390,12 @@ export default function AdminDashboard() {
               <ArrowUpRight size={16} />
             </Link>
           </article>
+        </section>
+
+        <section aria-label="Lượt mở trang chia theo nhóm" className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+          <Breakdown title="Theo ngôn ngữ" subtitle="Ngôn ngữ khách đang dùng, 7 ngày qua" rows={stats.byLanguage} />
+          <Breakdown title="Theo cách vào" subtitle="Khách đến trang bằng đường nào, 7 ngày qua" rows={stats.bySource} />
+          <Breakdown title="Theo khu" subtitle="Khu của con vật được mở, 7 ngày qua" rows={stats.byZone} />
         </section>
       </div>
     </div>

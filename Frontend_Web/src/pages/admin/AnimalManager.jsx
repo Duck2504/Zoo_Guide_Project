@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { API } from '../../config';
 import { QRCodeCanvas } from 'qrcode.react';
 import { adminFetch } from '../../utils/adminFetch';
 import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
+import { AudioStatus, ContentPanel, needsAudio } from '../../components/AnimalContentPanel';
 
 const LANG_NAMES = { vi: 'Tiếng Việt', en: 'Tiếng Anh', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn' };
 const FACT_OPTIONS = {
@@ -10,6 +11,8 @@ const FACT_OPTIONS = {
   diet: [['carnivore', 'Ăn thịt'], ['herbivore', 'Ăn thực vật'], ['omnivore', 'Ăn tạp']],
   habitat: [['rainforest', 'Rừng mưa nhiệt đới'], ['forest', 'Rừng'], ['savanna', 'Đồng cỏ xavan'], ['wetland', 'Đầm lầy'], ['coast', 'Vùng ven biển']],
 };
+// Độ dài bài thuyết minh tiếng Việt: khoảng 15 ký tự/giây khi đọc, 600–1200 ký tự ≈ 45–90 giây
+const SCRIPT_MIN = 600, SCRIPT_MAX = 1200;
 const FIELD = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10';
 
 export default function AnimalManager() {
@@ -24,6 +27,11 @@ export default function AnimalManager() {
   const [saving, setSaving] = useState(false);
   const [confirm, confirmDialog] = useConfirm();
   const [zoneList, setZoneList] = useState([]); // danh sách khu thật cho ô chọn khu trong form
+  const [contents, setContents] = useState({}); // animalId → nội dung từng ngôn ngữ (trạng thái audio thật, không lùi về tiếng Việt)
+  const [contentAnimal, setContentAnimal] = useState(null); // con đang mở bảng "Nội dung"
+  const [bulk, setBulk] = useState(null); // { done, total, current } khi đang tạo audio hàng loạt
+  const bulkCancel = useRef(false);
+  const [uploading, setUploading] = useState(false);
   
   // Khởi tạo state khớp với AnimalCreateDto
   const initialFormState = { 
@@ -41,6 +49,8 @@ export default function AnimalManager() {
 
   const API_URL = `${API}/api/animals`;
   const zones = [...new Set(animals.map(animal => animal.zoneId).filter(Boolean))].sort((a, b) => a - b);
+  const zoneName = id => animals.find(a => a.zoneId === id)?.zoneName || `Khu ${id}`;
+  const missingAudio = animals.filter(a => needsAudio(contents[a.id]));
   const filteredAnimals = animals.filter(animal => {
     const query = searchTerm.trim().toLocaleLowerCase('vi');
     const matchesSearch = !query || [
@@ -60,8 +70,18 @@ export default function AnimalManager() {
       .catch(() => { /* không tải được thì form dùng ô nhập số */ });
   }, []);
 
+  const fetchContents = async () => {
+    try {
+      const res = await adminFetch(`${API_URL}/contents`);
+      if (!res.ok) return;
+      const list = await res.json();
+      setContents(Object.fromEntries(list.map(x => [x.animalId, x.contents])));
+    } catch { /* cột audio chỉ trống đi */ }
+  };
+
   const fetchAnimals = async () => {
     setIsLoading(true);
+    fetchContents();
     try {
       const res = await fetch(API_URL);
       if (res.ok) {
@@ -141,6 +161,59 @@ export default function AnimalManager() {
       setNotice({ type: 'error', text: 'Không gọi được server để tạo audio.' });
     } finally {
       setGeneratingId(null);
+    }
+  };
+
+  // Tạo audio lần lượt cho các con còn thiếu; dừng ngay khi không gọi được microservice (laptop/ngrok tắt)
+  const handleBulkGenerate = async () => {
+    const queue = missingAudio;
+    if (!queue.length) return;
+    if (!(await confirm(`Tạo audio cho ${queue.length} con còn thiếu? Mỗi con mất khoảng 10–30 giây và dùng lượt dịch Gemini.`))) return;
+    bulkCancel.current = false;
+    const failed = [];
+    for (let i = 0; i < queue.length; i++) {
+      if (bulkCancel.current) break;
+      const a = queue[i];
+      setBulk({ done: i, total: queue.length, current: a.defaultLocalName });
+      try {
+        const res = await adminFetch(`${API_URL}/${a.id}/narration`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(['vi', 'en', 'ja', 'ko']),
+        });
+        const body = res.ok ? await res.json() : null;
+        const results = body?.results || [];
+        const errors = results.filter(r => r.status !== 'DONE');
+        if (!res.ok || errors.length) failed.push({ label: a.defaultLocalName, ok: false, detail: (!res.ok ? await errorText(res) : errors[0].error || '').slice(0, 140) });
+        // Lỗi cả con (mọi ngôn ngữ, hoặc server từ chối): thường là microservice/ngrok tắt, dừng thay vì lặp lỗi cho cả danh sách
+        if (!res.ok || (results.length > 0 && errors.length === results.length)) break;
+      } catch {
+        failed.push({ label: a.defaultLocalName, ok: false, detail: 'Không gọi được server' });
+        break;
+      }
+    }
+    setBulk(null);
+    setNotice(failed.length
+      ? { type: 'error', text: `Có ${failed.length} con chưa tạo được audio`, lines: failed.slice(0, 6) }
+      : { type: 'success', text: bulkCancel.current ? 'Đã dừng tạo audio.' : 'Đã tạo audio cho các con còn thiếu.' });
+    fetchAnimals();
+  };
+
+  // Tải ảnh lên kho đám mây (qua backend), rồi điền link vào form
+  const handleImageFile = async (file) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { setFormError('Ảnh lớn hơn 5 MB. Hãy chọn ảnh nhỏ hơn.'); return; }
+    setUploading(true);
+    setFormError('');
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      const res = await adminFetch(`${API_URL}/image`, { method: 'POST', body });
+      if (!res.ok) { setFormError(`Chưa tải được ảnh: ${await errorText(res)}`); return; }
+      const { url } = await res.json();
+      setFormData(f => ({ ...f, avatarUrl: url }));
+    } catch {
+      setFormError('Không gọi được server để tải ảnh.');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -242,6 +315,17 @@ export default function AnimalManager() {
             <div>
               <h2 className="font-bold text-slate-800">Danh sách động vật</h2>
               <p className="mt-1 text-sm text-slate-500">Tra cứu và quản lý thông tin từng loài</p>
+              {bulk ? (
+                <p className="mt-3 flex flex-wrap items-center gap-3 text-sm font-semibold text-emerald-800" role="status">
+                  <i className="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+                  Đang tạo audio {bulk.done + 1}/{bulk.total}: {bulk.current}
+                  <button onClick={() => { bulkCancel.current = true; }} className="min-h-9 rounded-lg border border-slate-200 px-3 text-slate-600 hover:bg-slate-50">Dừng sau con này</button>
+                </p>
+              ) : missingAudio.length > 0 && Object.keys(contents).length > 0 && (
+                <button onClick={handleBulkGenerate} disabled={generatingId !== null} className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-xl bg-amber-50 px-4 text-sm font-bold text-amber-900 ring-1 ring-amber-200 transition hover:bg-amber-100 disabled:opacity-50">
+                  <i className="fa-solid fa-volume-high" aria-hidden="true"></i> Tạo audio cho {missingAudio.length} con còn thiếu
+                </button>
+              )}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <label className="relative block sm:w-64">
@@ -264,7 +348,7 @@ export default function AnimalManager() {
                   className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
                 >
                   <option value="all">Tất cả khu vực</option>
-                  {zones.map(zone => <option key={zone} value={String(zone)}>Khu vực {zone}</option>)}
+                  {zones.map(zone => <option key={zone} value={String(zone)}>{zoneName(zone)}</option>)}
                 </select>
                 <i className="fa-solid fa-chevron-down pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400" aria-hidden="true"></i>
               </label>
@@ -286,16 +370,17 @@ export default function AnimalManager() {
                 <tr className="bg-slate-50/80 text-xs uppercase tracking-wider text-slate-500">
                   <th className="px-5 py-3.5 font-bold">Động vật</th>
                   <th className="px-5 py-3.5 font-bold">Khu vực</th>
+                  <th className="px-5 py-3.5 font-bold">Audio</th>
                   <th className="px-5 py-3.5 text-center font-bold">Mã QR</th>
                   <th className="px-5 py-3.5 text-right font-bold">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
-                  <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600" aria-hidden="true"></i>Đang tải danh sách động vật...</td></tr>
+                  <tr><td colSpan="5" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600" aria-hidden="true"></i>Đang tải danh sách động vật...</td></tr>
                 ) : loadError ? (
                   <tr>
-                    <td colSpan="4" className="px-5 py-16 text-center">
+                    <td colSpan="5" className="px-5 py-16 text-center">
                       <div role="alert" className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
                         <p className="font-bold">{loadError}</p>
                         <button onClick={fetchAnimals} className="mt-3 min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-amber-800 shadow-sm transition-colors hover:bg-amber-100"><i className="fa-solid fa-rotate mr-2" aria-hidden="true"></i>Thử lại</button>
@@ -304,7 +389,7 @@ export default function AnimalManager() {
                   </tr>
                 ) : filteredAnimals.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-5 py-16 text-center">
+                    <td colSpan="5" className="px-5 py-16 text-center">
                       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-xl text-slate-400"><i className={`fa-solid ${animals.length ? 'fa-magnifying-glass' : 'fa-paw'}`} aria-hidden="true"></i></div>
                       <p className="mt-4 font-bold text-slate-700">{animals.length ? 'Không tìm thấy động vật phù hợp' : 'Chưa có động vật nào'}</p>
                       <p className="mt-1 text-sm text-slate-500">{animals.length ? 'Thử từ khóa hoặc khu vực khác.' : 'Thêm loài đầu tiên để bắt đầu xây dựng danh mục.'}</p>
@@ -331,6 +416,7 @@ export default function AnimalManager() {
                       <span className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-2.5 py-1.5 text-sm font-semibold text-emerald-800"><i className="fa-solid fa-location-dot text-xs text-emerald-600" aria-hidden="true"></i>Khu {animal.zoneId}</span>
                       {animal.zoneName && <p className="mt-1.5 pl-1 text-xs text-slate-500">{animal.zoneName}</p>}
                     </td>
+                    <td className="px-5 py-4"><AudioStatus contents={contents[animal.id]} /></td>
                     <td className="px-5 py-4">
                       <div className="flex flex-col items-center gap-2">
                         <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
@@ -345,6 +431,9 @@ export default function AnimalManager() {
                       <div className="flex justify-end gap-2">
                         <button onClick={() => handleGenerateAudio(animal.id)} disabled={generatingId !== null} title="Tạo audio thuyết minh" aria-label="Tạo audio thuyết minh" className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">
                           <i className={`fa-solid ${generatingId === animal.id ? 'fa-spinner fa-spin' : 'fa-volume-high'}`} aria-hidden="true"></i>
+                        </button>
+                        <button onClick={() => setContentAnimal(animal)} title="Nội dung theo ngôn ngữ (nghe, sửa bản dịch)" aria-label={`Nội dung theo ngôn ngữ của ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50">
+                          <i className="fa-solid fa-language" aria-hidden="true"></i>
                         </button>
                         <button onClick={() => handleOpenModal(animal)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100">
                           <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>
@@ -407,7 +496,12 @@ export default function AnimalManager() {
                 </div>
 
                 <div>
-                  <label htmlFor="animal-avatar-url" className="mb-1.5 block text-sm font-bold text-slate-700">Đường dẫn ảnh</label>
+                  <label htmlFor="animal-avatar-url" className="mb-1.5 block text-sm font-bold text-slate-700">Ảnh (tải lên hoặc dán link)</label>
+                  <label className={`mb-2 inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 ${uploading ? 'opacity-60' : ''}`}>
+                    <i className={`fa-solid ${uploading ? 'fa-spinner fa-spin' : 'fa-upload'}`} aria-hidden="true"></i>
+                    {uploading ? 'Đang tải ảnh…' : 'Tải ảnh lên (JPG, PNG, WebP ≤ 5 MB)'}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading} onChange={e => { handleImageFile(e.target.files?.[0]); e.target.value = ''; }} />
+                  </label>
                   <input id="animal-avatar-url" type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
                 </div>
               </div>
@@ -441,12 +535,22 @@ export default function AnimalManager() {
               <div>
                 <label htmlFor="animal-script" className="mb-1.5 block text-sm font-bold text-slate-700">Bài thuyết minh</label>
                 <textarea id="animal-script" 
-                  rows="4" 
+                  rows="8" 
                   value={formData.scriptText || ''} 
                   onChange={e => setFormData({ ...formData, scriptText: e.target.value })} 
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" 
                   placeholder="Nhập nội dung bài thuyết minh bằng tiếng Việt..."
+                  aria-describedby="animal-script-hint"
                 />
+                {(() => {
+                  const n = (formData.scriptText || '').trim().length;
+                  const tone = n === 0 ? 'text-slate-500' : n < SCRIPT_MIN ? 'text-amber-700' : n > SCRIPT_MAX ? 'text-amber-700' : 'text-emerald-700';
+                  return (
+                    <p id="animal-script-hint" className={`mt-1.5 text-xs font-medium ${tone}`}>
+                      {n} ký tự (khoảng {Math.max(1, Math.round(n / 15))} giây đọc). Nên viết {SCRIPT_MIN}–{SCRIPT_MAX} ký tự, khoảng 45–90 giây: tên, một điều thú vị, tình trạng bảo tồn, điều khách có thể quan sát ngay trước chuồng.
+                    </p>
+                  );
+                })()}
               </div>
 
               {formError && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-900">{formError}</p>}
@@ -462,6 +566,9 @@ export default function AnimalManager() {
         </div>
       )}
 
+      {contentAnimal && (
+        <ContentPanel animal={contentAnimal} contents={contents[contentAnimal.id]} onClose={() => setContentAnimal(null)} onSaved={fetchContents} setNotice={setNotice} />
+      )}
       {confirmDialog}
       <Notice notice={notice} onClose={() => setNotice(null)} />
     </div>

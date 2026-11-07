@@ -28,37 +28,38 @@ export default function AdminLayout() {
         <div className="border-b border-slate-800 p-3 sm:p-4">
           <h2 className="text-lg font-black text-zoo-400 sm:text-xl">Zoo Admin</h2>
         </div>
-        <nav className="flex gap-2 overflow-x-auto p-2 lg:block lg:flex-1 lg:space-y-2 lg:overflow-visible lg:p-4">
+        {/* Điện thoại: 4 ô chia đều, không phải cuộn ngang; máy tính: cột dọc */}
+        <nav aria-label="Quản trị" className="grid grid-cols-4 gap-1 p-2 lg:block lg:flex-1 lg:space-y-2 lg:p-4">
           {/* Nút Dashboard (Thêm thuộc tính 'end' để URL khớp chính xác, không bị đè màu) */}
           <NavLink
             to="/admin"
             end
-            className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+            className={({ isActive }) => `flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-bold leading-tight transition lg:block lg:min-h-0 lg:px-4 lg:py-2 lg:text-left lg:text-sm ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-chart-pie mr-2" aria-hidden="true"></i> Dashboard
+            <i className="fa-solid fa-chart-pie lg:mr-2" aria-hidden="true"></i> <span>Tổng quan</span>
           </NavLink>
 
           {/* Nút Động vật */}
           <NavLink
             to="/admin/animals"
-            className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+            className={({ isActive }) => `flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-bold leading-tight transition lg:block lg:min-h-0 lg:px-4 lg:py-2 lg:text-left lg:text-sm ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-hippo mr-2" aria-hidden="true"></i> Động vật
+            <i className="fa-solid fa-hippo lg:mr-2" aria-hidden="true"></i> <span>Động vật</span>
           </NavLink>
           
           {/* Nút Zones */}
           <NavLink
             to="/admin/zones"
-            className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+            className={({ isActive }) => `flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-bold leading-tight transition lg:block lg:min-h-0 lg:px-4 lg:py-2 lg:text-left lg:text-sm ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-map-location-dot mr-2" aria-hidden="true"></i> Khu Động Vật
+            <i className="fa-solid fa-map-location-dot lg:mr-2" aria-hidden="true"></i> <span>Khu vực</span>
           </NavLink>
           
           <NavLink
             to="/admin/QrCode"
-            className={({ isActive }) => `block shrink-0 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-bold transition lg:px-4 ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+            className={({ isActive }) => `flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-center text-xs font-bold leading-tight transition lg:block lg:min-h-0 lg:px-4 lg:py-2 lg:text-left lg:text-sm ${isActive ? 'bg-zoo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            <i className="fa-solid fa-qrcode mr-2" aria-hidden="true"></i> Mã Trang Web
+            <i className="fa-solid fa-qrcode lg:mr-2" aria-hidden="true"></i> <span>Mã QR</span>
           </NavLink>
         </nav>
 

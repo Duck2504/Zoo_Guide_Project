@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
 import { API } from '../../config';
 import { adminFetch } from '../../utils/adminFetch';
 import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
+import { calculateDistance } from '../../utils/geoUtils';
+
+const ZonePicker = lazy(() => import('../../components/ZonePicker')); // Leaflet chỉ tải khi mở form
 
 export default function ZoneManager() {
   const [notice, setNotice] = useState(null);
@@ -9,10 +12,32 @@ export default function ZoneManager() {
   const [zones, setZones] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ zoneCode: '', name: '', latitude: '', longitude: '', radius: 15 });
+  const [formData, setFormData] = useState({ zoneCode: '', name: '', latitude: '', longitude: '', radius: 45 });
   const [error, setError] = useState(null); // State lưu lỗi trả về từ Backend
   const [loadError, setLoadError] = useState(''); // lỗi tải danh sách (khác lỗi form)
   const [searchTerm, setSearchTerm] = useState('');
+  const [animalCount, setAnimalCount] = useState({}); // zoneId → số con vật
+
+  // Đếm con vật mỗi khu: gọi thẳng API (không dùng bộ nhớ đệm của trang du khách vì dữ liệu đổi khi quản trị sửa)
+  useEffect(() => {
+    fetch(`${API}/api/animals`)
+      .then(res => (res.ok ? res.json() : []))
+      .then(list => {
+        const count = {};
+        for (const a of Array.isArray(list) ? list : []) count[a.zoneId] = (count[a.zoneId] || 0) + 1;
+        setAnimalCount(count);
+      })
+      .catch(() => { /* cột số con chỉ trống đi */ });
+  }, []);
+
+  // Khu trong form chồng lên khu khác (khoảng cách tâm nhỏ hơn tổng hai bán kính): khách ở vùng giao sẽ bị nhận nhầm khu
+  const formLat = parseFloat(formData.latitude), formLng = parseFloat(formData.longitude), formRadius = Number(formData.radius) || 0;
+  const otherZones = zones.filter(z => z.id !== formData.id);
+  const overlaps = Number.isFinite(formLat) && Number.isFinite(formLng)
+    ? otherZones
+        .map(z => ({ z, d: calculateDistance(formLat, formLng, z.latitude, z.longitude) }))
+        .filter(({ z, d }) => d < formRadius + (Number(z.radius) || 0))
+    : [];
 
   const API_URL = `${API}/api/zones`;
   const filteredZones = zones.filter(zone =>
@@ -108,7 +133,7 @@ export default function ZoneManager() {
     if (zone) {
       setFormData({ ...zone, name: zone.name || '' });
     } else {
-      setFormData({ zoneCode: '', name: '', latitude: '', longitude: '', radius: 15 });
+      setFormData({ zoneCode: '', name: '', latitude: '', longitude: '', radius: 45 });
     }
     setIsModalOpen(true);
   };
@@ -174,15 +199,16 @@ export default function ZoneManager() {
                   <th className="px-5 py-3.5 font-bold">Khu vực</th>
                   <th className="px-5 py-3.5 font-bold">Tọa độ GPS</th>
                   <th className="px-5 py-3.5 font-bold">Phạm vi quét</th>
+                  <th className="px-5 py-3.5 font-bold">Con vật</th>
                   <th className="px-5 py-3.5 text-right font-bold">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
-                  <tr><td colSpan="4" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600" aria-hidden="true"></i>Đang tải danh sách khu vực...</td></tr>
+                  <tr><td colSpan="5" className="px-5 py-16 text-center text-sm font-medium text-slate-500"><i className="fa-solid fa-spinner fa-spin mr-2 text-emerald-600" aria-hidden="true"></i>Đang tải danh sách khu vực...</td></tr>
                 ) : loadError ? (
                   <tr>
-                    <td colSpan="4" className="px-5 py-16 text-center">
+                    <td colSpan="5" className="px-5 py-16 text-center">
                       <div role="alert" className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
                         <p className="font-bold">{loadError}</p>
                         <button onClick={fetchZones} className="mt-3 min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-amber-800 shadow-sm transition-colors hover:bg-amber-100"><i className="fa-solid fa-rotate mr-2" aria-hidden="true"></i>Thử lại</button>
@@ -191,7 +217,7 @@ export default function ZoneManager() {
                   </tr>
                 ) : filteredZones.length === 0 ? (
                   <tr>
-                    <td colSpan="4" className="px-5 py-16 text-center">
+                    <td colSpan="5" className="px-5 py-16 text-center">
                       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-xl text-slate-400"><i className={`fa-solid ${zones.length ? 'fa-magnifying-glass' : 'fa-map'}`} aria-hidden="true"></i></div>
                       <p className="mt-4 font-bold text-slate-700">{zones.length ? 'Không tìm thấy khu vực phù hợp' : 'Chưa có khu vực nào'}</p>
                       <p className="mt-1 text-sm text-slate-500">{zones.length ? 'Thử tìm bằng mã khu vực hoặc tọa độ khác.' : 'Thêm khu vực để bắt đầu cấu hình bản đồ sở thú.'}</p>
@@ -215,6 +241,9 @@ export default function ZoneManager() {
                       <span className="inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-2 text-sm font-bold text-sky-800">
                         <i className="fa-solid fa-bullseye text-xs text-sky-600" aria-hidden="true"></i>{zone.radius} m
                       </span>
+                    </td>
+                    <td className="px-5 py-4 text-sm font-semibold text-slate-700">
+                      {animalCount[zone.id] ? `${animalCount[zone.id]} con` : <span className="text-amber-700">Chưa có con nào</span>}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
@@ -275,6 +304,18 @@ export default function ZoneManager() {
                 </div>
                 </div>
               </div>
+              <Suspense fallback={<div className="h-64 rounded-xl bg-slate-100" />}>
+                <ZonePicker
+                  lat={formLat} lng={formLng} radius={formRadius} others={otherZones}
+                  onPick={(lat, lng) => setFormData(f => ({ ...f, latitude: lat.toFixed(6), longitude: lng.toFixed(6) }))}
+                />
+              </Suspense>
+              {overlaps.length > 0 && (
+                <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  <i className="fa-solid fa-triangle-exclamation mr-2" aria-hidden="true"></i>
+                  Khu này chồng lên {overlaps.map(({ z, d }) => `${z.name || z.zoneCode} (tâm cách ${Math.round(d)} m)`).join(', ')}. Khách đứng ở phần chồng nhau có thể bị nhận nhầm khu: dời tâm hoặc giảm bán kính.
+                </p>
+              )}
               <div>
                 <label htmlFor="zone-radius" className="mb-1.5 block text-sm font-bold text-slate-700">Bán kính quét GPS <span className="text-rose-500">*</span></label>
                 <div className="relative">
