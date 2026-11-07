@@ -273,44 +273,29 @@ export default function AnimalManager() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-800 to-teal-950 px-6 py-7 text-white shadow-lg shadow-emerald-950/10 sm:px-8 sm:py-9">
-          <div className="pointer-events-none absolute -right-10 -top-20 h-64 w-64 rounded-full border-[32px] border-white/5" />
-          <div className="pointer-events-none absolute -bottom-28 right-40 h-64 w-64 rounded-full bg-emerald-400/10 blur-2xl" />
-          <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-50">
-                <i className="fa-solid fa-paw" aria-hidden="true"></i> TRUNG TÂM QUẢN TRỊ SỞ THÚ
-              </div>
-              <h1 className="text-2xl font-black tracking-tight sm:text-3xl">Quản lý động vật</h1>
-              <p className="mt-2 max-w-xl text-sm leading-6 text-emerald-100 sm:text-base">
-                Quản lý hồ sơ, nội dung thuyết minh và mã QR cho các loài trong sở thú.
-              </p>
-            </div>
-            <button
-              onClick={() => handleOpenModal()}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-emerald-800 shadow-sm transition hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white/25"
-            >
-              <i className="fa-solid fa-plus" aria-hidden="true"></i> Thêm động vật
-            </button>
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">Quản lý động vật</h1>
+            <p className="mt-1.5 max-w-2xl text-base leading-relaxed text-slate-600">Hồ sơ, bài thuyết minh, audio và mã QR của từng loài.</p>
           </div>
-        </section>
+          <button onClick={() => handleOpenModal()} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-emerald-700 px-5 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-500/30">
+            <i className="fa-solid fa-plus" aria-hidden="true"></i> Thêm động vật
+          </button>
+        </header>
 
         <section className="grid gap-4 sm:grid-cols-3">
-          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-xl text-emerald-700"><i className="fa-solid fa-paw" aria-hidden="true"></i></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div><p className="text-sm font-medium text-slate-500">Tổng số động vật</p><p className="mt-1 text-2xl font-black text-slate-800">{animals.length}</p></div>
           </div>
-          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-xl text-sky-700"><i className="fa-solid fa-map-location-dot" aria-hidden="true"></i></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div><p className="text-sm font-medium text-slate-500">Khu vực có động vật</p><p className="mt-1 text-2xl font-black text-slate-800">{zones.length}</p></div>
           </div>
-          <div className="flex items-center gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-xl text-amber-600"><i className="fa-solid fa-filter" aria-hidden="true"></i></div>
+          <div className="rounded-xl border border-slate-200 bg-white p-5">
             <div><p className="text-sm font-medium text-slate-500">Kết quả đang hiển thị</p><p className="mt-1 text-2xl font-black text-slate-800">{filteredAnimals.length}</p></div>
           </div>
         </section>
 
-        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+        <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white">
           <div className="flex flex-col gap-4 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
               <h2 className="font-bold text-slate-800">Danh sách động vật</h2>
@@ -383,7 +368,7 @@ export default function AnimalManager() {
                     <td colSpan="5" className="px-5 py-16 text-center">
                       <div role="alert" className="mx-auto max-w-md rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
                         <p className="font-bold">{loadError}</p>
-                        <button onClick={fetchAnimals} className="mt-3 min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-amber-800 shadow-sm transition-colors hover:bg-amber-100"><i className="fa-solid fa-rotate mr-2" aria-hidden="true"></i>Thử lại</button>
+                        <button onClick={fetchAnimals} className="mt-3 min-h-11 rounded-xl bg-white px-4 py-2 font-bold text-amber-800 transition-colors hover:bg-amber-100"><i className="fa-solid fa-rotate mr-2" aria-hidden="true"></i>Thử lại</button>
                       </div>
                     </td>
                   </tr>
@@ -401,7 +386,7 @@ export default function AnimalManager() {
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3.5">
                         {animal.avatarUrl ? (
-                          <img src={animal.avatarUrl} alt={animal.defaultLocalName || 'Ảnh động vật'} className="h-14 w-14 shrink-0 rounded-2xl border border-slate-200 object-cover shadow-sm" />
+                          <img src={animal.avatarUrl} alt={animal.defaultLocalName || 'Ảnh động vật'} className="h-14 w-14 shrink-0 rounded-2xl border border-slate-200 object-cover" />
                         ) : (
                           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-lg text-slate-400"><i className="fa-solid fa-paw" aria-hidden="true"></i></div>
                         )}
@@ -419,7 +404,7 @@ export default function AnimalManager() {
                     <td className="px-5 py-4"><AudioStatus contents={contents[animal.id]} /></td>
                     <td className="px-5 py-4">
                       <div className="flex flex-col items-center gap-2">
-                        <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                        <div className="rounded-xl border border-slate-200 bg-white p-1.5">
                           <QRCodeCanvas id={`qr-${animal.id}`} value={`https://zooaudioguide-001-site1.ftempurl.com/a/${animal.id}`} size={60} level="H" />
                         </div>
                         <button onClick={() => handleDownloadQR(animal.id, animal.scientificName)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800">
@@ -557,7 +542,7 @@ export default function AnimalManager() {
 
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
-                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 disabled:opacity-60 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 disabled:opacity-60 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
                   <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`} aria-hidden="true"></i>{formData.id ? 'Lưu cập nhật' : 'Tạo hồ sơ'}
                 </button>
               </div>

@@ -40,8 +40,8 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-black text-slate-800">Đăng nhập quản trị</h1>
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-slate-200 p-8 w-full max-w-sm space-y-4">
+        <div><h1 className="text-2xl font-extrabold text-slate-900">Đăng nhập quản trị</h1><p className="mt-1 text-base text-slate-600">Quản lý con vật, khu và audio thuyết minh.</p></div>
 
         <div>
           <label htmlFor="admin-username" className="block text-sm font-bold text-slate-600 mb-1">Tài khoản</label>
@@ -51,7 +51,7 @@ export default function AdminLogin() {
             autoComplete="username"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15"
             required
           />
         </div>
@@ -64,7 +64,7 @@ export default function AdminLogin() {
             autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500"
+            className="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/15"
             required
           />
         </div>
@@ -74,7 +74,7 @@ export default function AdminLogin() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded-xl font-bold transition"
+          className="w-full min-h-11 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded-lg font-bold transition"
         >
           {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
