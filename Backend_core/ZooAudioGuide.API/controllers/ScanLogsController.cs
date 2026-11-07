@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ZooAudioGuide.API.DTOs;
 using ZooAudioGuide.API.Services;
 
@@ -16,6 +17,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("scan-log")]
         public async Task<IActionResult> CreateLog([FromBody] ScanLogCreateDto dto)
         {
             // Trích xuất User-Agent từ Header của Request

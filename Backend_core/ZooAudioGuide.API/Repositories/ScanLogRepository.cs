@@ -16,5 +16,9 @@ namespace ZooAudioGuide.API.Repositories
         }
 
         public Task<bool> AnimalExistsAsync(int animalId) => _context.Animals.AnyAsync(a => a.Id == animalId);
+
+        // animalId null (trang chủ) so khớp với dòng null: EF dịch == theo cách C# xử lý null
+        public Task<bool> HasRecentAsync(string sessionId, int? animalId, DateTime since) =>
+            _context.ScanLogs.AnyAsync(s => s.SessionId == sessionId && s.AnimalId == animalId && s.ScannedAt >= since);
     }
 }

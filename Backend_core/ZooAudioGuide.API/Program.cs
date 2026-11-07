@@ -44,6 +44,11 @@ builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests; // mặc định là 503
     o.AddFixedWindowLimiter("login", w => { w.PermitLimit = 5; w.Window = TimeSpan.FromMinutes(1); w.QueueLimit = 0; });
+    // Ghi lượt quét: tối đa 60 lần/phút mỗi IP (đủ cho cả nhóm khách chung wifi), chặn script bơm số liệu.
+    // shortcut: IP lấy từ X-Forwarded-For nên kẻ cố ý có thể giả; lọc nguồn và lọc trùng phiên vẫn chặn phần lớn.
+    o.AddPolicy("scan-log", http => RateLimitPartition.GetFixedWindowLimiter(
+        http.Request.Headers["X-Forwarded-For"].ToString().Split(',')[0].Trim() is { Length: > 0 } ip ? ip : http.Connection.RemoteIpAddress?.ToString() ?? "",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 
 builder.Services.AddCors(options =>

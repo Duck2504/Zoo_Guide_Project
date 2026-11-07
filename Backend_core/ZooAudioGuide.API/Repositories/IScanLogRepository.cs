@@ -6,5 +6,6 @@ namespace ZooAudioGuide.API.Repositories
     {
         Task AddLogAsync(ScanLog log);
         Task<bool> AnimalExistsAsync(int animalId);
+        Task<bool> HasRecentAsync(string sessionId, int? animalId, DateTime since);
     }
 }
