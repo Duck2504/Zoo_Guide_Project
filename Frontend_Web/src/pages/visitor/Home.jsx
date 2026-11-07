@@ -17,7 +17,7 @@ const translations = {
     listened: 'Đã nghe', allOnMap: 'Xem tất cả trên bản đồ', loadFail: 'Chưa tải được danh sách loài. Kiểm tra mạng rồi mở lại trang.',
     iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' },
     hoursTitle: 'Giờ mở cửa', hours: '07:00 – 18:30, mỗi ngày', langsTitle: 'Ngôn ngữ thuyết minh',
-    demo: 'Đồ án môn học, không phải trang chính thức của Thảo Cầm Viên.', photos: 'Ảnh động vật: Wikimedia Commons.'
+    photos: 'Ảnh động vật: Wikimedia Commons.'
   },
   en: {
     orScan: 'Or scan the code on the enclosure label',
@@ -27,7 +27,7 @@ const translations = {
     listened: 'Listened', allOnMap: 'See all on the map', loadFail: 'The animal list could not be loaded. Check your connection and reopen the page.',
     iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' },
     hoursTitle: 'Opening hours', hours: '07:00 – 18:30, daily', langsTitle: 'Guide languages',
-    demo: 'A student project, not an official Saigon Zoo website.', photos: 'Animal photos: Wikimedia Commons.'
+    photos: 'Animal photos: Wikimedia Commons.'
   },
   ja: {
     orScan: 'または展示場ラベルのコードをスキャン',
@@ -37,7 +37,7 @@ const translations = {
     listened: '聞いた', allOnMap: '地図ですべて見る', loadFail: '動物リストを読み込めませんでした。接続を確認してページを開き直してください。',
     iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' },
     hoursTitle: '開園時間', hours: '毎日 07:00 – 18:30', langsTitle: 'ガイドの言語',
-    demo: '学生の課題制作であり、サイゴン動植物園の公式サイトではありません。', photos: '動物の写真：Wikimedia Commons'
+    photos: '動物の写真：Wikimedia Commons'
   },
   ko: {
     orScan: '또는 우리 라벨의 코드를 스캔하세요',
@@ -47,7 +47,7 @@ const translations = {
     listened: '들음', allOnMap: '지도에서 모두 보기', loadFail: '동물 목록을 불러오지 못했습니다. 연결을 확인하고 페이지를 다시 여세요.',
     iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' },
     hoursTitle: '운영 시간', hours: '매일 07:00 – 18:30', langsTitle: '해설 언어',
-    demo: '학생 과제 프로젝트이며 사이공 동물원 공식 사이트가 아닙니다.', photos: '동물 사진: Wikimedia Commons'
+    photos: '동물 사진: Wikimedia Commons'
   }
 };
 
@@ -198,7 +198,7 @@ export default function Home() {
               </dd>
             </div>
           </dl>
-          <p className="mt-6 leading-relaxed text-label/75">{t.demo} {t.photos}</p>
+          <p className="mt-6 leading-relaxed text-label/75">{t.photos}</p>
         </footer>
       </div>
     </div>
