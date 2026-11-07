@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AnimalImage from './AnimalImage';
+import PlayingBars from './PlayingBars';
 import { getListened, markListened, LISTENED_EVENT } from '../utils/listened';
 import { getZoneText } from '../utils/zoneText';
 
@@ -50,6 +51,7 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
             <Link
               to={`/a/${a.id}?source=geo`}
               onClick={onNavigate}
+              aria-current={playing?.id === a.id ? 'true' : undefined}
               className={`flex min-h-16 items-center gap-3 border p-2 pr-3 transition-colors ${wall ? 'bg-white text-ink' : 'rounded-2xl bg-white text-post'} ${playing?.id === a.id ? 'border-onair ring-2 ring-onair' : wall ? 'border-ink/15 hover:border-ink/40' : 'border-trail-line hover:border-sign/40'}`}
             >
               <AnimalImage src={a.avatarUrl} alt="" className={`h-12 w-12 shrink-0 ${wall ? '' : 'rounded-xl'}`} />
@@ -62,6 +64,7 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
                   {!wall && <i className="fa-solid fa-check" aria-hidden="true"></i>}{t.listened}
                 </span>
               )}
+              {playing?.id === a.id && <PlayingBars className="shrink-0 text-onair" />}
               <i className="fa-solid fa-chevron-right shrink-0 text-xs text-post-soft" aria-hidden="true"></i>
             </Link>
           </li>

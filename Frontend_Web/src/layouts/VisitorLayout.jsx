@@ -28,6 +28,8 @@ const HereMark = ({ className, wall }) => <span className={`absolute h-1 w-8 ${w
 
 export default function VisitorLayout() {
   const { language } = useVisitor();
+  // Trình đọc màn hình đọc bằng giọng của ngôn ngữ đang hiện
+  useEffect(() => { document.documentElement.lang = language; }, [language]);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const qrOpener = useRef(null); // nút đã mở hộp quét, để đóng hộp thì focus quay về đó
   const openQR = () => { qrOpener.current = document.activeElement; setIsQRModalOpen(true); };
@@ -130,7 +132,7 @@ export default function VisitorLayout() {
       </div>
 
       {!isDetailPage && (
-        <nav className={`h-20 border-t shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep border-label/15' : 'bg-trail border-trail-line'}`} aria-label={t.nav}>
+        <nav className={`h-20 shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep' : 'bg-white'}`} aria-label={t.nav}>
           <NavLink to="/" end className={tabClass(isWall)}>
             {({ isActive }) => (<>
               {isActive && <HereMark wall={isWall} className="-top-px" />}

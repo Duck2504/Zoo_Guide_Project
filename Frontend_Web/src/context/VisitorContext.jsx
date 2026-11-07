@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, useContext } from 'react';
 import { API } from '../config';
+import { pickLanguage, readSavedLanguage, saveLanguage } from '../utils/language';
 
 const VisitorContext = createContext();
 
@@ -12,7 +13,11 @@ const FALLBACK_LANGUAGES = [
 ];
 
 export const VisitorProvider = ({ children }) => {
-  const [language, setLanguage] = useState('vi');
+  // Đọc ngay lúc khởi tạo để lượt quét đầu tiên đã ghi đúng ngôn ngữ
+  const [language, setLanguageRaw] = useState(() =>
+    pickLanguage(readSavedLanguage(), navigator.languages, FALLBACK_LANGUAGES.map(l => l.code)));
+  // Chỉ lưu khi khách tự chọn; việc tự quay về tiếng Việt bên dưới không ghi đè lựa chọn đã lưu
+  const setLanguage = code => { saveLanguage(code); setLanguageRaw(code); };
   const [languages, setLanguages] = useState(FALLBACK_LANGUAGES);
   const [activeAnimal, setActiveAnimal] = useState(null); // Thú đang được chọn
   const [isPlaying, setIsPlaying] = useState(false); // Trạng thái phát audio
@@ -27,7 +32,7 @@ export const VisitorProvider = ({ children }) => {
 
   // Ngôn ngữ đang chọn không còn trong DB thì quay về tiếng Việt
   useEffect(() => {
-    if (!languages.some(l => l.code === language)) setLanguage('vi');
+    if (!languages.some(l => l.code === language)) setLanguageRaw('vi');
   }, [languages, language]);
 
   return (

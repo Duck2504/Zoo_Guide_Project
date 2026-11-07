@@ -14,6 +14,7 @@ const AnimalManager = lazy(() => import('./pages/admin/AnimalManager'));
 const ZoneManager = lazy(() => import('./pages/admin/ZoneManager'));
 const QrCodeIndex = lazy(() => import('./pages/admin/HomeAccessManager'));
 const AdminLogin = lazy(() => import('./pages/admin/Login'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 export default function App() {
   return (
@@ -34,6 +35,8 @@ export default function App() {
         <Route path="/admin/zones" element={<ZoneManager/>} />
         <Route path="/admin/QrCode" element={<QrCodeIndex/>} />
       </Route>
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
     </Suspense>
   );

@@ -5,6 +5,7 @@ import { getAdminToken, setAdminToken, ADMIN_AUTH_EXPIRED } from '../utils/admin
 export default function AdminLayout() {
   const navigate = useNavigate();
   const [loggedIn, setLoggedIn] = useState(() => !!getAdminToken());
+  useEffect(() => { document.documentElement.lang = 'vi'; }, []); // trang quản trị chỉ có tiếng Việt
 
   // adminFetch báo khi server trả 401 (token hết hạn) → về trang đăng nhập
   useEffect(() => {

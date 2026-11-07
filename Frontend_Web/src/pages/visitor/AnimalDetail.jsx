@@ -6,13 +6,14 @@ import { Link, useParams, useNavigate, useSearchParams, useLocation, useOutletCo
 import { useVisitor } from '../../context/VisitorContext';
 import AnimalImage from '../../components/AnimalImage';
 import LanguageMenu from '../../components/LanguageMenu';
-import { markListened } from '../../utils/listened';
+import PlayingBars from '../../components/PlayingBars';
+import { getListened, markListened } from '../../utils/listened';
 
 const translations = {
-  vi: { back: 'Quay lại', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
-  en: { back: 'Back', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', about: 'About', mapShort: 'Map', scanMore: 'Scan next', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
-  ko: { back: '뒤로', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', about: '소개', mapShort: '지도', scanMore: '다음 스캔', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
-  ja: { back: '戻る', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
+  vi: { back: 'Quay lại', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', nextUp: 'Nghe tiếp', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
+  en: { back: 'Back', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', nextUp: 'Up next', about: 'About', mapShort: 'Map', scanMore: 'Scan next', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
+  ko: { back: '뒤로', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', nextUp: '다음 동물', about: '소개', mapShort: '지도', scanMore: '다음 스캔', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
+  ja: { back: '戻る', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', nextUp: '次の動物', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
 };
 
 const SPEEDS = [1, 1.25, 0.75];
@@ -57,6 +58,9 @@ export default function AnimalDetail() {
   const playerRef = useRef(null);
   const [showMini, setShowMini] = useState(false);
   const [zoneAnimals, setZoneAnimals] = useState([]); // các con khác cùng khu, để đi tiếp
+  const [isBuffering, setIsBuffering] = useState(false); // đã bấm phát nhưng audio còn đang tải (mạng chậm)
+  const [ended, setEnded] = useState(false); // nghe hết bài: gợi ý con tiếp theo
+  const titleRef = useRef(null);
 
   const t = translations[language] || translations['vi'];
 
@@ -101,6 +105,8 @@ export default function AnimalDetail() {
       setIsPlaying(false);
       setAudioFailed(false);
       setCurrentTime(0);
+      setIsBuffering(false);
+      setEnded(false);
 
       try {
         const response = await fetch(`${API}/api/animals/${id}?lang=${language}`);
@@ -133,6 +139,18 @@ export default function AnimalDetail() {
     fetchAnimalData();
   }, [id, language]);
 
+  // Đổi con vật trong app (Nghe tiếp, Cùng khu): đưa tiêu điểm về tên con mới thay vì rơi về đầu trang; tiêu đề tab theo tên.
+  // Vào thẳng từ mã QR thì không kéo tiêu điểm.
+  const animalId = animal?.id;
+  useEffect(() => {
+    if (!animalId) return;
+    const siteTitle = document.title;
+    document.title = titleRef.current?.textContent || siteTitle;
+    if (routerLocation.key !== 'default') titleRef.current?.focus({ preventScroll: true });
+    return () => { document.title = siteTitle; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animalId]);
+
   // Các con cùng khu (ảnh thật + tên theo ngôn ngữ đang chọn) cho mục "Cùng khu"
   useEffect(() => {
     let cancelled = false;
@@ -153,6 +171,8 @@ export default function AnimalDetail() {
 
   const hasAudio = !!animal?.audioUrl && !audioFailed;
   const neighbours = animal ? zoneAnimals.filter(a => a.zoneId === animal.zoneId && a.id !== animal.id).slice(0, NEIGHBOUR_COUNT) : [];
+  // Con tiếp theo: ưu tiên con trong khu chưa nghe
+  const nextUp = ended ? (neighbours.find(a => !getListened().has(a.id)) || neighbours[0]) : null;
   const photoPage = commonsPage(animal?.imageUrl);
   // Chỉ hiện mục có dữ liệu và có bản dịch (mã lạ thì bỏ qua)
   const facts = animal ? [
@@ -166,8 +186,10 @@ export default function AnimalDetail() {
   const togglePlayPause = () => {
     if (!audioRef.current || !hasAudio) return;
 
-    if (audioRef.current.paused) audioRef.current.play().catch(() => {});
-    else audioRef.current.pause();
+    if (audioRef.current.paused) {
+      setIsBuffering(true); // tắt khi sự kiện playing/pause/error tới
+      audioRef.current.play().catch(() => setIsBuffering(false));
+    } else audioRef.current.pause();
   };
 
   const seekTo = (seconds) => {
@@ -189,6 +211,7 @@ export default function AnimalDetail() {
 
   const handleAudioEnded = () => {
     setCurrentTime(0);
+    setEnded(true);
   };
 
   const handleLoadedMetadata = () => {
@@ -214,8 +237,11 @@ export default function AnimalDetail() {
     </div>
   );
 
-  const playIcon = <i className={`fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} ${!isPlaying ? 'ml-0.5' : ''}`} aria-hidden="true"></i>;
-  const playLabel = !hasAudio ? t.noAudio : isPlaying ? t.pause : t.play;
+  const playIcon = isBuffering
+    ? <i className="fa-solid fa-circle-notch motion-safe:animate-spin" aria-hidden="true"></i>
+    : <i key={isPlaying ? 'pause' : 'play'} className={`icon-swap fa-solid ${isPlaying ? 'fa-pause' : 'fa-play ml-0.5'}`} aria-hidden="true"></i>;
+  // Lúc đang tải, bấm nữa là tạm dừng nên nhãn vẫn là Tạm dừng; vòng xoay chỉ để nhìn
+  const playLabel = !hasAudio ? t.noAudio : isPlaying || isBuffering ? t.pause : t.play;
   const ctrl = 'flex min-h-11 items-center justify-center gap-2 bg-ink/5 px-3 text-sm font-semibold text-ink transition-colors hover:bg-ink/10';
 
   return (
@@ -234,7 +260,7 @@ export default function AnimalDetail() {
         {/* Tên và trình phát cùng một hàng trên màn hình lớn, để nút phát luôn ở màn hình đầu */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-14">
           <div>
-          <h1 className="label-in text-[clamp(3rem,9vw,7.5rem)] font-extrabold leading-[0.95] tracking-[-0.03em] text-balance">{animal.name}</h1>
+          <h1 ref={titleRef} tabIndex={-1} className="label-in outline-none text-[clamp(3rem,9vw,7.5rem)] font-extrabold leading-[0.95] tracking-[-0.03em] text-balance">{animal.name}</h1>
           <p className="label-in mt-3 max-w-[40ch] text-xl leading-snug" style={{ animationDelay: '70ms' }}>
             {t.lives(animal.zoneName)}
             <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="font-semibold underline decoration-label/40 underline-offset-4 hover:decoration-label">{animal.zoneName}</button>
@@ -257,7 +283,7 @@ export default function AnimalDetail() {
                 {playIcon}
               </button>
               <div className="min-w-0 flex-1">
-                <p className="text-xl font-bold">{hasAudio ? t.listen : t.noAudio}</p>
+                <p className="flex items-center gap-2.5 text-xl font-bold">{hasAudio ? t.listen : t.noAudio}{isPlaying && <PlayingBars className="text-wall" />}</p>
                 {hasAudio && (
                   <>
                     <input
@@ -287,6 +313,19 @@ export default function AnimalDetail() {
                 <button onClick={nextSpeed} aria-label={`${t.speed}: ${speed}×`} className={`${ctrl} min-w-11 tabular-nums`}>{speed}×</button>
               </div>
             )}
+            {/* Nghe xong: gợi ý con cùng khu (không tự phát, không kéo focus) */}
+            <div aria-live="polite">
+              {nextUp && (
+                <Link to={`/a/${nextUp.id}?source=zone`} className="label-in mt-4 flex items-center gap-3 bg-ink p-2 pr-4 text-label transition-colors hover:bg-wall">
+                  <AnimalImage src={nextUp.avatarUrl} alt="" className="h-14 w-14 shrink-0" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm text-label/75">{t.nextUp}</span>
+                    <span className="block truncate text-lg font-bold">{nextUp.defaultLocalName}</span>
+                  </span>
+                  <i className="fa-solid fa-play" aria-hidden="true"></i>
+                </Link>
+              )}
+            </div>
           </section>
         </div>
 
@@ -357,9 +396,11 @@ export default function AnimalDetail() {
 
       {animal.audioUrl && (
         <audio
-          onError={() => { setAudioFailed(true); setIsPlaying(false); }}
-          onPlay={() => { setIsPlaying(true); markListened(animal.id); }}
-          onPause={() => setIsPlaying(false)}
+          onError={() => { setAudioFailed(true); setIsPlaying(false); setIsBuffering(false); }}
+          onPlay={() => { setIsPlaying(true); setEnded(false); markListened(animal.id); }}
+          onPlaying={() => setIsBuffering(false)}
+          onWaiting={() => setIsBuffering(true)}
+          onPause={() => { setIsPlaying(false); setIsBuffering(false); }}
           ref={audioRef}
           src={animal.audioUrl}
           onTimeUpdate={handleTimeUpdate}
@@ -376,7 +417,7 @@ export default function AnimalDetail() {
               {playIcon}
             </button>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-base font-semibold">{animal.name}</p>
+              <p className="flex items-center gap-2 text-base font-semibold"><span className="truncate">{animal.name}</span>{isPlaying && <PlayingBars className="shrink-0" />}</p>
               <div className="mt-1 h-1 bg-label/20">
                 <div className="h-full bg-label" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
               </div>
