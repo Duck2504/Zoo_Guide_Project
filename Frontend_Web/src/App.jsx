@@ -1,6 +1,5 @@
-import { lazy, Suspense, useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import ReactGA from 'react-ga4';
+import { lazy, Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 
 // Layouts
 import VisitorLayout from './layouts/VisitorLayout';
@@ -16,22 +15,7 @@ const ZoneManager = lazy(() => import('./pages/admin/ZoneManager'));
 const QrCodeIndex = lazy(() => import('./pages/admin/HomeAccessManager'));
 const AdminLogin = lazy(() => import('./pages/admin/Login'));
 
-// Chỉ bật GA4 khi có mã thật trong biến môi trường VITE_GA_ID (không có thì không gửi gì cho Google)
-const GA_ID = import.meta.env.VITE_GA_ID;
-if (GA_ID) ReactGA.initialize(GA_ID);
-
 export default function App() {
-  const location = useLocation();
-
-  // Bắt sự kiện mỗi khi URL thay đổi (Route đổi) và báo cáo lên GA4
-  useEffect(() => {
-    if (!GA_ID) return;
-    ReactGA.send({ 
-      hitType: "pageview", 
-      page: location.pathname + location.search 
-    });
-  }, [location]);
-
   return (
     <Suspense fallback={null}>
     <Routes>
