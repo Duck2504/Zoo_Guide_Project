@@ -5,6 +5,8 @@ using System.Text.Json;
 public interface ITranslator
 {
     Task<string> TranslateAsync(string text, string targetLang);
+    // Tên thường gọi của loài trong ngôn ngữ đích (tên khoa học giúp dịch đúng loài)
+    Task<string> TranslateNameAsync(string name, string? scientificName, string targetLang);
 }
 
 public interface ITtsService
@@ -15,14 +17,21 @@ public interface ITtsService
 // Dịch bằng Gemini
 public class GeminiTranslator(HttpClient http, IConfiguration cfg) : ITranslator
 {
-    public async Task<string> TranslateAsync(string text, string targetLang)
+    public Task<string> TranslateAsync(string text, string targetLang) =>
+        AskAsync($"Dịch đoạn thuyết minh sau sang ngôn ngữ có mã '{targetLang}'. " +
+                 $"Chỉ trả về bản dịch, không giải thích:\n{text}");
+
+    public Task<string> TranslateNameAsync(string name, string? scientificName, string targetLang) =>
+        AskAsync($"Tên tiếng Việt của một loài động vật là \"{name}\"" +
+                 (string.IsNullOrWhiteSpace(scientificName) ? "" : $" (tên khoa học: {scientificName})") +
+                 $". Cho biết tên thường gọi của loài này trong ngôn ngữ có mã '{targetLang}'. " +
+                 "Chỉ trả về đúng tên, một dòng, không giải thích, không dấu ngoặc.");
+
+    private async Task<string> AskAsync(string prompt)
     {
         var key = cfg["Gemini:ApiKey"] ?? throw new Exception("Thiếu Gemini:ApiKey");
         var model = cfg["Gemini:Model"] ?? "gemini-3.6-flash";
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}";
-
-        var prompt = $"Dịch đoạn thuyết minh sau sang ngôn ngữ có mã '{targetLang}'. " +
-                     $"Chỉ trả về bản dịch, không giải thích:\n{text}";
 
         var res = await http.PostAsJsonAsync(url, new
         {

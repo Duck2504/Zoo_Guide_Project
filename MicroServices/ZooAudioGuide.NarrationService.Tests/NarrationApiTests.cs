@@ -15,6 +15,13 @@ public class FakeTranslator : ITranslator
         Interlocked.Increment(ref CallCount);
         return Task.FromResult("translated: " + text);
     }
+
+    public int NameCallCount;
+    public Task<string> TranslateNameAsync(string name, string? scientificName, string targetLang)
+    {
+        Interlocked.Increment(ref NameCallCount);
+        return Task.FromResult($"**\"{targetLang}:{name}.\"**\nGiải thích thêm");   // kiểu Gemini hay trả
+    }
 }
 
 public class FakeTts : ITtsService
@@ -174,5 +181,63 @@ public class NarrationApiTests : IClassFixture<NarrationFactory>
 
         await _client.PostAsJsonAsync("/api/narration/generate", body);
         Assert.Equal(before + 1, _factory.Translator.CallCount);   // lần 2 dùng lại, không dịch nữa
+    }
+
+    [Fact]
+    public async Task Image_StoredUnderServerName_OnlyImageTypes()
+    {
+        var png = new ByteArrayContent([0x89, 0x50, 0x4E, 0x47, 1, 2]);
+        png.Headers.ContentType = new("image/png");
+        var ok = await _client.PostAsync("/api/narration/image", png);
+        Assert.Equal(HttpStatusCode.OK, ok.StatusCode);
+        var url = (await ok.Content.ReadFromJsonAsync<Dictionary<string, string>>())!["url"];
+        Assert.Matches(@"^https://fake/images/[0-9a-f]{32}\.png$", url);
+
+        var html = new StringContent("<script>", Encoding.UTF8, "text/html");
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PostAsync("/api/narration/image", html)).StatusCode);
+
+        var anon = _factory.CreateClient();
+        Assert.Equal(HttpStatusCode.Unauthorized, (await anon.PostAsync("/api/narration/image", png)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Generate_WithName_TranslatesNameOnce_AndKeepsItWhenScriptChanges()
+    {
+        var name = "Hổ " + Guid.NewGuid().ToString()[..6];
+        var before = _factory.Translator.NameCallCount;
+        object Body(string text) => new { animalId = 97, text, targetLangs = new[] { "vi", "en" }, name, scientificName = "Panthera tigris" };
+
+        var res = await _client.PostAsJsonAsync("/api/narration/generate", Body(UniqueText()));
+        var json = await res.Content.ReadAsStringAsync();
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        Assert.Contains($"\"translatedName\":\"en:{name}\"", json);    // đã bỏ ** " . và dòng giải thích
+        Assert.Equal(before + 1, _factory.Translator.NameCallCount);      // vi không dịch tên
+
+        // Đổi bài: file mp3/txt cũ bị dọn, nhưng tên vẫn lấy từ kho, không gọi Gemini lại
+        await _client.PostAsJsonAsync("/api/narration/generate", Body(UniqueText()));
+        Assert.Equal(before + 1, _factory.Translator.NameCallCount);
+        Assert.Single(_factory.Store.Files.Keys, k => k.StartsWith("animals/97/name-en-"));
+    }
+
+    [Theory]
+    [InlineData("Tiger", "Tiger")]
+    [InlineData("**\"Orangutan.\"**\nThe name means…", "Orangutan")]
+    [InlineData("「トラ」。", "トラ")]
+    [InlineData("  \n ", null)]
+    public void CleanName_KeepsOnlyTheName(string raw, string? expected) =>
+        Assert.Equal(expected, NarrationGenerator.CleanName(raw));
+
+    [Fact]
+    public async Task Generate_TextIsFinal_ReadsTextAsIs_WithoutTranslating()
+    {
+        var text = "The tiger " + Guid.NewGuid();
+        var before = _factory.Translator.CallCount;
+
+        var res = await _client.PostAsJsonAsync("/api/narration/generate",
+            new { animalId = 98, text, targetLangs = new[] { "en" }, textIsFinal = true });
+
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        Assert.Equal(before, _factory.Translator.CallCount);
+        Assert.Contains(text, await res.Content.ReadAsStringAsync());
     }
 }
