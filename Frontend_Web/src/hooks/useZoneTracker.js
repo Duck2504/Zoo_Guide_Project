@@ -44,7 +44,8 @@ export default function useZoneTracker(language) {
   else if (animals === null) status = 'loading';
   else if (animals === 'error') status = 'error';
   else if (!position) status = 'searching';
-  else if (!usable) status = 'inaccurate';
+  // Đang trong khu mà một lần đo bị nhảy sai số: vẫn coi là trong khu, để danh sách và audio đang phát không bị ngắt
+  else if (!usable) status = currentZoneId != null ? 'inZone' : 'inaccurate';
   else status = currentZoneId != null ? 'inZone' : 'outside';
 
   const zone = zones.find(z => z.id === currentZoneId) || null;
