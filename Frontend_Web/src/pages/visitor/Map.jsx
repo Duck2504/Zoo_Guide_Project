@@ -41,7 +41,6 @@ function DemoClicks({ onPick }) {
   return null;
 }
 
-const zoneNo = id => String(id).padStart(2, '0');
 
 export default function Map() {
   const { language } = useVisitor();
@@ -111,8 +110,7 @@ export default function Map() {
           >
             {/* Khi tự cuộn để hiện popup, chừa chỗ cho nhãn tiêu đề phía trên và dải nhãn khu phía dưới */}
             <Popup autoPanPaddingTopLeft={[16, 170]} autoPanPaddingBottomRight={[16, 120]}>
-              <p className="!m-0 font-label-narrow text-2xl font-bold leading-none text-wall">{zoneNo(zone.id)}</p>
-              <p className="!mb-2 !mt-1 text-base font-extrabold leading-tight text-ink">
+              <p className="!mb-2 !mt-0 text-base font-extrabold leading-tight text-ink">
                 {zone.name} <span className="text-sm font-medium text-ink-soft">· {t.species(zone.animals.length)}</span>
               </p>
               <ul className="min-w-48 space-y-1">
@@ -156,7 +154,7 @@ export default function Map() {
       {/* Dải nhãn khu ở đáy: cùng khuôn với nhãn loài ở trang chủ, số khu đọc trước tiên */}
       {zones.length > 0 && (
         <nav aria-label={t.zones} className="absolute inset-x-0 bottom-6 z-[400]">
-          <ul className="hide-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 pb-1 sm:scroll-px-6 sm:px-6">
+          <ul className="hide-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 pb-1 sm:scroll-px-6 sm:px-6 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-8">
             {zones.map(zone => {
               const selected = zone.id === selectedId;
               const here = geo.zone?.id === zone.id;
@@ -166,16 +164,13 @@ export default function Map() {
                   <button
                     onClick={() => selectZone(zone)}
                     aria-pressed={selected}
-                    className={`grid min-h-[76px] w-56 grid-cols-[3rem_minmax(0,1fr)] items-center gap-2 border-2 p-3 text-left shadow-[0_10px_24px_-14px_rgb(16_22_20/0.5)] transition-colors ${
+                    className={`block min-h-[76px] w-56 border-2 p-3 text-left shadow-[0_10px_24px_-14px_rgb(16_22_20/0.5)] transition-colors lg:w-full ${
                       selected ? 'border-ink bg-ink text-label' : 'border-label bg-label text-ink hover:border-ink/40'
                     }`}
                   >
-                    <span className={`font-label-narrow text-[2rem] font-bold leading-none ${selected ? 'text-label' : 'text-wall'}`}>{zoneNo(zone.id)}</span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-bold">{zone.name}</span>
-                      <span className={`block truncate text-xs ${selected ? 'text-label/80' : 'text-ink-soft'}`}>
-                        {here ? t.here : [t.species(zone.animals.length), d != null && zt.meters(d)].filter(Boolean).join(' · ')}
-                      </span>
+                    <span className="block truncate text-base font-bold">{zone.name}</span>
+                    <span className={`mt-0.5 block truncate text-sm ${selected ? 'text-label/80' : 'text-ink-soft'}`}>
+                      {here ? t.here : [t.species(zone.animals.length), d != null && zt.meters(d)].filter(Boolean).join(' · ')}
                     </span>
                   </button>
                 </li>
