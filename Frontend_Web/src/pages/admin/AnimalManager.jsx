@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { API } from '../../config';
 import { QRCodeCanvas } from 'qrcode.react';
 import { adminFetch } from '../../utils/adminFetch';
-import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
+import { Notice, useConfirm, useDialog, errorText } from '../../components/AdminFeedback';
 import { AudioStatus, ContentPanel, needsAudio } from '../../components/AnimalContentPanel';
 
 const LANG_NAMES = { vi: 'Tiếng Việt', en: 'Tiếng Anh', ja: 'Tiếng Nhật', ko: 'Tiếng Hàn' };
@@ -13,6 +13,8 @@ const FACT_OPTIONS = {
 };
 // Độ dài bài thuyết minh tiếng Việt: khoảng 15 ký tự/giây khi đọc, 600–1200 ký tự ≈ 45–90 giây
 const SCRIPT_MIN = 600, SCRIPT_MAX = 1200;
+// Cùng một chuỗi cho QR xem trước và QR tải về để in
+const qrValue = id => `https://zooaudioguide-001-site1.ftempurl.com/a/${id}`;
 const FIELD = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10';
 
 export default function AnimalManager() {
@@ -32,6 +34,8 @@ export default function AnimalManager() {
   const [bulk, setBulk] = useState(null); // { done, total, current } khi đang tạo audio hàng loạt
   const bulkCancel = useRef(false);
   const [uploading, setUploading] = useState(false);
+  const [qrPrint, setQrPrint] = useState(null); // con đang tải mã QR: vẽ canvas ẩn cỡ in rồi lưu
+  const modalRef = useDialog(isModalOpen, () => setIsModalOpen(false));
   
   // Khởi tạo state khớp với AnimalCreateDto
   const initialFormState = { 
@@ -168,7 +172,7 @@ export default function AnimalManager() {
   const handleBulkGenerate = async () => {
     const queue = missingAudio;
     if (!queue.length) return;
-    if (!(await confirm(`Tạo audio cho ${queue.length} con còn thiếu? Mỗi con mất khoảng 10–30 giây và dùng lượt dịch Gemini.`))) return;
+    if (!(await confirm(`Tạo audio cho ${queue.length} con còn thiếu? Mỗi con mất khoảng 10–30 giây và dùng lượt dịch Gemini.`, { confirmLabel: 'Tạo audio', danger: false }))) return;
     bulkCancel.current = false;
     const failed = [];
     for (let i = 0; i < queue.length; i++) {
@@ -256,8 +260,12 @@ export default function AnimalManager() {
     setIsModalOpen(true);
   };
 
-  const handleDownloadQR = (animalId, scientificName) => {
-    const canvas = document.getElementById(`qr-${animalId}`);
+  // Ảnh 60px trong bảng quá nhỏ để in: tải bản 1024px vẽ riêng (canvas ẩn bên dưới)
+  useEffect(() => {
+    if (!qrPrint) return;
+    const { id: animalId, scientificName } = qrPrint;
+    setQrPrint(null);
+    const canvas = document.getElementById('qr-print');
     if (!canvas) return;
 
     const pngUrl = canvas.toDataURL("image/png");
@@ -268,7 +276,7 @@ export default function AnimalManager() {
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-  };
+  }, [qrPrint]);
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
@@ -405,25 +413,25 @@ export default function AnimalManager() {
                     <td className="px-5 py-4">
                       <div className="flex flex-col items-center gap-2">
                         <div className="rounded-xl border border-slate-200 bg-white p-1.5">
-                          <QRCodeCanvas id={`qr-${animal.id}`} value={`https://zooaudioguide-001-site1.ftempurl.com/a/${animal.id}`} size={60} level="H" />
+                          <QRCodeCanvas id={`qr-${animal.id}`} value={qrValue(animal.id)} size={60} level="H" />
                         </div>
-                        <button onClick={() => handleDownloadQR(animal.id, animal.scientificName)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800">
+                        <button onClick={() => setQrPrint(animal)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-800">
                           <i className="fa-solid fa-download" aria-hidden="true"></i>Tải mã
                         </button>
                       </div>
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => handleGenerateAudio(animal.id)} disabled={generatingId !== null} title="Tạo audio thuyết minh" aria-label="Tạo audio thuyết minh" className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">
+                        <button onClick={() => handleGenerateAudio(animal.id)} disabled={generatingId !== null} title="Tạo audio thuyết minh" aria-label="Tạo audio thuyết minh" className="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50 text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50">
                           <i className={`fa-solid ${generatingId === animal.id ? 'fa-spinner fa-spin' : 'fa-volume-high'}`} aria-hidden="true"></i>
                         </button>
-                        <button onClick={() => setContentAnimal(animal)} title="Nội dung theo ngôn ngữ (nghe, sửa bản dịch)" aria-label={`Nội dung theo ngôn ngữ của ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50">
+                        <button onClick={() => setContentAnimal(animal)} title="Nội dung theo ngôn ngữ (nghe, sửa bản dịch)" aria-label={`Nội dung theo ngôn ngữ của ${animal.defaultLocalName || 'động vật'}`} className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50">
                           <i className="fa-solid fa-language" aria-hidden="true"></i>
                         </button>
-                        <button onClick={() => handleOpenModal(animal)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100">
+                        <button onClick={() => handleOpenModal(animal)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${animal.defaultLocalName || 'động vật'}`} className="flex h-11 w-11 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100">
                           <i className="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                         </button>
-                        <button onClick={() => handleDelete(animal)} title="Xóa" aria-label={`Xóa ${animal.defaultLocalName || 'động vật'}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100">
+                        <button onClick={() => handleDelete(animal)} title="Xóa" aria-label={`Xóa ${animal.defaultLocalName || 'động vật'}`} className="flex h-11 w-11 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100">
                           <i className="fa-solid fa-trash" aria-hidden="true"></i>
                         </button>
                       </div>
@@ -443,11 +451,11 @@ export default function AnimalManager() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="animal-modal-title" className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur sm:px-8">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">{formData.id ? 'Cập nhật hồ sơ' : 'Danh mục động vật'}</p>
-                <h2 className="mt-1 text-xl font-black text-slate-800">{formData.id ? 'Chỉnh sửa thông tin' : 'Thêm động vật mới'}</h2>
+                <h2 id="animal-modal-title" className="mt-1 text-xl font-black text-slate-800">{formData.id ? 'Chỉnh sửa thông tin' : 'Thêm động vật mới'}</h2>
               </div>
               <button onClick={() => setIsModalOpen(false)} aria-label="Đóng biểu mẫu" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"><i className="fa-solid fa-xmark text-lg" aria-hidden="true"></i></button>
             </div>
@@ -554,6 +562,7 @@ export default function AnimalManager() {
       {contentAnimal && (
         <ContentPanel animal={contentAnimal} contents={contents[contentAnimal.id]} onClose={() => setContentAnimal(null)} onSaved={fetchContents} setNotice={setNotice} />
       )}
+      {qrPrint && <div hidden><QRCodeCanvas id="qr-print" value={qrValue(qrPrint.id)} size={1024} marginSize={4} level="H" /></div>}
       {confirmDialog}
       <Notice notice={notice} onClose={() => setNotice(null)} />
     </div>

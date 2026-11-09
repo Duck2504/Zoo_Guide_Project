@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect } from 'react';
 import { API } from '../../config';
 import { adminFetch } from '../../utils/adminFetch';
-import { Notice, useConfirm, errorText } from '../../components/AdminFeedback';
+import { Notice, useConfirm, useDialog, errorText } from '../../components/AdminFeedback';
 import { calculateDistance } from '../../utils/geoUtils';
 
 const ZonePicker = lazy(() => import('../../components/ZonePicker')); // Leaflet chỉ tải khi mở form
@@ -17,6 +17,7 @@ export default function ZoneManager() {
   const [loadError, setLoadError] = useState(''); // lỗi tải danh sách (khác lỗi form)
   const [searchTerm, setSearchTerm] = useState('');
   const [animalCount, setAnimalCount] = useState({}); // zoneId → số con vật
+  const modalRef = useDialog(isModalOpen, () => setIsModalOpen(false));
 
   // Đếm con vật mỗi khu: gọi thẳng API (không dùng bộ nhớ đệm của trang du khách vì dữ liệu đổi khi quản trị sửa)
   useEffect(() => {
@@ -235,8 +236,8 @@ export default function ZoneManager() {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => handleOpenModal(zone)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${zone.zoneCode}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100"><i className="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
-                        <button onClick={() => handleDelete(zone.id)} title="Xóa" aria-label={`Xóa ${zone.zoneCode}`} className="flex h-9 w-9 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100"><i className="fa-solid fa-trash" aria-hidden="true"></i></button>
+                        <button onClick={() => handleOpenModal(zone)} title="Chỉnh sửa" aria-label={`Chỉnh sửa ${zone.zoneCode}`} className="flex h-11 w-11 items-center justify-center rounded-xl border border-sky-100 bg-sky-50 text-sky-700 transition hover:bg-sky-100"><i className="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
+                        <button onClick={() => handleDelete(zone.id)} title="Xóa" aria-label={`Xóa ${zone.zoneCode}`} className="flex h-11 w-11 items-center justify-center rounded-xl border border-rose-100 bg-rose-50 text-rose-600 transition hover:bg-rose-100"><i className="fa-solid fa-trash" aria-hidden="true"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -250,11 +251,11 @@ export default function ZoneManager() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white shadow-2xl">
+          <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="zone-modal-title" className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl bg-white shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white/95 px-6 py-5 backdrop-blur">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">{formData.id ? 'Cập nhật thông tin' : 'Danh mục khu vực'}</p>
-                <h2 className="mt-1 text-xl font-black text-slate-800">{formData.id ? 'Chỉnh sửa khu vực' : 'Thêm khu vực mới'}</h2>
+                <h2 id="zone-modal-title" className="mt-1 text-xl font-black text-slate-800">{formData.id ? 'Chỉnh sửa khu vực' : 'Thêm khu vực mới'}</h2>
               </div>
               <button type="button" onClick={() => setIsModalOpen(false)} aria-label="Đóng biểu mẫu" className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-500 transition hover:bg-slate-200 hover:text-slate-800"><i className="fa-solid fa-xmark text-lg" aria-hidden="true"></i></button>
             </div>

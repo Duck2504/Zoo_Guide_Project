@@ -54,30 +54,54 @@ export const errorText = async (res) => {
   }
 };
 
-// const [confirm, confirmDialog] = useConfirm();  ...  if (await confirm('Xóa?')) { ... }  ...  {confirmDialog}
-export function useConfirm() {
-  const [ask, setAsk] = useState(null); // { message, resolve }
-  const cancelRef = useRef(null);
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+// Hộp thoại có khóa focus (cùng cách QRScannerModal): mở thì focus ô nhập đầu tiên (không có thì nút đầu tiên),
+// Esc gọi onClose, Tab/Shift+Tab chỉ đi vòng trong hộp, đóng thì trả focus về nút đã mở. Gắn ref vào khung hộp.
+export function useDialog(open, onClose) {
+  const ref = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose; // trang truyền hàm inline: giữ trong ref để effect không chạy lại mỗi lần render
 
   useEffect(() => {
-    if (!ask) return;
-    cancelRef.current?.focus();
-    const onKey = e => { if (e.key === 'Escape') close(false); };
+    if (!open) return;
+    const opener = document.activeElement;
+    const panel = ref.current;
+    (panel?.querySelector('input, select, textarea') || panel?.querySelector(FOCUSABLE))?.focus();
+    const onKey = e => {
+      if (e.key === 'Escape') return onCloseRef.current();
+      if (e.key !== 'Tab' || !ref.current) return;
+      const items = [...ref.current.querySelectorAll(FOCUSABLE)].filter(el => !el.disabled);
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      if (!ref.current.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      else if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ask]);
+    return () => { document.removeEventListener('keydown', onKey); opener?.focus?.(); };
+  }, [open]);
+
+  return ref;
+}
+
+// const [confirm, confirmDialog] = useConfirm();  ...  if (await confirm('Xóa?')) { ... }  ...  {confirmDialog}
+// Nút xác nhận mặc định là "Xóa" màu đỏ; việc không phải xóa: confirm(msg, { confirmLabel: 'Tạo audio', danger: false })
+export function useConfirm() {
+  const [ask, setAsk] = useState(null); // { message, resolve, confirmLabel, danger }
 
   const close = (answer) => { ask?.resolve(answer); setAsk(null); };
-  const confirm = (message) => new Promise(resolve => setAsk({ message, resolve }));
+  const confirm = (message, { confirmLabel = 'Xóa', danger = true } = {}) =>
+    new Promise(resolve => setAsk({ message, resolve, confirmLabel, danger }));
+  const panelRef = useDialog(!!ask, () => close(false)); // focus vào nút Hủy như trước
 
   const dialog = ask && (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/50 p-4" onClick={() => close(false)}>
-      <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-text" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div ref={panelRef} role="alertdialog" aria-modal="true" aria-labelledby="confirm-text" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
         <p id="confirm-text" className="font-bold text-slate-800">{ask.message}</p>
         <div className="mt-5 flex justify-end gap-3">
-          <button ref={cancelRef} onClick={() => close(false)} className="min-h-11 rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-600 hover:bg-slate-50">Hủy</button>
-          <button onClick={() => close(true)} className="min-h-11 rounded-xl bg-rose-600 px-4 text-sm font-bold text-white hover:bg-rose-700">Xóa</button>
+          <button onClick={() => close(false)} className="min-h-11 rounded-xl border border-slate-200 px-4 text-sm font-bold text-slate-600 hover:bg-slate-50">Hủy</button>
+          <button onClick={() => close(true)} className={`min-h-11 rounded-xl px-4 text-sm font-bold text-white ${ask.danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-emerald-700 hover:bg-emerald-800'}`}>{ask.confirmLabel}</button>
         </div>
       </div>
     </div>
