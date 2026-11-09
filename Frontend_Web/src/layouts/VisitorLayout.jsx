@@ -5,6 +5,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 const QRScannerModal = lazy(() => import('../components/QRScannerModal')); // camera chỉ tải khi mở hộp quét
 import useZoneTracker from '../hooks/useZoneTracker';
 import ZoneSheet from '../components/ZoneSheet';
+import { ZonePlaylistProvider } from '../components/ZonePlaylist';
 
 import LanguageMenu from '../components/LanguageMenu';
 
@@ -28,8 +29,6 @@ const HereMark = ({ className, wall }) => <span className={`absolute h-1 w-8 ${w
 
 export default function VisitorLayout() {
   const { language } = useVisitor();
-  // Trình đọc màn hình đọc bằng giọng của ngôn ngữ đang hiện
-  useEffect(() => { document.documentElement.lang = language; }, [language]);
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const qrOpener = useRef(null); // nút đã mở hộp quét, để đóng hộp thì focus quay về đó
   const openQR = () => { qrOpener.current = document.activeElement; setIsQRModalOpen(true); };
@@ -74,17 +73,18 @@ export default function VisitorLayout() {
     if (zoneId == null) { setSheetOpen(false); return; }
     navigator.vibrate?.(150);
     const audioPlaying = [...document.querySelectorAll('audio')].some(a => !a.paused);
-    if (!seenZones.current.has(zoneId) && !isWall && !audioPlaying) setSheetOpen(true);
+    if (!seenZones.current.has(zoneId) && isDetailPage && !audioPlaying) setSheetOpen(true);
     seenZones.current.add(zoneId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoneId]);
 
   // Điện thoại: full màn hình; tablet/desktop: khung rộng dần để trang không bị bó thành cột hẹp
   return (
+    <ZonePlaylistProvider zoneId={zoneId} language={language}>
     <div className={`visitor-world font-trail text-post ${isWall ? 'bg-wall' : 'bg-trail'} flex flex-col ${isMap ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'} w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative ${isWall ? '' : 'md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]'}`}>
       {!isDetailPage && (
-        <header className={`h-14 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 sticky top-0 border-b ${isWall ? 'bg-wall border-transparent' : 'bg-trail/95 backdrop-blur-sm border-trail-line'}`}>
-          <NavLink to="/" className={`flex min-w-0 items-center gap-2.5 text-base font-semibold ${isWall ? 'font-label text-label' : 'text-post'}`}>
+        <header className={`${isWall ? 'wall-page ' : ''}h-14 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 sticky top-0 border-b ${isWall ? 'bg-wall border-transparent' : 'bg-trail/95 backdrop-blur-sm border-trail-line'}`}>
+          <NavLink to="/" aria-label={t.title} className={`flex min-w-0 items-center gap-2.5 text-base font-semibold ${isWall ? 'font-label text-label' : 'text-post'}`}>
             {/* Con dấu của vườn: luôn ở đúng một chỗ trên mọi trang */}
             <span className={`flex h-8 w-8 shrink-0 items-center justify-center ${isWall ? 'bg-label text-wall' : 'rounded-[10px] bg-sign text-white'}`} aria-hidden="true">
               <i className="fa-solid fa-leaf text-sm" aria-hidden="true"></i>
@@ -125,14 +125,14 @@ export default function VisitorLayout() {
         </header>
       )}
 
-      <div className={`flex-1 relative z-10 ${isMap ? 'min-h-0' : ''} ${!isDetailPage ? 'pb-20 lg:pb-0' : ''}`}>
+      <main className={`flex-1 relative z-10 ${isMap ? 'min-h-0' : ''} ${!isDetailPage ? 'pb-20 lg:pb-0' : ''}`}>
         <Suspense fallback={null}>
           <Outlet context={{ openQR, geo }} />
         </Suspense>
-      </div>
+      </main>
 
       {!isDetailPage && (
-        <nav className={`h-20 shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep' : 'bg-white'}`} aria-label={t.nav}>
+        <nav className={`${isWall ? 'wall-page ' : ''}h-20 shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep' : 'bg-white'}`} aria-label={t.nav}>
           <NavLink to="/" end className={tabClass(isWall)}>
             {({ isActive }) => (<>
               {isActive && <HereMark wall={isWall} className="-top-px" />}
@@ -160,7 +160,8 @@ export default function VisitorLayout() {
         </nav>
       )}
 
-      {!isWall && (
+      {/* Trang chủ và bản đồ đã có danh sách khu sẵn; ở trang con vật thì ngăn kéo khu báo khách vừa vào khu nào */}
+      {isDetailPage && (
         <ZoneSheet
           zone={geo.zone}
           language={language}
@@ -177,5 +178,6 @@ export default function VisitorLayout() {
         </Suspense>
       )}
     </div>
+    </ZonePlaylistProvider>
   );
 }

@@ -156,6 +156,7 @@ export default function Home() {
                     <AnimalImage
                       src={a.avatarUrl} alt=""
                       loading={i === 0 ? 'eager' : 'lazy'}
+                      width={i === 0 ? 500 : 330}
                       className={i === 0 ? 'aspect-[16/10] h-auto w-full' : 'h-20 w-20 lg:h-24 lg:w-24'}
                     />
                     <span className={`min-w-0 ${i === 0 ? 'block p-4 sm:p-5' : ''}`}>

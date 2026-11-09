@@ -56,6 +56,8 @@
 /* Trang chủ (tường nhãn): focus trắng trên tường xanh, mực trên nhãn trắng; bôi đen chữ theo màu nhãn */
 .visitor-world .wall-page :focus-visible { outline-color: var(--color-label); }
 .visitor-world .wall-page .bg-label :focus-visible, .visitor-world .wall-page .bg-label:focus-visible { outline-color: var(--color-ink); }
+/* Popup và ghim bản đồ nằm trên nền sáng: vòng focus màu mực mới thấy được */
+.visitor-world .leaflet-popup :focus-visible, .visitor-world .leaflet-marker-icon:focus-visible { outline-color: var(--color-ink); }
 .visitor-world .wall-page ::selection { background: var(--color-label); color: var(--color-wall); }
 .visitor-world .wall-page .bg-label ::selection { background: var(--color-wall); color: var(--color-label); }
 

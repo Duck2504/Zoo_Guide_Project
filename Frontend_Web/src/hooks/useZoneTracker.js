@@ -5,8 +5,18 @@ import { getAnimals } from '../utils/animalsApi';
 
 // Theo dõi khu du khách đang đứng. Vị trí chỉ xử lý trên máy, không gửi lên server.
 // status: 'off' | 'loading' | 'error' | 'denied' | 'unsupported' | 'searching' | 'inaccurate' | 'inZone' | 'outside'
+// Khách đã bật định vị thì giữ bật trong 12 giờ: quét mã bằng camera mở tab mới, không phải bật lại ở mỗi chuồng
+const GEO_KEY = 'zoo_geo_on_until';
+const GEO_HOURS = 12;
+function readGeoOn() {
+  try { return Number(localStorage.getItem(GEO_KEY)) > Date.now(); } catch { return false; }
+}
+function saveGeoOn(on) {
+  try { on ? localStorage.setItem(GEO_KEY, String(Date.now() + GEO_HOURS * 3600e3)) : localStorage.removeItem(GEO_KEY); } catch { /* không nhớ được thì thôi */ }
+}
+
 export default function useZoneTracker(language) {
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(readGeoOn);
   const [demoPosition, setDemoPosition] = useState(null); // chế độ thử: vị trí đặt bằng tay trên bản đồ
   const [animals, setAnimals] = useState(null);           // null = chưa tải, 'error' = lỗi
   const [currentZoneId, setCurrentZoneId] = useState(null);
@@ -52,7 +62,7 @@ export default function useZoneTracker(language) {
 
   return {
     enabled,
-    setEnabled: on => { setEnabled(on); if (!on) setDemoPosition(null); },
+    setEnabled: on => { setEnabled(on); saveGeoOn(on); if (!on) setDemoPosition(null); },
     status,
     zone,
     nearest: located?.nearest || null,
