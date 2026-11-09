@@ -23,6 +23,14 @@ Quản trị viên chỉ viết bài bằng tiếng Việt một lần; hệ th�
 
 ## Kiến trúc
 
+| Thành phần | Chạy ở đâu |
+| --- | --- |
+| Frontend (React) | SmarterASP (IIS), deploy tự động bằng GitHub Action |
+| Backend (ASP.NET Core) | Render |
+| Microservice thuyết minh | `localhost:5292` trên máy cá nhân, mở ra Internet qua **ngrok** để backend trên Render gọi được |
+| Cơ sở dữ liệu | SQL Server trên site4now |
+| Audio, bản dịch, ảnh | Supabase Storage |
+
 ```
 Điện thoại du khách / máy admin
         │  React SPA (SmarterASP, IIS)
