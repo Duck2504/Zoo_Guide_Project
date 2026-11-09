@@ -1,18 +1,118 @@
 @import "tailwindcss";
 
 @theme {
-  --color-zoo-50: #ecfdf5;
-  --color-zoo-100: #d1fae5;
-  --color-zoo-200: #a7f3d0;
-  --color-zoo-300: #6ee7b7;
+  /* Quản trị */
   --color-zoo-400: #34d399;
-  --color-zoo-500: #10b981;
   --color-zoo-600: #059669;
-  --color-zoo-700: #047857;
-  --color-zoo-800: #065f46;
-  --color-zoo-900: #064e3b;
-  --color-zoo-950: #022c22;
-  --font-sans: "Be Vietnam Pro", system-ui, sans-serif;
+  --font-sans: "Archivo", system-ui, sans-serif;
+
+  /* Trang du khách: kiểu ứng dụng hiện đại (nền sáng, thẻ trắng bo tròn, xanh lá là màu chính) */
+  --color-trail: #f5f7f4;      /* nền trang */
+  --color-trail-line: #e4e9e3; /* viền thẻ */
+  --color-sign: #15803d;       /* xanh chính: nút, thẻ nổi bật */
+  --color-sign-deep: #166534;  /* xanh khi rê chuột / nhấn */
+  --color-post: #18241d;       /* chữ chính */
+  --color-post-soft: #5b6b61;  /* chữ phụ */
+  --color-arrow-deep: #bbf7d0;  /* nền chữ được chọn */
+  --color-sage-soft: #e3f2e7;
+  --font-sign: "Archivo", system-ui, sans-serif;
+  --font-trail: "Archivo", system-ui, sans-serif;
+
+  /* Trang chủ: tường nhãn trưng bày */
+  --color-wall: #12372a;       /* tường phòng trưng bày */
+  --color-wall-deep: #0c271d;
+  --color-label: #f6f8f7;      /* nhãn trắng lạnh */
+  --color-ink: #101614;        /* chữ trên nhãn */
+  --color-ink-soft: #46544e;
+  --color-onair: #ff6b35;      /* chỉ dành cho nhãn đang phát */
+  --font-label: "Archivo", system-ui, sans-serif;
+  --font-label-narrow: "Archivo Narrow", "Archivo", system-ui, sans-serif;
+  --font-latin: "Source Serif 4", Georgia, serif; /* tên Latin và tên ngôn ngữ, có dấu tiếng Việt */
+  --color-you: #2563eb;        /* chấm vị trí du khách trên bản đồ (xanh dương quen thuộc của bản đồ) */
+
+  /* Mức bảo tồn theo Sách Đỏ IUCN: màu chính thức của IUCN, chỉ dùng cho ô mã mức bảo tồn */
+  --color-iucn-ew: #542344;
+  --color-iucn-cr: #d81e05;
+  --color-iucn-en: #fc7f3f;
+  --color-iucn-vu: #f9e814;
+  --color-iucn-nt: #cce226;
+  --color-iucn-lc: #60c659;
+}
+
+/* Bề mặt trình duyệt trong khu du khách mang màu của hệ biển */
+.visitor-world ::selection { background: var(--color-arrow-deep); color: var(--color-post); }
+.visitor-world { caret-color: var(--color-sign); accent-color: var(--color-sign); }
+/* Vòng focus: xanh trên nền sáng, trắng khi nằm trong mảng xanh */
+.visitor-world :focus-visible { outline: 3px solid var(--color-sign); outline-offset: 2px; }
+.visitor-world [class*="bg-sign"] :focus-visible { outline-color: #ffffff; }
+
+/* Bản đồ nền dịu màu để ghim khu và chấm vị trí nổi lên; popup là nhãn trắng vuông như trang chủ */
+.visitor-world .leaflet-tile-pane { filter: grayscale(0.85) contrast(0.9) brightness(1.05); }
+.visitor-world .leaflet-popup-content-wrapper { border-radius: 0; background: var(--color-label); box-shadow: 0 16px 32px -12px rgb(28 43 34 / 0.45); }
+.visitor-world .leaflet-popup-content { margin: 10px; }
+.visitor-world .leaflet-popup-tip { background: var(--color-label); }
+.visitor-world .leaflet-container a.leaflet-popup-close-button { width: 44px; height: 44px; font: 700 24px/42px var(--font-label); color: var(--color-ink); }
+
+/* Trang chủ (tường nhãn): focus trắng trên tường xanh, mực trên nhãn trắng; bôi đen chữ theo màu nhãn */
+.visitor-world .wall-page :focus-visible { outline-color: var(--color-label); }
+.visitor-world .wall-page .bg-label :focus-visible, .visitor-world .wall-page .bg-label:focus-visible { outline-color: var(--color-ink); }
+.visitor-world .wall-page ::selection { background: var(--color-label); color: var(--color-wall); }
+.visitor-world .wall-page .bg-label ::selection { background: var(--color-wall); color: var(--color-label); }
+
+/* Nhãn loài trượt vào chỗ theo thứ tự, một lần khi mở trang; nội dung luôn hiện sẵn */
+/* Ảnh con vật lắng vào khung khi mở trang (một chuyển động chậm, chỉ transform) */
+@keyframes hero-drift { from { transform: scale(1.08); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .hero-drift img, img.hero-drift { animation: hero-drift 1600ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+
+@keyframes label-in { from { transform: translateY(12px); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .label-in { animation: label-in 520ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+
+/* Dấu "Đã nghe" đóng xuống khi vừa nghe xong (chỉ dấu mới, không chạy lúc tải trang) */
+@keyframes stamp-in { from { transform: scale(1.25) rotate(-5deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+.stamp-in { animation: stamp-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Thanh phát nhỏ trượt lên từ mép đáy và lui về đúng mép đó */
+.mini-player { transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1), visibility 0s; }
+.mini-player[data-hidden] { transform: translateY(100%); visibility: hidden; transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1), visibility 0s 240ms; }
+
+/* Hộp quét QR: điện thoại trượt lên từ đáy, màn hình lớn hiện dần ở giữa; nền tối mờ dần */
+.qr-scrim { transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+.qr-sheet { transition: transform 300ms cubic-bezier(0.32, 0.72, 0, 1), opacity 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+@starting-style {
+  .qr-scrim { opacity: 0; }
+  .qr-sheet { transform: translateY(100%); }
+}
+@media (min-width: 640px) {
+  @starting-style { .qr-sheet { transform: scale(0.96); opacity: 0; } }
+}
+
+/* Nút phát: biểu tượng mới xoay nhẹ vào chỗ khi đổi giữa phát và tạm dừng */
+@keyframes icon-swap { from { transform: scale(0.5) rotate(-90deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.icon-swap { display: inline-block; animation: icon-swap 160ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Sóng âm "đang phát": ba vạch cao thấp lệch nhịp */
+.playing-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 0.9em; }
+.playing-bars > span { width: 3px; height: 100%; background: currentColor; transform-origin: bottom; animation: bar-bounce 900ms ease-in-out infinite; }
+.playing-bars > span:nth-child(2) { animation-delay: -300ms; }
+.playing-bars > span:nth-child(3) { animation-delay: -600ms; }
+@keyframes bar-bounce { 0%, 100% { transform: scaleY(0.35); } 50% { transform: scaleY(1); } }
+
+/* Giảm chuyển động: không dịch chuyển, chỉ mờ dần nhanh */
+@media (prefers-reduced-motion: reduce) {
+  .stamp-in { animation: fade-in 150ms ease-out both; }
+  .mini-player, .mini-player[data-hidden] { transform: none; transition: opacity 150ms ease-out, visibility 0s 150ms; }
+  .mini-player[data-hidden] { opacity: 0; }
+  .qr-sheet { transition: opacity 150ms ease-out; }
+  .icon-swap { animation: fade-in 120ms ease-out both; }
+  .playing-bars > span { animation: none; }
+  .playing-bars > span:nth-child(2) { transform: scaleY(0.7); }
+  .playing-bars > span:nth-child(3) { transform: scaleY(0.45); }
+  @starting-style { .qr-sheet { transform: none; opacity: 0; } }
 }
 
 /* Custom Scrollbar cho giao diện mượt mà */
@@ -24,3 +124,10 @@
   background-color: #cbd5e1;
   border-radius: 10px;
 }
+
+/* Ẩn thanh cuộn nhưng vẫn cuộn được (dùng ở VisitorLayout, AnimalDetail, dải ảnh trang chủ) */
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Chừa chỗ cho thanh home trên iPhone; chỉ có tác dụng khi index.html bật viewport-fit=cover */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
