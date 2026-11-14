@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "Thảo Cầm Viên Zoo Audio Guide",
+    "slug": "thao-cam-vien-zoo-audio-guide",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#064e3b"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "audio", "fetch"],
+        "NSCameraUsageDescription": "Ứng dụng cần quyền Camera để quét mã QR in trên biển bảng chuồng thú.",
+        "NSLocationWhenInUseUsageDescription": "Cho phép ứng dụng sử dụng vị trí GPS để tự động phát thuyết minh khi du khách đến gần các chuồng động vật trong Thảo Cầm Viên.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Ứng dụng cần định vị chạy ngầm để phát thuyết minh hands-free và tự rung khi khách đút điện thoại vào túi quần."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#064e3b"
+      },
+      "permissions": [
+        "CAMERA",
+        "VIBRATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "WAKE_LOCK"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Cho phép ứng dụng sử dụng camera để quét mã QR chuồng thú."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Cho phép ứng dụng định vị nền để tự động phát âm thanh khi đến gần chuồng thú."
+        }
+      ]
+    ]
+  }
+}

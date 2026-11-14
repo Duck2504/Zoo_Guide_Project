@@ -1,0 +1,26 @@
+{
+  "name": "zoo-mobile-audio-guide",
+  "version": "1.0.0",
+  "description": "Ứng dụng di động thuyết minh tự động định vị GPS cho khách tham quan Thảo Cầm Viên Sài Gòn",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~50.0.0",
+    "expo-status-bar": "~1.11.1",
+    "react": "18.2.0",
+    "react-native": "0.73.2",
+    "expo-location": "~16.5.0",
+    "expo-av": "~13.10.0",
+    "expo-camera": "~14.1.3",
+    "expo-barcode-scanner": "~12.9.3",
+    "expo-task-manager": "~11.7.3"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0"
+  },
+  "private": true
+}

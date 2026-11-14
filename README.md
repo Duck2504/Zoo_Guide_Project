@@ -51,6 +51,7 @@ Audio đã tạo được lưu sẵn trên Supabase, nên du khách nghe không 
 | Thư mục | Nội dung |
 | --- | --- |
 | `Frontend_Web/` | React 18 + Vite + Tailwind CSS v4: trang du khách (`src/pages/visitor`) và quản trị (`src/pages/admin`) |
+| `Frondend_MobileApp/` | React Native (Expo SDK 50): Ứng dụng di động quét mã QR camera native, cảm biến GPS định vị nền và tự rung túi quần |
 | `Backend_core/ZooAudioGuide.API/` | ASP.NET Core (.NET 10), EF Core + SQL Server (NetTopologySuite cho tọa độ khu): controller → service → repository |
 | `Backend_core/ZooAudioGuide.Tests/` | Test MSTest cho backend |
 | `MicroServices/ZooAudioGuide.NarrationService/` | Dịch vụ dịch + đọc + lưu audio (minimal API, có Dockerfile) |
@@ -72,11 +73,18 @@ dotnet run
 dotnet run --project MicroServices/ZooAudioGuide.NarrationService --launch-profile http
 ```
 
-**Frontend** – mặc định gọi backend trên Render; đặt `VITE_API_URL` để trỏ về backend ở máy
+**Frontend Web** – mặc định gọi backend trên Render; đặt `VITE_API_URL` để trỏ về backend ở máy
 ```bash
 cd Frontend_Web
 npm install
 VITE_API_URL=http://localhost:8080 npm run dev
+```
+
+**Mobile App (React Native)** – chạy bằng Expo Go trên Android / iOS
+```bash
+cd Frondend_MobileApp
+npm install
+npm start
 ```
 
 ## Cấu hình
