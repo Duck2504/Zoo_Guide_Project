@@ -1,19 +1,105 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, CircleMarker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, CircleMarker, Polyline, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
 import { useVisitor } from '../../context/VisitorContext';
 import 'leaflet/dist/leaflet.css';
 import { getAnimals } from '../../utils/animalsApi';
-import { calculateDistance, groupZones } from '../../utils/geoUtils';
+import {
+  calculateDistance,
+  calculateBearing,
+  getBearingDirection,
+  getEstimatedWalkingMinutes,
+  getGoogleMapsDirectionsUrl,
+  groupZones
+} from '../../utils/geoUtils';
 import { getZoneText } from '../../utils/zoneText';
 
 const translations = {
-  vi: { title: 'Bản đồ khu', hint: 'Chạm một khu ở dưới hoặc một ghim trên bản đồ để xem con vật.', failed: 'Chưa tải được vị trí các khu. Kiểm tra mạng rồi mở lại trang.', count: (s, z) => `${s} loài · ${z} khu`, species: n => `${n} loài`, zones: 'Các khu trong vườn', here: 'Bạn đang ở đây', listen: 'Nghe' },
-  en: { title: 'Zone map', hint: 'Tap a zone below or a pin on the map to see its animals.', failed: 'Zone locations could not be loaded. Check your connection and reopen the page.', count: (s, z) => `${s} species · ${z} zones`, species: n => `${n} species`, zones: 'Zones in the zoo', here: 'You are here', listen: 'Listen' },
-  ko: { title: '구역 지도', hint: '아래 구역이나 지도의 핀을 눌러 동물을 보세요.', failed: '구역 위치를 불러오지 못했습니다. 연결을 확인하고 페이지를 다시 여세요.', count: (s, z) => `${s}종 · ${z}개 구역`, species: n => `${n}종`, zones: '동물원 구역', here: '현재 위치', listen: '듣기' },
-  ja: { title: 'エリアマップ', hint: '下のエリアか地図上のピンをタップして動物を見ます。', failed: 'エリアの位置を読み込めませんでした。接続を確認してページを開き直してください。', count: (s, z) => `${s}種 · ${z}エリア`, species: n => `${n}種`, zones: '園内のエリア', here: '現在地', listen: '聞く' },
+  vi: {
+    title: 'Bản đồ khu',
+    hint: 'Chạm một khu ở dưới hoặc một ghim trên bản đồ để xem con vật và chỉ đường.',
+    failed: 'Chưa tải được vị trí các khu. Kiểm tra mạng rồi mở lại trang.',
+    count: (s, z) => `${s} loài · ${z} khu`,
+    species: n => `${n} loài`,
+    zones: 'Các khu trong vườn',
+    here: 'Bạn đang ở đây',
+    listen: 'Nghe',
+    directions: 'Chỉ đường',
+    startNav: 'Chỉ đường đến đây',
+    stopNav: 'Dừng chỉ đường',
+    walkEst: min => `~${min} phút đi bộ`,
+    distance: 'Khoảng cách',
+    estTime: 'Thời gian',
+    heading: 'Hướng đi',
+    openGoogleMaps: 'Mở Google Maps',
+    liveGpsPrompt: 'Lộ trình từ vị trí GPS hiện tại của bạn.',
+    defaultStartPrompt: 'Chưa bật GPS: Lộ trình tính từ cổng chính Thảo Cầm Viên.'
+  },
+  en: {
+    title: 'Zone map',
+    hint: 'Tap a zone below or a pin on the map to view animals and get walking directions.',
+    failed: 'Zone locations could not be loaded. Check your connection and reopen the page.',
+    count: (s, z) => `${s} species · ${z} zones`,
+    species: n => `${n} species`,
+    zones: 'Zones in the zoo',
+    here: 'You are here',
+    listen: 'Listen',
+    directions: 'Directions',
+    startNav: 'Get directions',
+    stopNav: 'Stop directions',
+    walkEst: min => `~${min} min walk`,
+    distance: 'Distance',
+    estTime: 'Est. time',
+    heading: 'Heading',
+    openGoogleMaps: 'Open Google Maps',
+    liveGpsPrompt: 'Route from your current live GPS position.',
+    defaultStartPrompt: 'GPS inactive: Route calculated from zoo main entrance.'
+  },
+  ko: {
+    title: '구역 지도',
+    hint: '아래 구역이나 지도의 핀을 눌러 동물과 길찾기 경로를 확인하세요.',
+    failed: '구역 위치를 불러오지 못했습니다. 연결을 확인하고 페이지를 다시 여세요.',
+    count: (s, z) => `${s}종 · ${z}개 구역`,
+    species: n => `${n}종`,
+    zones: '동물원 구역',
+    here: '현재 위치',
+    listen: '듣기',
+    directions: '길찾기',
+    startNav: '여기로 길찾기',
+    stopNav: '길안내 종료',
+    walkEst: min => `도보 약 ${min}분`,
+    distance: '거리',
+    estTime: '예상 시간',
+    heading: '이동 방향',
+    openGoogleMaps: 'Google 지도 열기',
+    liveGpsPrompt: '현재 GPS 위치 기준 경로입니다.',
+    defaultStartPrompt: 'GPS 꺼짐: 동물원 정문 기준 경로입니다.'
+  },
+  ja: {
+    title: 'エリアマップ',
+    hint: '下のエリアか地図上のピンをタップして動物と徒歩ルートを確認します。',
+    failed: 'エリアの位置を読み込めませんでした。接続を確認してページを開き直してください。',
+    count: (s, z) => `${s}種 · ${z}エリア`,
+    species: n => `${n}種`,
+    zones: '園内のエリア',
+    here: '現在地',
+    listen: '聞く',
+    directions: 'ルート案内',
+    startNav: 'ここへ案内',
+    stopNav: '案内終了',
+    walkEst: min => `徒歩約${min}分`,
+    distance: '距離',
+    estTime: '所要時間',
+    heading: '方角',
+    openGoogleMaps: 'Googleマップで開く',
+    liveGpsPrompt: '現在のGPS位置からのルートです。',
+    defaultStartPrompt: 'GPS未取得: 正門からのルートを表示しています。'
+  },
 };
+
+// Cổng chính Thảo Cầm Viên (Nguyễn Bỉnh Khiêm, Bến Nghé, Quận 1) làm điểm xuất phát mặc định khi chưa bật GPS
+const ZOO_MAIN_GATE = { lat: 10.7874, lng: 106.7050 };
 
 // Ghim nằm trong trang nên đọc thẳng token CSS; riêng nét vẽ SVG của Leaflet cần giá trị thật
 const WALL = 'var(--color-wall)';
@@ -41,18 +127,19 @@ function DemoClicks({ onPick }) {
   return null;
 }
 
-
 export default function Map() {
   const { language } = useVisitor();
   const t = translations[language] || translations['vi'];
   const [animals, setAnimals] = useState(null);
   const [searchParams] = useSearchParams();
   const focusZone = searchParams.get('zone'); // mở từ trang con vật hoặc trang chủ: tập trung vào khu đó
+  const navParam = searchParams.get('nav') === '1'; // mở từ nút chỉ đường
   const demo = searchParams.get('demo') === '1';
   const { geo } = useOutletContext();
   const zt = getZoneText(language);
   const [map, setMap] = useState(null);
   const [selectedId, setSelectedId] = useState(focusZone ? Number(focusZone) : null);
+  const [navZone, setNavZone] = useState(null); // Khu đang kích hoạt chỉ đường
   const markers = useRef({});
   const stripItems = useRef({});
 
@@ -64,6 +151,17 @@ export default function Map() {
 
   // Mỗi khu một ghim (con vật cùng khu dùng chung tọa độ của khu)
   const zones = useMemo(() => (Array.isArray(animals) ? groupZones(animals) : []), [animals]);
+
+  // Tự động kích hoạt chỉ đường nếu URL có ?nav=1
+  useEffect(() => {
+    if (navParam && focusZone && zones.length > 0 && !navZone) {
+      const target = zones.find(z => String(z.id) === focusZone);
+      if (target) {
+        setNavZone(target);
+        setSelectedId(target.id);
+      }
+    }
+  }, [navParam, focusZone, zones, navZone]);
 
   // Khung bản đồ ôm vừa mọi khu; mở từ một khu thì phóng to vào khu đó
   const focused = zones.find(z => String(z.id) === focusZone);
@@ -81,12 +179,41 @@ export default function Map() {
     map.once('moveend', () => markers.current[zone.id]?.openPopup());
   };
 
+  // Bắt đầu chỉ đường đến khu được chọn
+  const startNavigation = zone => {
+    setNavZone(zone);
+    setSelectedId(zone.id);
+    if (!map) return;
+    const startLat = geo.position?.lat ?? ZOO_MAIN_GATE.lat;
+    const startLng = geo.position?.lng ?? ZOO_MAIN_GATE.lng;
+    map.fitBounds([
+      [startLat, startLng],
+      [zone.lat, zone.lng]
+    ], { padding: [100, 100], maxZoom: 18 });
+  };
+
   // Khu đang chọn luôn nằm trọn trong dải nhãn (vd mở từ trang chủ với ?zone=)
   useEffect(() => {
     stripItems.current[selectedId]?.scrollIntoView({ inline: 'start', block: 'nearest' });
   }, [selectedId, zones.length]);
 
   const distanceTo = zone => geo.position ? calculateDistance(geo.position.lat, geo.position.lng, zone.lat, zone.lng) : null;
+
+  // Điểm xuất phát chỉ đường: ưu tiên GPS du khách, fallback là cổng chính
+  const startPos = geo.position
+    ? { lat: geo.position.lat, lng: geo.position.lng, isGps: true }
+    : { lat: ZOO_MAIN_GATE.lat, lng: ZOO_MAIN_GATE.lng, isGps: false };
+
+  // Tính toán khoảng cách & hướng đi khi đang bật chỉ đường
+  const navMetrics = useMemo(() => {
+    if (!navZone) return null;
+    const dist = calculateDistance(startPos.lat, startPos.lng, navZone.lat, navZone.lng);
+    const bearing = calculateBearing(startPos.lat, startPos.lng, navZone.lat, navZone.lng);
+    const direction = getBearingDirection(bearing, language);
+    const walkMinutes = getEstimatedWalkingMinutes(dist);
+    const gmapsUrl = getGoogleMapsDirectionsUrl(navZone.lat, navZone.lng, geo.position?.lat, geo.position?.lng);
+    return { dist, bearing, direction, walkMinutes, gmapsUrl };
+  }, [navZone, startPos.lat, startPos.lng, geo.position, language]);
 
   return (
     <div className="wall-page relative z-0 h-full w-full font-label">
@@ -95,6 +222,49 @@ export default function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        {/* Tuyến đường chỉ đường nối từ vị trí du khách đến khu đích */}
+        {navZone && (
+          <>
+            <Polyline
+              positions={[
+                [startPos.lat, startPos.lng],
+                [navZone.lat, navZone.lng]
+              ]}
+              pathOptions={{
+                color: '#059669',
+                weight: 5,
+                dashArray: '8, 8',
+                opacity: 0.95
+              }}
+            />
+            {/* Điểm đích đến với vòng phát sáng đỏ nổi bật */}
+            <CircleMarker
+              center={[navZone.lat, navZone.lng]}
+              radius={18}
+              pathOptions={{
+                color: '#ffffff',
+                weight: 3,
+                fillColor: '#dc2626',
+                fillOpacity: 0.95
+              }}
+            />
+            {/* Điểm xuất phát mặc định nếu chưa bật GPS */}
+            {!startPos.isGps && (
+              <CircleMarker
+                center={[startPos.lat, startPos.lng]}
+                radius={9}
+                pathOptions={{
+                  color: '#ffffff',
+                  weight: 3,
+                  fillColor: '#2563eb',
+                  fillOpacity: 1
+                }}
+              />
+            )}
+          </>
+        )}
+
         {zones.map(zone => (
           <Marker
             key={zone.id}
@@ -110,19 +280,31 @@ export default function Map() {
           >
             {/* Khi tự cuộn để hiện popup, chừa chỗ cho nhãn tiêu đề phía trên và dải nhãn khu phía dưới */}
             <Popup autoPanPaddingTopLeft={[16, 170]} autoPanPaddingBottomRight={[16, 120]}>
-              <p className="!mb-2 !mt-0 text-base font-extrabold leading-tight text-ink">
-                {zone.name} <span className="text-sm font-medium text-ink-soft">· {t.species(zone.animals.length)}</span>
-              </p>
-              <ul className="min-w-48 space-y-1">
-                {zone.animals.map(a => (
-                  <li key={a.id}>
-                    <Link to={`/a/${a.id}?source=map`} className="flex min-h-11 items-center justify-between gap-3 bg-ink px-3 text-sm font-semibold !text-label no-underline hover:bg-wall">
-                      {a.defaultLocalName}
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-label/80"><i className="fa-solid fa-headphones" aria-hidden="true"></i>{t.listen}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <div className="min-w-56">
+                <p className="!mb-1 !mt-0 text-base font-extrabold leading-tight text-ink">
+                  {zone.name} <span className="text-sm font-medium text-ink-soft">· {t.species(zone.animals.length)}</span>
+                </p>
+
+                {/* Nút chỉ đường trực tiếp ngay trên popup */}
+                <button
+                  onClick={() => startNavigation(zone)}
+                  className="mb-2.5 mt-1 flex w-full items-center justify-center gap-1.5 bg-wall px-3 py-1.5 text-xs font-bold text-label transition-colors hover:bg-wall/90 active:scale-[0.98]"
+                >
+                  <i className="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>
+                  {t.startNav}
+                </button>
+
+                <ul className="space-y-1">
+                  {zone.animals.map(a => (
+                    <li key={a.id}>
+                      <Link to={`/a/${a.id}?source=map`} className="flex min-h-11 items-center justify-between gap-3 bg-ink px-3 text-sm font-semibold !text-label no-underline hover:bg-wall">
+                        {a.defaultLocalName}
+                        <span className="flex items-center gap-1.5 text-xs font-medium text-label/80"><i className="fa-solid fa-headphones" aria-hidden="true"></i>{t.listen}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </Popup>
           </Marker>
         ))}
@@ -151,6 +333,67 @@ export default function Map() {
         </div>
       </div>
 
+      {/* Hộp thoại chỉ đường đang kích hoạt (Floating Navigation Banner) */}
+      {navZone && navMetrics && (
+        <aside aria-label={t.directions} className="absolute inset-x-4 top-28 z-[410] mx-auto max-w-sm sm:left-6 sm:right-auto">
+          <div className="border-2 border-wall bg-label p-4 text-ink shadow-[0_16px_36px_-12px_rgb(0_0_0/0.6)]">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <span className="inline-flex items-center gap-1.5 bg-wall px-2 py-0.5 text-xs font-bold text-label">
+                  <i className="fa-solid fa-diamond-turn-right" aria-hidden="true"></i> {t.directions}
+                </span>
+                <h2 className="mt-1.5 text-lg font-extrabold leading-tight text-ink">{navZone.name}</h2>
+              </div>
+              <button
+                onClick={() => setNavZone(null)}
+                aria-label={t.stopNav}
+                className="flex h-8 w-8 items-center justify-center text-ink transition-colors hover:bg-ink/10"
+              >
+                <i className="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            {/* Thông số quãng đường, thời gian và hướng di chuyển */}
+            <div className="mt-3 grid grid-cols-3 gap-2 border-y border-ink/10 py-2.5 text-center">
+              <div>
+                <span className="block text-xs font-medium text-ink-soft">{t.distance}</span>
+                <span className="block font-label-narrow text-lg font-bold text-wall">{Math.round(navMetrics.dist)} m</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-ink-soft">{t.estTime}</span>
+                <span className="block text-sm font-bold text-ink">{t.walkEst(navMetrics.walkMinutes)}</span>
+              </div>
+              <div>
+                <span className="block text-xs font-medium text-ink-soft">{t.heading}</span>
+                <span className="block text-sm font-bold text-ink">{navMetrics.direction}</span>
+              </div>
+            </div>
+
+            <p className="mt-2 text-xs leading-snug text-ink-soft">
+              {startPos.isGps ? t.liveGpsPrompt : t.defaultStartPrompt}
+            </p>
+
+            <div className="mt-3.5 flex gap-2">
+              <a
+                href={navMetrics.gmapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-10 flex-1 items-center justify-center gap-2 bg-ink px-3 text-sm font-semibold !text-label no-underline transition-colors hover:bg-wall"
+              >
+                <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                {t.openGoogleMaps}
+              </a>
+              <button
+                onClick={() => setNavZone(null)}
+                className="flex min-h-10 items-center justify-center border border-ink/30 px-3 text-sm font-semibold text-ink transition-colors hover:bg-ink/10"
+              >
+                {t.stopNav}
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
+
       {/* Dải nhãn khu ở đáy: cùng khuôn với nhãn loài ở trang chủ, số khu đọc trước tiên */}
       {zones.length > 0 && (
         <nav aria-label={t.zones} className="absolute inset-x-0 bottom-6 z-[400]">
@@ -158,21 +401,46 @@ export default function Map() {
             {zones.map(zone => {
               const selected = zone.id === selectedId;
               const here = geo.zone?.id === zone.id;
+              const isNavigatingThis = navZone?.id === zone.id;
               const d = distanceTo(zone);
               return (
                 <li key={zone.id} ref={el => { stripItems.current[zone.id] = el; }} className="snap-start">
-                  <button
+                  <div
                     onClick={() => selectZone(zone)}
                     aria-pressed={selected}
-                    className={`block min-h-[76px] w-56 border-2 p-3 text-left shadow-[0_10px_24px_-14px_rgb(16_22_20/0.5)] transition-colors lg:w-full ${
+                    className={`block min-h-[76px] w-60 border-2 p-3 text-left shadow-[0_10px_24px_-14px_rgb(16_22_20/0.5)] transition-colors lg:w-full cursor-pointer ${
                       selected ? 'border-ink bg-ink text-label' : 'border-label bg-label text-ink hover:border-ink/40'
                     }`}
                   >
-                    <span className="block truncate text-base font-bold">{zone.name}</span>
-                    <span className={`mt-0.5 block truncate text-sm ${selected ? 'text-label/80' : 'text-ink-soft'}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="block truncate text-base font-bold">{zone.name}</span>
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (isNavigatingThis) {
+                            setNavZone(null);
+                          } else {
+                            startNavigation(zone);
+                          }
+                        }}
+                        title={isNavigatingThis ? t.stopNav : t.startNav}
+                        className={`flex h-7 items-center gap-1 px-2 text-xs font-bold transition-colors ${
+                          isNavigatingThis
+                            ? 'bg-rose-600 text-white'
+                            : selected
+                            ? 'bg-label text-ink hover:bg-white'
+                            : 'bg-wall text-label hover:bg-wall-deep'
+                        }`}
+                      >
+                        <i className={`fa-solid ${isNavigatingThis ? 'fa-xmark' : 'fa-diamond-turn-right'}`} aria-hidden="true"></i>
+                        <span>{isNavigatingThis ? t.stopNav : t.directions}</span>
+                      </button>
+                    </div>
+
+                    <span className={`mt-1 block truncate text-sm ${selected ? 'text-label/80' : 'text-ink-soft'}`}>
                       {here ? t.here : [t.species(zone.animals.length), d != null && zt.meters(d)].filter(Boolean).join(' · ')}
                     </span>
-                  </button>
+                  </div>
                 </li>
               );
             })}

@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Dimensions
+  Dimensions,
+  Linking
 } from 'react-native';
 import { getHaversineDistance } from '../services/locationService';
 
@@ -212,7 +213,19 @@ export default function MapView({
                   }
                 }}
               >
-                <Text style={styles.walkToBtnText}>🚶 Bước Đến Đây</Text>
+                <Text style={styles.walkToBtnText}>🚶 Bước Đến</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.directionsBtn}
+                onPress={() => {
+                  if (selectedPin.coords) {
+                    const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedPin.coords.lat},${selectedPin.coords.lon}&travelmode=walking`;
+                    Linking.openURL(url).catch(() => {});
+                  }
+                }}
+              >
+                <Text style={styles.directionsBtnText}>🧭 Chỉ Đường</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -222,7 +235,7 @@ export default function MapView({
                   onPlayAnimal(selectedPin);
                 }}
               >
-                <Text style={styles.playPlaceBtnText}>🔊 Nghe Thuyết Minh</Text>
+                <Text style={styles.playPlaceBtnText}>🔊 Nghe</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -568,6 +581,18 @@ const styles = StyleSheet.create({
   },
   walkToBtnText: {
     color: '#93c5fd',
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  directionsBtn: {
+    flex: 1,
+    backgroundColor: '#2563eb',
+    paddingVertical: 6,
+    borderRadius: 6,
+    alignItems: 'center'
+  },
+  directionsBtnText: {
+    color: '#ffffff',
     fontSize: 10,
     fontWeight: 'bold'
   },

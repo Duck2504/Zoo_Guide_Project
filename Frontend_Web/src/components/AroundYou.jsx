@@ -69,7 +69,7 @@ export default function AroundYou({ geo, language, languages, zoneCount }) {
 
         {status === 'outside' && geo.nearest && (
           <Link
-            to={`/map?zone=${geo.nearest.id}`}
+            to={`/map?zone=${geo.nearest.id}&nav=1`}
             className="mt-5 flex min-h-16 items-center justify-between gap-3 bg-ink/[0.06] p-4 transition-colors hover:bg-ink/10"
           >
             <span>

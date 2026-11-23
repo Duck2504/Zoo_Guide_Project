@@ -1,7 +1,15 @@
 // Chạy: npm test (node --test, không cần thư viện thêm)
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateDistance, groupZones, locateZone } from './geoUtils.js';
+import {
+  calculateDistance,
+  calculateBearing,
+  getBearingDirection,
+  getEstimatedWalkingMinutes,
+  getGoogleMapsDirectionsUrl,
+  groupZones,
+  locateZone
+} from './geoUtils.js';
 
 // Hai khu cách nhau ~104 m như khu 1 và 2 ngoài vườn, bán kính 45 m
 const animals = [
@@ -15,6 +23,35 @@ const north = m => ({ lat: 10.7875 + m / 111195, lng: 106.7052 });
 
 test('calculateDistance: 0.001 độ vĩ ≈ 111 m', () => {
   assert.ok(Math.abs(calculateDistance(10, 106, 10.001, 106) - 111.2) < 1);
+});
+
+test('calculateBearing và getBearingDirection tính đúng hướng', () => {
+  // Đi thẳng lên phía Bắc
+  const bearingNorth = calculateBearing(10.7875, 106.7052, 10.7885, 106.7052);
+  assert.equal(bearingNorth, 0);
+  assert.equal(getBearingDirection(bearingNorth, 'vi'), 'Bắc');
+  assert.equal(getBearingDirection(bearingNorth, 'en'), 'North');
+
+  // Đi sang phía Đông
+  const bearingEast = calculateBearing(10.7875, 106.7052, 10.7875, 106.7062);
+  assert.equal(bearingEast, 90);
+  assert.equal(getBearingDirection(bearingEast, 'vi'), 'Đông');
+});
+
+test('getEstimatedWalkingMinutes ước tính thời gian đi bộ hợp lý', () => {
+  assert.equal(getEstimatedWalkingMinutes(72), 1); // 72m ~ 1 phút
+  assert.equal(getEstimatedWalkingMinutes(150), 2); // 150m ~ 2 phút
+  assert.equal(getEstimatedWalkingMinutes(0), 1);
+});
+
+test('getGoogleMapsDirectionsUrl tạo link chỉ đường chuẩn', () => {
+  const url1 = getGoogleMapsDirectionsUrl(10.788, 106.706);
+  assert.ok(url1.includes('destination=10.788,106.706'));
+  assert.ok(url1.includes('travelmode=walking'));
+
+  const url2 = getGoogleMapsDirectionsUrl(10.788, 106.706, 10.787, 106.705);
+  assert.ok(url2.includes('origin=10.787,106.705'));
+  assert.ok(url2.includes('destination=10.788,106.706'));
 });
 
 test('groupZones gom con vật theo khu, giữ tên và bán kính', () => {
@@ -42,8 +79,6 @@ test('vùng đệm: 50 m chưa vào được, nhưng đang ở trong thì vẫn 
 });
 
 test('đang giữ khu 1 trong vùng đệm thì không nhảy sang khu 2 dù đã vào bán kính khu 2', () => {
-  // Điểm nằm trong vùng đệm của khu 1 và trong bán kính khu 2 không tồn tại khi 2r + 10 < khoảng cách;
-  // kiểm tra trực tiếp quy tắc ưu tiên khu hiện tại bằng hai khu chồng nhau
   const overlap = groupZones([
     { id: 1, zoneId: 1, latitude: 10.7875, longitude: 106.7052, radiusMeters: 45 },
     { id: 9, zoneId: 9, latitude: 10.7878, longitude: 106.7052, radiusMeters: 45 },
