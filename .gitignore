@@ -38,6 +38,8 @@ Thumbs.db
 *.doc
 *.pdf
 *Bao_Cao*
+!docs/**/*.docx
+!docs/**/*Bao_Cao*
 
 # API keys / secrets
 appsettings.Development.json
