@@ -2,72 +2,67 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
-const QRScannerModal = lazy(() => import('../components/QRScannerModal')); // camera chỉ tải khi mở hộp quét
+const QRScannerModal = lazy(() => import('../components/QRScannerModal'));
 import useZoneTracker from '../hooks/useZoneTracker';
 import ZoneSheet from '../components/ZoneSheet';
 import { ZonePlaylistProvider } from '../components/ZonePlaylist';
-
 import LanguageMenu from '../components/LanguageMenu';
 
 const translations = {
-  vi: { title: 'Thảo Cầm Viên', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', scanShort: 'Quét mã', nav: 'Điều hướng', geoOn: 'Đang theo dõi vị trí (bấm để tắt)', geoOff: 'Bật định vị để xem con vật quanh bạn' },
-  en: { title: 'Saigon Zoo', home: 'Home', map: 'Map', scan: 'Scan QR code', scanShort: 'Scan', nav: 'Navigation', geoOn: 'Tracking your location (tap to stop)', geoOff: 'Turn on location to see animals around you' },
-  ko: { title: '사이공 동물원', home: '홈', map: '지도', scan: 'QR 스캔', scanShort: '스캔', nav: '탐색', geoOn: '위치 추적 중 (눌러서 끄기)', geoOff: '위치를 켜고 주변 동물 보기' },
-  ja: { title: 'サイゴン動植物園', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', scanShort: 'スキャン', nav: 'ナビゲーション', geoOn: '現在地を追跡中（タップで停止）', geoOff: '位置情報をオンにして近くの動物を見る' },
+  vi: { title: 'Thảo Cầm Viên', subtitle: 'Audio Guide', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', scanShort: 'Quét mã', nav: 'Điều hướng', geoOn: 'Đang theo dõi vị trí (bấm để tắt)', geoOff: 'Bật định vị để xem con vật quanh bạn' },
+  en: { title: 'Saigon Zoo', subtitle: 'Audio Guide', home: 'Home', map: 'Map', scan: 'Scan QR code', scanShort: 'Scan', nav: 'Navigation', geoOn: 'Tracking your location (tap to stop)', geoOff: 'Turn on location to see animals around you' },
+  ko: { title: '사이공 동물원', subtitle: 'Audio Guide', home: '홈', map: '지도', scan: 'QR 스캔', scanShort: '스캔', nav: '탐색', geoOn: '위치 추적 중 (눌러서 끄기)', geoOff: '위치를 켜고 주변 동물 보기' },
+  ja: { title: 'サイゴン動植物園', subtitle: 'Audio Guide', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', scanShort: 'スキャン', nav: 'ナビゲーション', geoOn: '現在地を追跡中（タップで停止）', geoOff: '位置情報をオンにして近くの動物を見る' },
 };
 
-// Mục điều hướng: mục đang chọn có vạch "bạn đang ở đây". wall = trang chủ (tường nhãn xanh đậm)
 const tabClass = wall => ({ isActive }) =>
-  `relative flex min-h-11 w-20 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors ${
-    wall ? (isActive ? 'font-label text-label' : 'font-label text-label/70 hover:text-label') : (isActive ? 'text-sign' : 'text-post-soft hover:text-post')
+  `relative flex min-h-12 w-20 flex-col items-center justify-center gap-1 rounded-xl text-xs font-semibold transition-all ${
+    wall
+      ? (isActive ? 'font-label text-white bg-white/10' : 'font-label text-label/70 hover:text-label')
+      : (isActive ? 'text-sign bg-sage-soft/60' : 'text-post-soft hover:text-post')
   }`;
+
 const headerLinkClass = wall => ({ isActive }) =>
-  `relative flex min-h-11 items-center gap-2 px-3 text-sm font-semibold transition-colors ${
-    wall ? (isActive ? 'font-label text-label' : 'font-label text-label/75 hover:text-label') : (isActive ? 'text-sign' : 'text-post-soft hover:text-post')
+  `relative flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all ${
+    wall
+      ? (isActive ? 'bg-label text-wall shadow-sm' : 'text-label/85 hover:bg-white/10 hover:text-white')
+      : (isActive ? 'bg-sign text-white shadow-sm' : 'text-post-soft hover:bg-ink/5 hover:text-post')
   }`;
-const HereMark = ({ className, wall }) => <span className={`absolute h-1 w-8 ${wall ? 'bg-label' : 'rounded-full bg-sign'} ${className}`} aria-hidden="true" />;
 
 export default function VisitorLayout() {
   const { language } = useVisitor();
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const qrOpener = useRef(null); // nút đã mở hộp quét, để đóng hộp thì focus quay về đó
+  const qrOpener = useRef(null);
   const openQR = () => { qrOpener.current = document.activeElement; setIsQRModalOpen(true); };
   const closeQR = () => { setIsQRModalOpen(false); qrOpener.current?.focus?.(); };
   const location = useLocation();
   const geo = useZoneTracker(language);
   const geoEnabled = geo.enabled;
   const [sheetOpen, setSheetOpen] = useState(false);
-  const seenZones = useRef(new Set()); // mỗi khu chỉ tự mở ngăn kéo một lần trong phiên
+  const seenZones = useRef(new Set());
 
   const isDetailPage = location.pathname.startsWith('/a/');
   const isHome = location.pathname === '/';
   const isMap = location.pathname === '/map';
-  // Mọi trang du khách dùng tường nhãn xanh
   const isWall = isHome || isMap || isDetailPage;
   const t = translations[language] || translations['vi'];
 
-  // Trình đọc màn hình và trình dịch biết đúng ngôn ngữ đang hiển thị
   useEffect(() => { document.documentElement.lang = language; }, [language]);
 
-  // Trang tường nhãn: tường xanh phủ tới mép màn hình (khung giữa không còn lề sáng hai bên trên máy tính)
   useEffect(() => {
     document.body.style.backgroundColor = isWall ? 'var(--color-wall)' : '';
     document.documentElement.style.scrollbarColor = isWall ? 'rgb(246 248 247 / 0.35) var(--color-wall)' : '';
     return () => { document.body.style.backgroundColor = ''; document.documentElement.style.scrollbarColor = ''; };
   }, [isWall]);
 
-  // Trang cuộn bằng thanh cuộn của trình duyệt: sang trang mới thì bắt đầu từ đầu trang
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, [location.pathname]);
 
-  // Chỉ một thuyết minh phát cùng lúc: thẻ audio nào bắt đầu phát thì dừng các thẻ còn lại
   useEffect(() => {
     const onPlay = e => document.querySelectorAll('audio').forEach(a => { if (a !== e.target) a.pause(); });
     document.addEventListener('play', onPlay, true);
     return () => document.removeEventListener('play', onPlay, true);
   }, []);
 
-  // Bước vào khu mới: rung nhẹ (Android) và tự mở ngăn kéo. Không tự mở ở trang chủ và bản đồ (đã có danh sách khu sẵn)
-  // hoặc khi đang nghe thuyết minh (chỉ hiện nút nhỏ để khỏi che trình phát).
   const zoneId = geo.zone?.id ?? null;
   useEffect(() => {
     if (zoneId == null) { setSheetOpen(false); return; }
@@ -78,31 +73,40 @@ export default function VisitorLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoneId]);
 
-  // Điện thoại: full màn hình; tablet/desktop: khung rộng dần để trang không bị bó thành cột hẹp
   return (
     <ZonePlaylistProvider zoneId={zoneId} language={language}>
-    <div className={`visitor-world font-trail text-post ${isWall ? 'bg-wall' : 'bg-trail'} flex flex-col ${isMap ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'} w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative ${isWall ? '' : 'md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]'}`}>
+    <div className={`visitor-world font-trail text-post ${isWall ? 'bg-wall wall-ambient' : 'bg-trail'} flex flex-col ${isMap ? 'h-[100dvh] overflow-hidden' : 'min-h-[100dvh]'} w-full max-w-md md:max-w-3xl lg:max-w-6xl mx-auto relative ${isWall ? '' : 'md:shadow-[0_25px_50px_-12px_rgb(28_43_34/0.25)]'}`}>
       {!isDetailPage && (
-        <header className={`${isWall ? 'wall-page ' : ''}h-14 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 sticky top-0 border-b ${isWall ? 'bg-wall border-transparent' : 'bg-trail/95 backdrop-blur-sm border-trail-line'}`}>
-          <NavLink to="/" aria-label={t.title} className={`flex min-w-0 items-center gap-2.5 text-base font-semibold ${isWall ? 'font-label text-label' : 'text-post'}`}>
-            {/* Con dấu của vườn: luôn ở đúng một chỗ trên mọi trang */}
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center ${isWall ? 'bg-label text-wall' : 'rounded-[10px] bg-sign text-white'}`} aria-hidden="true">
+        <header className={`${isWall ? 'wall-page ' : ''}h-16 shrink-0 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3 z-30 sticky top-0 border-b ${isWall ? 'bg-wall/90 backdrop-blur-md border-white/10' : 'bg-trail/95 backdrop-blur-md border-trail-line'}`}>
+          <NavLink to="/" aria-label={t.title} className={`flex min-w-0 items-center gap-3 text-base font-bold transition-opacity hover:opacity-90 ${isWall ? 'font-label text-label' : 'text-post'}`}>
+            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-sm ${isWall ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' : 'bg-sign text-white'}`} aria-hidden="true">
               <i className="fa-solid fa-leaf text-sm" aria-hidden="true"></i>
             </span>
-            {/* Trang chủ trên điện thoại hẹp: 4 nút ngôn ngữ cần chỗ, chỉ giữ con dấu */}
-            <span className={isWall ? 'hidden truncate min-[420px]:inline' : 'truncate'}>{t.title}</span>
+            <span className={`min-w-0 ${isWall ? 'hidden min-[440px]:block' : 'block'}`}>
+              <span className="block truncate leading-tight">{t.title}</span>
+              <span className={`block text-[11px] font-medium tracking-wide uppercase ${isWall ? 'text-emerald-300/80' : 'text-post-soft'}`}>{t.subtitle}</span>
+            </span>
           </NavLink>
 
           <div className="flex items-center gap-2">
-            {/* Máy tính: điều hướng nằm trên header thay cho thanh tab dưới */}
-            <nav className="hidden items-center lg:flex" aria-label={t.nav}>
+            {/* Máy tính: điều hướng hiện đại dạng pill */}
+            <nav className="hidden items-center gap-1.5 lg:flex mr-1" aria-label={t.nav}>
               <NavLink to="/" end className={headerLinkClass(isWall)}>
-                {({ isActive }) => (<>{isActive && <HereMark wall={isWall} className="-bottom-2 left-3" />}{t.home}</>)}
+                <i className="fa-solid fa-house text-xs" aria-hidden="true"></i>
+                {t.home}
               </NavLink>
               <NavLink to="/map" className={headerLinkClass(isWall)}>
-                {({ isActive }) => (<>{isActive && <HereMark wall={isWall} className="-bottom-2 left-3" />}{t.map}</>)}
+                <i className="fa-solid fa-map-location-dot text-xs" aria-hidden="true"></i>
+                {t.map}
               </NavLink>
-              <button onClick={openQR} className={`ml-2 min-h-11 items-center gap-2 px-5 text-sm font-semibold transition-colors ${isWall ? 'hidden' : 'flex rounded-full bg-sign text-white hover:bg-sign-deep'}`}>
+              <button
+                onClick={openQR}
+                className={`ml-1 flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all active:scale-95 ${
+                  isWall
+                    ? 'bg-emerald-500 text-white shadow-sm hover:bg-emerald-400'
+                    : 'bg-sign text-white shadow-sm hover:bg-sign-deep'
+                }`}
+              >
                 <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.scan}
               </button>
             </nav>
@@ -112,13 +116,14 @@ export default function VisitorLayout() {
               aria-pressed={geoEnabled}
               aria-label={geoEnabled ? t.geoOn : t.geoOff}
               title={geoEnabled ? t.geoOn : t.geoOff}
-              className={`flex h-11 w-11 items-center justify-center border transition-colors ${
+              className={`relative flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${
                 isWall
-                  ? (geoEnabled ? 'border-label bg-label text-wall' : 'border-label/35 text-label hover:bg-label/10')
-                  : `rounded-full ${geoEnabled ? 'border-sign bg-sign text-white' : 'border-trail-line bg-white text-post hover:border-sign/40'}`
+                  ? (geoEnabled ? 'border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-inner' : 'border-white/20 bg-white/5 text-label hover:bg-white/10')
+                  : (geoEnabled ? 'border-sign bg-sign text-white' : 'border-trail-line bg-white text-post hover:border-sign/40')
               }`}
             >
               <i className={`fa-solid ${geoEnabled ? 'fa-location-crosshairs' : 'fa-location-arrow'}`} aria-hidden="true"></i>
+              {geoEnabled && <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-wall animate-pulse" aria-hidden="true" />}
             </button>
             <LanguageMenu variant={isWall ? 'wall' : 'menu'} />
           </div>
@@ -132,35 +137,27 @@ export default function VisitorLayout() {
       </main>
 
       {!isDetailPage && (
-        <nav className={`${isWall ? 'wall-page ' : ''}h-20 shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-2 pb-safe lg:hidden ${isWall ? 'bg-wall-deep' : 'bg-white'}`} aria-label={t.nav}>
+        <nav className={`${isWall ? 'wall-page ' : ''}h-20 shrink-0 z-40 fixed bottom-0 inset-x-0 mx-auto w-full max-w-md md:max-w-3xl flex justify-around items-center px-3 pb-safe lg:hidden border-t ${isWall ? 'bg-wall-deep/95 backdrop-blur-md border-white/10' : 'bg-white/95 backdrop-blur-md border-trail-line'}`} aria-label={t.nav}>
           <NavLink to="/" end className={tabClass(isWall)}>
-            {({ isActive }) => (<>
-              {isActive && <HereMark wall={isWall} className="-top-px" />}
-              <i className="fa-solid fa-house text-xl" aria-hidden="true"></i>
-              <span>{t.home}</span>
-            </>)}
+            <i className="fa-solid fa-house text-lg" aria-hidden="true"></i>
+            <span>{t.home}</span>
           </NavLink>
 
           <button
             onClick={openQR}
             aria-label={t.scan}
-            className={isWall ? tabClass(true)({ isActive: false }) : 'relative -top-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-sign text-2xl text-white shadow-[0_10px_20px_-8px_rgb(21_128_61/0.6)] ring-4 ring-trail transition-transform duration-150 hover:bg-sign-deep active:scale-95'}
+            className="relative -top-3.5 flex h-14 w-14 flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-xl text-white shadow-lg shadow-emerald-950/50 ring-4 ring-wall-deep transition-transform duration-150 hover:scale-105 active:scale-95"
           >
-            <i className={`fa-solid fa-qrcode ${isWall ? 'text-xl' : ''}`} aria-hidden="true"></i>
-            {isWall && <span>{t.scanShort}</span>}
+            <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
           </button>
 
           <NavLink to="/map" className={tabClass(isWall)}>
-            {({ isActive }) => (<>
-              {isActive && <HereMark wall={isWall} className="-top-px" />}
-              <i className="fa-solid fa-map-location-dot text-xl" aria-hidden="true"></i>
-              <span>{t.map}</span>
-            </>)}
+            <i className="fa-solid fa-map-location-dot text-lg" aria-hidden="true"></i>
+            <span>{t.map}</span>
           </NavLink>
         </nav>
       )}
 
-      {/* Trang chủ và bản đồ đã có danh sách khu sẵn; ở trang con vật thì ngăn kéo khu báo khách vừa vào khu nào */}
       {isDetailPage && (
         <ZoneSheet
           zone={geo.zone}

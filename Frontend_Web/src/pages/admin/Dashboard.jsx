@@ -45,7 +45,7 @@ function Breakdown({ title, subtitle, rows }) {
   const total = rows.reduce((sum, r) => sum + r.count, 0);
   const max = Math.max(1, ...rows.map(r => r.count));
   return (
-    <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6">
+    <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md sm:p-6">
       <h2 className="text-base font-extrabold text-slate-900">{title}</h2>
       <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
       {rows.length ? (
@@ -83,7 +83,7 @@ function formatDate(value) {
 
 function StatCard({ label, value, detail }) {
   return (
-    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6">
+    <article className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md sm:p-6">
       <div>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-500">{label}</p>
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
         </section>
 
         <section className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.9fr)]">
-          <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6">
+          <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 className="text-base font-extrabold text-slate-900 sm:text-lg">Lượt tham quan gần đây</h2>
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
             )}
           </article>
 
-          <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 sm:p-6">
+          <article className="min-w-0 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-shadow hover:shadow-md sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-base font-extrabold text-slate-900 sm:text-lg">Động vật nổi bật</h2>

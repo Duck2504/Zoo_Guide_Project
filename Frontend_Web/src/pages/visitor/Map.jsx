@@ -107,18 +107,18 @@ const LABEL = 'var(--color-label)';
 const INK = 'var(--color-ink)';
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-// Ghim khu kiểu nhãn: ô vuông xanh tường, số loài chữ hẹp; khu đang chọn đổi sang nhãn trắng viền mực
+// Ghim khu kiểu nhãn hiện đại bo góc, bóng đổ nổi bật trên bản đồ
 const zoneIcon = (count, selected) => L.divIcon({
   className: '',
   html: `<div aria-hidden="true" style="display:flex;flex-direction:column;align-items:center">
-    <div style="display:flex;align-items:center;gap:5px;min-width:44px;height:36px;padding:0 10px;background:${selected ? LABEL : WALL};color:${selected ? INK : LABEL};border:2px solid ${selected ? INK : WALL};font:700 17px 'Archivo Narrow',system-ui;box-shadow:0 6px 12px -6px rgb(0 0 0/.45)">
-      <i class="fa-solid fa-paw" style="font-size:13px" aria-hidden="true"></i>${count}
+    <div style="display:flex;align-items:center;gap:5px;min-width:46px;height:36px;padding:0 11px;border-radius:12px;background:${selected ? LABEL : WALL};color:${selected ? INK : LABEL};border:2px solid ${selected ? INK : 'rgba(255,255,255,0.28)'};font:700 16px 'Archivo Narrow',system-ui;box-shadow:0 8px 18px -6px rgb(0 0 0/.45)">
+      <i class="fa-solid fa-paw" style="font-size:12px" aria-hidden="true"></i>${count}
     </div>
-    <div style="width:3px;height:12px;background:${INK}"></div>
+    <div style="width:3px;height:10px;border-radius:0 0 3px 3px;background:${INK}"></div>
   </div>`,
-  iconSize: [48, 50],
-  iconAnchor: [24, 50],
-  popupAnchor: [0, -46]
+  iconSize: [48, 48],
+  iconAnchor: [24, 48],
+  popupAnchor: [0, -44]
 });
 
 // Chế độ thử (?demo=1): chạm bản đồ để đặt vị trí, thay cho đi bộ thật trong vườn
@@ -278,28 +278,27 @@ export default function Map() {
               if (zone === focused && !m.isPopupOpen()) setTimeout(() => m.openPopup(), 0);
             }}
           >
-            {/* Khi tự cuộn để hiện popup, chừa chỗ cho nhãn tiêu đề phía trên và dải nhãn khu phía dưới */}
             <Popup autoPanPaddingTopLeft={[16, 170]} autoPanPaddingBottomRight={[16, 120]}>
               <div className="min-w-56">
-                <p className="!mb-1 !mt-0 text-base font-extrabold leading-tight text-ink">
-                  {zone.name} <span className="text-sm font-medium text-ink-soft">· {t.species(zone.animals.length)}</span>
+                <p className="!mb-1.5 !mt-0 text-base font-extrabold leading-tight text-ink">
+                  {zone.name} <span className="text-xs font-semibold text-ink-soft">· {t.species(zone.animals.length)}</span>
                 </p>
 
-                {/* Nút chỉ đường trực tiếp ngay trên popup */}
+                {/* Nút chỉ đường trực tiếp */}
                 <button
                   onClick={() => startNavigation(zone)}
-                  className="mb-2.5 mt-1 flex w-full items-center justify-center gap-1.5 bg-wall px-3 py-1.5 text-xs font-bold text-label transition-colors hover:bg-wall/90 active:scale-[0.98]"
+                  className="mb-2.5 mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-wall to-emerald-700 px-3 py-2 text-xs font-bold text-label shadow-sm transition-all hover:brightness-110 active:scale-[0.98]"
                 >
                   <i className="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>
                   {t.startNav}
                 </button>
 
-                <ul className="space-y-1">
+                <ul className="space-y-1.5">
                   {zone.animals.map(a => (
                     <li key={a.id}>
-                      <Link to={`/a/${a.id}?source=map`} className="flex min-h-11 items-center justify-between gap-3 bg-ink px-3 text-sm font-semibold !text-label no-underline hover:bg-wall">
+                      <Link to={`/a/${a.id}?source=map`} className="flex min-h-10 items-center justify-between gap-3 rounded-xl bg-ink px-3 py-1.5 text-sm font-semibold !text-label no-underline transition-colors hover:bg-wall">
                         {a.defaultLocalName}
-                        <span className="flex items-center gap-1.5 text-xs font-medium text-label/80"><i className="fa-solid fa-headphones" aria-hidden="true"></i>{t.listen}</span>
+                        <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-300"><i className="fa-solid fa-headphones" aria-hidden="true"></i>{t.listen}</span>
                       </Link>
                     </li>
                   ))}
@@ -309,13 +308,13 @@ export default function Map() {
           </Marker>
         ))}
 
-        {/* Chế độ thử: hiện vòng bán kính của từng khu để biết chạm vào đâu là "vào khu" */}
+        {/* Chế độ thử */}
         {demo && zones.map(z => (
           <Circle key={`r${z.id}`} center={[z.lat, z.lng]} radius={z.radius} pathOptions={{ color: css('--color-wall'), weight: 1, fillOpacity: 0.08 }} />
         ))}
         {demo && <DemoClicks onPick={geo.setDemoPosition} />}
 
-        {/* Vị trí của du khách (GPS hoặc vị trí thử): chấm xanh dương quen thuộc của bản đồ */}
+        {/* Vị trí du khách */}
         {geo.position && (
           <CircleMarker center={[geo.position.lat, geo.position.lng]} radius={9} pathOptions={{ color: css('--color-label'), weight: 3, fillColor: css('--color-you'), fillOpacity: 1 }} />
         )}
@@ -323,23 +322,23 @@ export default function Map() {
 
       {/* Nhãn tiêu đề nổi trên bản đồ */}
       <div className="pointer-events-none absolute inset-x-4 top-4 z-[400] sm:left-6 sm:right-auto sm:max-w-sm">
-        <div className="border border-ink/10 bg-label p-4 text-ink shadow-[0_10px_24px_-14px_rgb(16_22_20/0.5)]">
+        <div className="rounded-2xl border border-ink/10 bg-label/95 p-4 text-ink shadow-[0_14px_30px_-14px_rgb(16_22_20/0.5)] backdrop-blur-md">
           <div className="flex items-baseline justify-between gap-3">
-            <h1 className="text-xl font-extrabold tracking-[-0.01em]">{t.title}</h1>
-            {zones.length > 0 && <span className="shrink-0 font-label-narrow text-sm font-bold text-wall">{t.count(animals.length, zones.length)}</span>}
+            <h1 className="text-lg font-extrabold tracking-[-0.01em] sm:text-xl">{t.title}</h1>
+            {zones.length > 0 && <span className="shrink-0 rounded-lg bg-emerald-100 px-2 py-0.5 font-label-narrow text-xs font-bold text-emerald-800">{t.count(animals.length, zones.length)}</span>}
           </div>
-          <p className="mt-1 text-sm leading-snug text-ink-soft">{animals === 'error' ? t.failed : t.hint}</p>
-          {demo && <p className="mt-2 border border-wall/30 px-2.5 py-1 text-sm font-semibold text-wall">{zt.demo}</p>}
+          <p className="mt-1 text-xs leading-snug text-ink-soft sm:text-sm">{animals === 'error' ? t.failed : t.hint}</p>
+          {demo && <p className="mt-2 rounded-xl border border-wall/30 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-wall sm:text-sm">{zt.demo}</p>}
         </div>
       </div>
 
-      {/* Hộp thoại chỉ đường đang kích hoạt (Floating Navigation Banner) */}
+      {/* Hộp thoại chỉ đường đang kích hoạt */}
       {navZone && navMetrics && (
         <aside aria-label={t.directions} className="absolute inset-x-4 top-28 z-[410] mx-auto max-w-sm sm:left-6 sm:right-auto">
-          <div className="border-2 border-wall bg-label p-4 text-ink shadow-[0_16px_36px_-12px_rgb(0_0_0/0.6)]">
+          <div className="rounded-2xl border-2 border-emerald-500/40 bg-label/95 p-4 text-ink shadow-[0_20px_44px_-12px_rgb(0_0_0/0.6)] backdrop-blur-md">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <span className="inline-flex items-center gap-1.5 bg-wall px-2 py-0.5 text-xs font-bold text-label">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2.5 py-0.5 text-xs font-bold text-white">
                   <i className="fa-solid fa-diamond-turn-right" aria-hidden="true"></i> {t.directions}
                 </span>
                 <h2 className="mt-1.5 text-lg font-extrabold leading-tight text-ink">{navZone.name}</h2>
@@ -347,45 +346,44 @@ export default function Map() {
               <button
                 onClick={() => setNavZone(null)}
                 aria-label={t.stopNav}
-                className="flex h-8 w-8 items-center justify-center text-ink transition-colors hover:bg-ink/10"
+                className="flex h-8 w-8 items-center justify-center rounded-xl text-ink transition-colors hover:bg-ink/10"
               >
                 <i className="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
               </button>
             </div>
 
-            {/* Thông số quãng đường, thời gian và hướng di chuyển */}
-            <div className="mt-3 grid grid-cols-3 gap-2 border-y border-ink/10 py-2.5 text-center">
-              <div>
-                <span className="block text-xs font-medium text-ink-soft">{t.distance}</span>
+            <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-xl bg-emerald-950/[0.04] p-2">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-ink-soft">{t.distance}</span>
                 <span className="block font-label-narrow text-lg font-bold text-wall">{Math.round(navMetrics.dist)} m</span>
               </div>
-              <div>
-                <span className="block text-xs font-medium text-ink-soft">{t.estTime}</span>
+              <div className="rounded-xl bg-emerald-950/[0.04] p-2">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-ink-soft">{t.estTime}</span>
                 <span className="block text-sm font-bold text-ink">{t.walkEst(navMetrics.walkMinutes)}</span>
               </div>
-              <div>
-                <span className="block text-xs font-medium text-ink-soft">{t.heading}</span>
+              <div className="rounded-xl bg-emerald-950/[0.04] p-2">
+                <span className="block text-[11px] font-semibold uppercase tracking-wider text-ink-soft">{t.heading}</span>
                 <span className="block text-sm font-bold text-ink">{navMetrics.direction}</span>
               </div>
             </div>
 
-            <p className="mt-2 text-xs leading-snug text-ink-soft">
+            <p className="mt-2.5 text-xs leading-snug text-ink-soft">
               {startPos.isGps ? t.liveGpsPrompt : t.defaultStartPrompt}
             </p>
 
-            <div className="mt-3.5 flex gap-2">
+            <div className="mt-3 flex gap-2">
               <a
                 href={navMetrics.gmapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-10 flex-1 items-center justify-center gap-2 bg-ink px-3 text-sm font-semibold !text-label no-underline transition-colors hover:bg-wall"
+                className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-wall px-3 text-sm font-bold !text-label no-underline shadow-sm transition-colors hover:bg-emerald-800"
               >
                 <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                 {t.openGoogleMaps}
               </a>
               <button
                 onClick={() => setNavZone(null)}
-                className="flex min-h-10 items-center justify-center border border-ink/30 px-3 text-sm font-semibold text-ink transition-colors hover:bg-ink/10"
+                className="flex min-h-10 items-center justify-center rounded-xl border border-ink/20 bg-white px-3 text-sm font-bold text-ink transition-colors hover:bg-ink/5"
               >
                 {t.stopNav}
               </button>
@@ -394,10 +392,10 @@ export default function Map() {
         </aside>
       )}
 
-      {/* Dải nhãn khu ở đáy: cùng khuôn với nhãn loài ở trang chủ, số khu đọc trước tiên */}
+      {/* Dải nhãn khu ở đáy */}
       {zones.length > 0 && (
-        <nav aria-label={t.zones} className="absolute inset-x-0 bottom-6 z-[400]">
-          <ul className="hide-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 pb-1 sm:scroll-px-6 sm:px-6 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-8">
+        <nav aria-label={t.zones} className="absolute inset-x-0 bottom-5 z-[400]">
+          <ul className="hide-scrollbar flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 sm:scroll-px-6 sm:px-6 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-8">
             {zones.map(zone => {
               const selected = zone.id === selectedId;
               const here = geo.zone?.id === zone.id;
@@ -408,12 +406,12 @@ export default function Map() {
                   <div
                     onClick={() => selectZone(zone)}
                     aria-pressed={selected}
-                    className={`block min-h-[76px] w-60 border-2 p-3 text-left shadow-[0_10px_24px_-14px_rgb(16_22_20/0.5)] transition-colors lg:w-full cursor-pointer ${
-                      selected ? 'border-ink bg-ink text-label' : 'border-label bg-label text-ink hover:border-ink/40'
+                    className={`block min-h-[78px] w-60 cursor-pointer rounded-2xl border-2 p-3.5 text-left shadow-[0_12px_28px_-12px_rgb(16_22_20/0.5)] backdrop-blur-md transition-all lg:w-full ${
+                      selected ? 'border-emerald-400 bg-wall text-label' : 'border-white/70 bg-label/95 text-ink hover:border-wall/40'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <span className="block truncate text-base font-bold">{zone.name}</span>
+                      <span className="block truncate text-base font-extrabold">{zone.name}</span>
                       <button
                         onClick={e => {
                           e.stopPropagation();
@@ -424,12 +422,12 @@ export default function Map() {
                           }
                         }}
                         title={isNavigatingThis ? t.stopNav : t.startNav}
-                        className={`flex h-7 items-center gap-1 px-2 text-xs font-bold transition-colors ${
+                        className={`flex h-7 shrink-0 items-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors ${
                           isNavigatingThis
                             ? 'bg-rose-600 text-white'
                             : selected
-                            ? 'bg-label text-ink hover:bg-white'
-                            : 'bg-wall text-label hover:bg-wall-deep'
+                            ? 'bg-emerald-400 text-wall-deep hover:bg-emerald-300'
+                            : 'bg-wall text-label hover:bg-emerald-800'
                         }`}
                       >
                         <i className={`fa-solid ${isNavigatingThis ? 'fa-xmark' : 'fa-diamond-turn-right'}`} aria-hidden="true"></i>
@@ -437,7 +435,7 @@ export default function Map() {
                       </button>
                     </div>
 
-                    <span className={`mt-1 block truncate text-sm ${selected ? 'text-label/80' : 'text-ink-soft'}`}>
+                    <span className={`mt-1 block truncate text-xs font-medium sm:text-sm ${selected ? 'text-emerald-200/85' : 'text-ink-soft'}`}>
                       {here ? t.here : [t.species(zone.animals.length), d != null && zt.meters(d)].filter(Boolean).join(' · ')}
                     </span>
                   </div>

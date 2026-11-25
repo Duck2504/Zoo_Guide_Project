@@ -256,50 +256,50 @@ export default function AnimalDetail() {
   const playIcon = isBuffering
     ? <i className="fa-solid fa-circle-notch motion-safe:animate-spin" aria-hidden="true"></i>
     : <i key={isPlaying ? 'pause' : 'play'} className={`icon-swap fa-solid ${isPlaying ? 'fa-pause' : 'fa-play ml-0.5'}`} aria-hidden="true"></i>;
-  // Lúc đang tải, bấm nữa là tạm dừng nên nhãn vẫn là Tạm dừng; vòng xoay chỉ để nhìn
   const playLabel = !hasAudio ? t.noAudio : isPlaying || isBuffering ? t.pause : t.play;
-  const ctrl = 'flex min-h-11 items-center justify-center gap-2 bg-ink/5 px-3 text-sm font-semibold text-ink transition-colors hover:bg-ink/10';
+  const ctrl = 'flex min-h-10 items-center justify-center gap-2 rounded-xl bg-ink/5 px-3.5 text-sm font-bold text-ink transition-colors hover:bg-ink/10';
 
   return (
-    <div className="wall-page relative bg-wall font-label text-label">
+    <div className="wall-page wall-ambient relative bg-wall font-label text-label">
 
-      {/* Ảnh con vật chiếm phần lớn màn hình đầu; nút quay lại và ngôn ngữ là nhãn vuông đặt trên ảnh */}
-      <div className="relative h-[40vh] w-full overflow-hidden md:h-[62vh] lg:h-[52vh]">
+      {/* Ảnh con vật với lớp phủ chuyển sắc mượt mà */}
+      <div className="relative h-[42vh] w-full overflow-hidden md:h-[60vh] lg:h-[52vh]">
         <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" hero className="hero-drift h-full w-full" />
-        <button onClick={goBack} aria-label={t.back} className="absolute left-4 top-4 z-20 flex h-11 w-11 items-center justify-center bg-label text-ink transition-colors hover:bg-white sm:left-6 lg:left-8">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-wall via-wall/45 to-transparent" aria-hidden="true" />
+        <button onClick={goBack} aria-label={t.back} className="absolute left-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-xl bg-label/90 text-ink shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95 sm:left-6 lg:left-8">
           <i className="fa-solid fa-arrow-left" aria-hidden="true"></i>
         </button>
         <div className="absolute right-4 top-4 z-20 sm:right-6 lg:right-8"><LanguageMenu onPhoto /></div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 lg:px-8">
-        {/* Tên và trình phát cùng một hàng trên màn hình lớn, để nút phát luôn ở màn hình đầu */}
+      <div className="relative z-10 mx-auto -mt-8 max-w-6xl px-4 pb-32 pt-2 sm:px-6 lg:px-8">
+        {/* Tên và trình phát */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:items-end lg:gap-14">
           <div>
-          <h1 ref={titleRef} tabIndex={-1} className="label-in outline-none text-[clamp(2.5rem,9vw,7.5rem)] font-extrabold leading-[0.95] tracking-[-0.03em] text-balance">{animal.name}</h1>
-          <p className="label-in mt-3 max-w-[40ch] text-xl leading-snug" style={{ animationDelay: '70ms' }}>
-            {t.lives(animal.zoneName)}
-            <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="font-semibold underline decoration-label/40 underline-offset-4 hover:decoration-label">{animal.zoneName}</button>
-            {t.livesEnd}
-            {animal.status && t.iucn[animal.status] ? t.statusIs(t.iucn[animal.status]) : '.'}
-          </p>
-          <p className="label-in mt-1 font-latin text-base italic text-label/80" style={{ animationDelay: '140ms' }}>{animal.scientificName}</p>
+            <h1 ref={titleRef} tabIndex={-1} className="label-in outline-none text-[clamp(2.5rem,8vw,6.25rem)] font-extrabold leading-[0.98] tracking-[-0.03em] text-white text-balance drop-shadow-xs">{animal.name}</h1>
+            <p className="label-in mt-3 max-w-[40ch] text-lg leading-snug text-label/90 sm:text-xl" style={{ animationDelay: '70ms' }}>
+              {t.lives(animal.zoneName)}
+              <button onClick={() => navigate(`/map?zone=${animal.zoneId}`)} className="font-bold text-emerald-300 underline decoration-emerald-300/40 underline-offset-4 hover:decoration-emerald-300">{animal.zoneName}</button>
+              {t.livesEnd}
+              {animal.status && t.iucn[animal.status] ? t.statusIs(t.iucn[animal.status]) : '.'}
+            </p>
+            <p className="label-in mt-1.5 font-latin text-base italic text-emerald-200/80" style={{ animationDelay: '140ms' }}>{animal.scientificName}</p>
           </div>
-          {/* Trình phát: hành động chính của trang */}
-          <section ref={playerRef} aria-label={t.listen} className="label-in bg-label p-5 text-ink sm:p-6" style={{ animationDelay: '210ms' }}>
+          {/* Trình phát thẻ bo tròn */}
+          <section ref={playerRef} aria-label={t.listen} className="label-in rounded-3xl border border-ink/5 bg-label p-5 text-ink shadow-[0_24px_48px_-16px_rgb(0_0_0/0.55)] sm:p-6" style={{ animationDelay: '210ms' }}>
             <div className="flex items-center gap-4">
               <button
                 onClick={togglePlayPause}
                 disabled={!hasAudio}
                 aria-label={playLabel}
-                className={`flex h-16 w-16 shrink-0 items-center justify-center text-2xl transition-[background-color,transform] duration-150 ${
-                  hasAudio ? 'bg-ink text-label hover:bg-wall active:scale-95' : 'cursor-not-allowed bg-ink/10 text-ink-soft'
+                className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-lg transition-all duration-150 ${
+                  hasAudio ? 'bg-gradient-to-br from-wall to-emerald-800 text-label hover:brightness-110 active:scale-95' : 'cursor-not-allowed bg-ink/10 text-ink-soft'
                 }`}
               >
                 {playIcon}
               </button>
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2.5 text-xl font-bold">{hasAudio ? t.listen : t.noAudio}{isPlaying && <PlayingBars className="text-wall" />}</p>
+                <p className="flex items-center gap-2.5 text-lg font-extrabold sm:text-xl">{hasAudio ? t.listen : t.noAudio}{isPlaying && <PlayingBars className="text-wall" />}</p>
                 {hasAudio && (
                   <>
                     <input
@@ -311,10 +311,10 @@ export default function AnimalDetail() {
                       onChange={e => seekTo(Number(e.target.value))}
                       aria-label={t.seek}
                       aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
-                      className="block h-7 w-full cursor-pointer accent-ink"
+                      className="block h-7 w-full cursor-pointer accent-wall"
                       style={{ background: 'transparent' }}
                     />
-                    <div className="flex justify-between text-sm tabular-nums text-ink-soft">
+                    <div className="flex justify-between text-xs font-semibold tabular-nums text-ink-soft sm:text-sm">
                       <span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span>
                     </div>
                   </>
@@ -326,19 +326,20 @@ export default function AnimalDetail() {
                 <button onClick={() => seekTo(audioRef.current.currentTime - 10)} aria-label={t.rewind} className={ctrl}>
                   <i className="fa-solid fa-rotate-left" aria-hidden="true"></i>10s
                 </button>
-                <button onClick={nextSpeed} aria-label={`${t.speed}: ${speed}×`} className={`${ctrl} min-w-11 tabular-nums`}>{speed}×</button>
+                <button onClick={nextSpeed} aria-label={`${t.speed}: ${speed}×`} className={`${ctrl} min-w-12 tabular-nums`}>{speed}×</button>
               </div>
             )}
-            {/* Nghe xong: gợi ý con cùng khu (không tự phát, không kéo focus) */}
             <div aria-live="polite">
               {nextUp && (
-                <Link to={`/a/${nextUp.id}?source=zone`} className="label-in mt-4 flex items-center gap-3 bg-ink p-2 pr-4 text-label transition-colors hover:bg-wall">
-                  <AnimalImage src={nextUp.avatarUrl} alt="" className="h-14 w-14 shrink-0" />
+                <Link to={`/a/${nextUp.id}?source=zone`} className="label-in mt-4 flex items-center gap-3 rounded-2xl bg-wall p-2.5 pr-4 text-label shadow-md transition-all hover:bg-emerald-800">
+                  <AnimalImage src={nextUp.avatarUrl} alt="" className="h-14 w-14 shrink-0 rounded-xl" />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-sm text-label/75">{t.nextUp}</span>
-                    <span className="block truncate text-lg font-bold">{nextUp.defaultLocalName}</span>
+                    <span className="block text-xs font-semibold uppercase tracking-wider text-emerald-200/80">{t.nextUp}</span>
+                    <span className="block truncate text-base font-bold">{nextUp.defaultLocalName}</span>
                   </span>
-                  <i className="fa-solid fa-play" aria-hidden="true"></i>
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                    <i className="fa-solid fa-play text-xs" aria-hidden="true"></i>
+                  </span>
                 </Link>
               )}
             </div>
@@ -347,23 +348,27 @@ export default function AnimalDetail() {
 
         <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
           <div className="space-y-10">
-
-            <section aria-labelledby="about-title" className="label-in" style={{ animationDelay: '280ms' }}>
-              <h2 id="about-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.about}</h2>
-              <p className="mt-3 max-w-[60ch] whitespace-pre-wrap text-xl leading-relaxed">{animal.content}</p>
+            <section aria-labelledby="about-title" className="label-in rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8" style={{ animationDelay: '280ms' }}>
+              <h2 id="about-title" className="flex items-center gap-2.5 text-2xl font-extrabold tracking-[-0.01em] text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/20 text-sm text-emerald-300">
+                  <i className="fa-solid fa-book-open" aria-hidden="true"></i>
+                </span>
+                {t.about}
+              </h2>
+              <p className="mt-4 max-w-[60ch] whitespace-pre-wrap text-lg leading-relaxed text-label/90 sm:text-xl">{animal.content}</p>
             </section>
           </div>
 
           <div className="space-y-10">
             {facts.length > 0 && (
               <section aria-labelledby="facts-title" className="label-in" style={{ animationDelay: '350ms' }}>
-                <h2 id="facts-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.factsTitle}</h2>
-                <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-5">
+                <h2 id="facts-title" className="text-2xl font-extrabold tracking-[-0.01em] text-white">{t.factsTitle}</h2>
+                <dl className="mt-4 grid grid-cols-2 gap-3">
                   {facts.map(([label, value], i) => (
-                    <div key={label} className="label-in" style={{ animationDelay: `${380 + i * 70}ms` }}>
-                      <dt className="text-sm text-label/75">{label}</dt>
-                      <dd className="mt-1 flex items-center gap-2 text-xl font-bold leading-tight">
-                        {i === 0 && animal.status && <span className={`shrink-0 px-1.5 text-sm font-bold ${IUCN_TONE[animal.status] || 'bg-label text-ink'}`}>{animal.status}</span>}
+                    <div key={label} className="label-in rounded-2xl border border-white/10 bg-white/[0.06] p-4 backdrop-blur-xs" style={{ animationDelay: `${380 + i * 70}ms` }}>
+                      <dt className="text-xs font-semibold uppercase tracking-wider text-emerald-200/75">{label}</dt>
+                      <dd className="mt-1.5 flex items-center gap-2 text-base font-bold leading-tight text-white sm:text-lg">
+                        {i === 0 && animal.status && <span className={`shrink-0 rounded-md px-1.5 py-0.5 text-xs font-bold ${IUCN_TONE[animal.status] || 'bg-label text-ink'}`}>{animal.status}</span>}
                         {value}
                       </dd>
                     </div>
@@ -374,15 +379,15 @@ export default function AnimalDetail() {
 
             {neighbours.length > 0 && (
               <section aria-labelledby="zone-title" className="label-in" style={{ animationDelay: '420ms' }}>
-                <h2 id="zone-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.sameZone(animal.zoneName)}</h2>
-                <ul className="mt-4 space-y-2">
+                <h2 id="zone-title" className="text-2xl font-extrabold tracking-[-0.01em] text-white">{t.sameZone(animal.zoneName)}</h2>
+                <ul className="mt-4 space-y-2.5">
                   {neighbours.map((a, i) => (
                     <li key={a.id} className="label-in" style={{ animationDelay: `${450 + i * 70}ms` }}>
-                      <Link to={`/a/${a.id}?source=zone`} className="group flex items-center gap-4 bg-wall-deep p-2 pr-4 transition-colors hover:bg-label hover:text-ink">
-                        <AnimalImage src={a.avatarUrl} alt="" className="h-24 w-32 shrink-0 min-[400px]:h-[120px] min-[400px]:w-40" />
+                      <Link to={`/a/${a.id}?source=zone`} className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-wall-deep/80 p-2.5 pr-4 transition-all hover:border-white/20 hover:bg-label hover:text-ink">
+                        <AnimalImage src={a.avatarUrl} alt="" className="h-20 w-28 shrink-0 rounded-xl min-[400px]:h-24 min-[400px]:w-32" />
                         <span className="min-w-0 flex-1">
-                          <span className="block text-xl font-bold leading-tight">{a.defaultLocalName}</span>
-                          <span className="block truncate font-latin text-base italic opacity-80">{a.scientificName}</span>
+                          <span className="block text-lg font-bold leading-tight sm:text-xl">{a.defaultLocalName}</span>
+                          <span className="mt-0.5 block truncate font-latin text-sm italic opacity-75 sm:text-base">{a.scientificName}</span>
                         </span>
                         <i className="fa-solid fa-arrow-right transition-transform duration-200 ease-out group-hover:translate-x-1" aria-hidden="true"></i>
                       </Link>
@@ -395,19 +400,19 @@ export default function AnimalDetail() {
             <div className="label-in grid grid-cols-1 gap-2.5 sm:grid-cols-3" style={{ animationDelay: '490ms' }}>
               <button
                 onClick={() => navigate(`/map?zone=${animal.zoneId}&nav=1`)}
-                className="flex min-h-12 items-center justify-center gap-2 border-2 border-label bg-wall px-3 text-base font-bold text-label transition-colors hover:bg-label hover:text-ink active:scale-[0.98]"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-3 text-base font-bold text-white shadow-lg shadow-emerald-950/30 transition-all hover:bg-emerald-400 active:scale-[0.98]"
               >
                 <i className="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>{t.directionsShort}
               </button>
               <button
                 onClick={() => navigate(`/map?zone=${animal.zoneId}`)}
-                className="flex min-h-12 items-center justify-center gap-2 border-2 border-label px-3 text-base font-semibold transition-colors hover:bg-label hover:text-ink"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-3 text-base font-semibold text-label transition-all hover:bg-label hover:text-ink"
               >
                 <i className="fa-solid fa-map" aria-hidden="true"></i>{t.mapShort}
               </button>
               <button
                 onClick={openQR}
-                className="flex min-h-12 items-center justify-center gap-2 border-2 border-label px-3 text-base font-semibold transition-colors hover:bg-label hover:text-ink"
+                className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/5 px-3 text-base font-semibold text-label transition-all hover:bg-label hover:text-ink"
               >
                 <i className="fa-solid fa-qrcode" aria-hidden="true"></i>{t.scanMore}
               </button>
@@ -437,20 +442,19 @@ export default function AnimalDetail() {
         />
       )}
 
-      {/* Thanh phát nhỏ (thanh dính đáy): chỉ hiện khi đã cuộn qua nhãn trình phát. Bóng là của thanh dính, không phải phần tử đứng yên: taste-skill-ignore */}
       {hasAudio && (
-        <div data-hidden={showMini ? undefined : ''} className={'mini-player fixed inset-x-0 bottom-0 z-50 bg-wall-deep px-4 pb-safe shadow-[0_-10px_24px_-14px_rgb(0_0_0/0.6)]' /* taste-skill-ignore: thanh dính đáy */}>
+        <div data-hidden={showMini ? undefined : ''} className={'mini-player fixed inset-x-0 bottom-0 z-50 border-t border-white/15 bg-wall-deep/95 px-4 pb-safe backdrop-blur-md shadow-[0_-12px_32px_-10px_rgb(0_0_0/0.65)]'}>
           <div className="mx-auto flex max-w-6xl items-center gap-3 py-2.5 sm:px-2 lg:px-4">
-            <button onClick={togglePlayPause} aria-label={playLabel} className="flex h-11 w-11 shrink-0 items-center justify-center bg-label text-ink transition-colors hover:bg-white">
+            <button onClick={togglePlayPause} aria-label={playLabel} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-label text-ink transition-all hover:bg-white active:scale-95">
               {playIcon}
             </button>
             <div className="min-w-0 flex-1">
-              <p className="flex items-center gap-2 text-base font-semibold"><span className="truncate">{animal.name}</span>{isPlaying && <PlayingBars className="shrink-0" />}</p>
-              <div className="mt-1 h-1 bg-label/20">
-                <div className="h-full bg-label" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
+              <p className="flex items-center gap-2 text-base font-bold text-white"><span className="truncate">{animal.name}</span>{isPlaying && <PlayingBars className="shrink-0 text-emerald-400" />}</p>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15">
+                <div className="h-full rounded-full bg-emerald-400 transition-all" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
               </div>
             </div>
-            <span className="shrink-0 text-sm tabular-nums text-label/75">{formatTime(currentTime)} / {formatTime(duration)}</span>
+            <span className="shrink-0 text-xs font-semibold tabular-nums text-label/75 sm:text-sm">{formatTime(currentTime)} / {formatTime(duration)}</span>
           </div>
         </div>
       )}

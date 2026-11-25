@@ -51,8 +51,6 @@ const translations = {
   }
 };
 
-// Mức bảo tồn: nặng nhất lên trước; màu ô mã theo bảng màu Sách Đỏ IUCN, chữ mực ở nền sáng để đủ tương phản.
-// Ô mã là ô đặc; trạng thái "đang phát" là viền cam son quanh cả nhãn, nên ô EN cam không bị đọc nhầm.
 const SEVERITY = { EW: 5, CR: 4, EN: 3, VU: 2, NT: 1, LC: 0 };
 const FEATURED_COUNT = 4;
 
@@ -62,10 +60,9 @@ export default function Home() {
   const [searchParams] = useSearchParams();
   const source = searchParams.get('source') || 'web_home';
   const t = translations[language] || translations['vi'];
-  const [animals, setAnimals] = useState(null); // null = đang tải, 'error' = lỗi
+  const [animals, setAnimals] = useState(null);
   const [listened, setListened] = useState(getListened);
 
-  // Tự động ghi nhận lượt truy cập trang chủ / quét QR trang chủ để tính số lượng Online
   useEffect(() => {
     let sessionId = sessionStorage.getItem('zoo_session_id');
     if (!sessionId) {
@@ -75,13 +72,11 @@ export default function Home() {
     fetch(`${API}/api/scan-logs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ animalId: null, source, languageCode: language, sessionId }) // trang chủ không gắn con vật nào
+      body: JSON.stringify({ animalId: null, source, languageCode: language, sessionId })
     }).catch(error => console.error("Lỗi ghi log trang chủ:", error));
-    // Không đưa `language` vào: đổi ngôn ngữ không phải một lượt truy cập mới
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source]);
 
-  // Danh sách loài theo ngôn ngữ đang chọn (tên và mức bảo tồn cho các nhãn nổi bật)
   useEffect(() => {
     let cancelled = false;
     getAnimals(language)
@@ -103,74 +98,84 @@ export default function Home() {
     .slice(0, FEATURED_COUNT);
 
   return (
-    <div className="wall-page px-4 pb-10 pt-4 font-label text-label sm:px-6 lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-12 lg:px-8 lg:pb-16 lg:pt-8">
+    <div className="wall-page px-4 pb-12 pt-5 font-label text-label sm:px-6 lg:grid lg:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] lg:items-start lg:gap-10 lg:px-8 lg:pb-16 lg:pt-8">
 
-      {/* Cột trái: nhãn lớn nghe theo vị trí, rồi nhãn quét mã (dính khi cuộn trên máy tính) */}
-      <div className="lg:sticky lg:top-22">
-        {/* Cách nghe chính: theo vị trí */}
+      {/* Cột trái */}
+      <div className="space-y-4 lg:sticky lg:top-24">
         <AroundYou geo={geo} language={language} languages={languages} zoneCount={zoneCount} />
 
-        {/* Cách thứ hai: quét mã QR trên nhãn chuồng (nút viền, để định vị là hành động nổi bật nhất) */}
-        <section aria-labelledby="scan-title" className="mt-3 bg-label p-5 text-ink sm:p-7">
+        {/* Thẻ quét mã QR */}
+        <section aria-labelledby="scan-title" className="rounded-3xl border border-ink/5 bg-label p-5 text-ink shadow-[0_18px_40px_-18px_rgb(0_0_0/0.45)] sm:p-7">
           <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center border-2 border-ink text-2xl" aria-hidden="true">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-wall/10 text-xl text-wall" aria-hidden="true">
               <i className="fa-solid fa-qrcode" aria-hidden="true"></i>
             </span>
             <div>
               <h2 id="scan-title" className="text-lg font-extrabold leading-tight">{t.orScan}</h2>
-              <p className="mt-1 text-base leading-relaxed text-ink-soft">{t.orScanBody}</p>
+              <p className="mt-1 text-sm leading-relaxed text-ink-soft sm:text-base">{t.orScanBody}</p>
             </div>
           </div>
           <button
             onClick={openQR}
-            className="mt-4 flex min-h-12 w-full items-center justify-between border-2 border-ink px-4 text-left text-base font-semibold transition-[color,background-color,border-color,scale] duration-150 ease-out active:scale-[0.97] hover:bg-white"
+            className="mt-5 flex min-h-12 w-full items-center justify-between rounded-xl border-2 border-ink/15 bg-white px-4 text-left text-base font-bold text-ink shadow-xs transition-all duration-150 ease-out hover:border-wall hover:bg-emerald-50/60 active:scale-[0.98]"
           >
-            <span className="flex items-center gap-3"><i className="fa-solid fa-camera" aria-hidden="true"></i>{t.openCamera}</span>
-            <i className="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            <span className="flex items-center gap-3"><i className="fa-solid fa-camera text-wall" aria-hidden="true"></i>{t.openCamera}</span>
+            <i className="fa-solid fa-arrow-right text-ink-soft" aria-hidden="true"></i>
           </button>
         </section>
       </div>
 
-      {/* Cột phải: các nhãn loài cùng một khuôn, rồi khối thông tin ở chân trang */}
+      {/* Cột phải */}
       <div className="mt-8 lg:mt-0">
         <section aria-labelledby="featured-title">
-          <h2 id="featured-title" className="text-2xl font-extrabold tracking-[-0.01em]">{t.featured}</h2>
-          {list.length > 0 && <p className="mt-1 text-base text-label/85">{t.featuredSub(list.length)}</p>}
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 id="featured-title" className="text-2xl font-extrabold tracking-[-0.01em] text-white">{t.featured}</h2>
+              {list.length > 0 && <p className="mt-1 text-sm text-emerald-200/80 sm:text-base">{t.featuredSub(list.length)}</p>}
+            </div>
+            <Link to="/map" className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-3.5 py-2 text-sm font-semibold text-label transition-colors hover:bg-white/20">
+              {t.allOnMap} <i className="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
+            </Link>
+          </div>
 
           {animals === null ? (
-            <div className="mt-4 space-y-2" aria-busy="true">
-              {Array.from({ length: FEATURED_COUNT }, (_, i) => <div key={i} className="h-[104px] bg-label/10 motion-safe:animate-pulse" />)}
+            <div className="mt-4 space-y-3" aria-busy="true">
+              {Array.from({ length: FEATURED_COUNT }, (_, i) => <div key={i} className="h-[104px] rounded-2xl bg-label/10 motion-safe:animate-pulse" />)}
             </div>
           ) : animals === 'error' ? (
-            <p role="alert" className="mt-4 bg-label p-4 text-base text-ink">{t.loadFail}</p>
+            <p role="alert" className="mt-4 rounded-2xl bg-label p-5 text-base font-medium text-ink shadow-lg">{t.loadFail}</p>
           ) : (
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-4 space-y-3">
               {featured.map((a, i) => (
                 <li key={a.id} className="label-in" style={{ animationDelay: `${i * 70}ms` }}>
                   <Link
                     to={`/a/${a.id}?source=web_home`}
-                    className={`group bg-label text-ink transition-colors hover:bg-white ${i === 0
-                      ? 'block' // loài nặng nhất dẫn đầu bằng ảnh lớn: điểm nhìn của cột phải
-                      : 'grid min-h-[104px] grid-cols-[5rem_minmax(0,1fr)] items-center gap-4 p-3 pr-4 lg:grid-cols-[6rem_minmax(0,1fr)]'}`}
+                    className={`group overflow-hidden rounded-2xl bg-label text-ink shadow-[0_14px_30px_-14px_rgb(0_0_0/0.45)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_20px_38px_-14px_rgb(0_0_0/0.55)] ${
+                      i === 0
+                        ? 'block'
+                        : 'grid min-h-[104px] grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-4 p-2.5 pr-4 lg:grid-cols-[6.5rem_minmax(0,1fr)]'
+                    }`}
                   >
-                    <AnimalImage
-                      src={a.avatarUrl} alt=""
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                      width={i === 0 ? 500 : 330}
-                      className={i === 0 ? 'aspect-[16/10] h-auto w-full' : 'h-20 w-20 lg:h-24 lg:w-24'}
-                    />
-                    <span className={`min-w-0 ${i === 0 ? 'block p-4 sm:p-5' : ''}`}>
+                    <div className={`overflow-hidden ${i === 0 ? 'relative aspect-[16/10] w-full' : 'h-22 w-22 rounded-xl lg:h-24 lg:w-26'}`}>
+                      <AnimalImage
+                        src={a.avatarUrl} alt=""
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        width={i === 0 ? 500 : 330}
+                        className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                    </div>
+                    <span className={`min-w-0 ${i === 0 ? 'block p-5' : ''}`}>
                       <span className="flex items-start justify-between gap-2">
-                        <span className="line-clamp-2 text-lg font-bold leading-tight">{a.defaultLocalName}</span>
+                        <span className="line-clamp-2 text-lg font-extrabold leading-tight group-hover:text-wall">{a.defaultLocalName}</span>
                         {listened.has(a.id) && (
-                          <span className="shrink-0 -rotate-3 border-2 border-wall px-1.5 text-xs font-bold uppercase leading-5 text-wall">{t.listened}</span>
+                          <span className="shrink-0 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">{t.listened}</span>
                         )}
                       </span>
-                      <span className="block truncate font-latin text-[15px] italic text-ink-soft">{a.scientificName}</span>
+                      <span className="mt-0.5 block truncate font-latin text-[15px] italic text-ink-soft">{a.scientificName}</span>
                       {a.conservationStatus && (
-                        <span className="mt-1.5 flex items-center gap-2 text-sm text-ink-soft">
-                          <span className={`px-1.5 font-label-narrow text-xs font-bold leading-5 ${IUCN_TONE[a.conservationStatus] || 'bg-ink text-label'}`}>{a.conservationStatus}</span>
-                          <span className="truncate">{t.iucn[a.conservationStatus]}</span>
+                        <span className="mt-2 flex items-center gap-2 text-sm text-ink-soft">
+                          <span className={`rounded-md px-1.5 py-0.5 font-label-narrow text-xs font-bold leading-4 ${IUCN_TONE[a.conservationStatus] || 'bg-ink text-label'}`}>{a.conservationStatus}</span>
+                          <span className="truncate font-medium">{t.iucn[a.conservationStatus]}</span>
                         </span>
                       )}
                     </span>
@@ -180,26 +185,34 @@ export default function Home() {
             </ul>
           )}
 
-          <Link to="/map" className="mt-3 inline-flex min-h-11 items-center gap-2 text-base font-semibold text-label underline decoration-label/40 underline-offset-4 hover:decoration-label">
+          <Link to="/map" className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-white/10 px-4 text-sm font-semibold text-label transition-colors hover:bg-white/20 sm:hidden">
             {t.allOnMap}<i className="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
           </Link>
         </section>
 
-        {/* Chân trang: khối thông tin dày, trung thực về bối cảnh đồ án */}
-        <footer className="mt-10 bg-wall-deep p-5 text-base sm:p-6">
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-4">
+        {/* Chân trang */}
+        <footer className="mt-10 rounded-3xl border border-white/10 bg-wall-deep/80 p-6 text-sm backdrop-blur-sm sm:text-base">
+          <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <dt className="text-label/70">{t.hoursTitle}</dt>
-              <dd className="mt-0.5 font-semibold">{t.hours}</dd>
+              <dt className="flex items-center gap-2 text-emerald-300/80 font-semibold">
+                <i className="fa-regular fa-clock text-xs" aria-hidden="true"></i>{t.hoursTitle}
+              </dt>
+              <dd className="mt-1.5 font-semibold text-label">{t.hours}</dd>
             </div>
             <div>
-              <dt className="text-label/70">{t.langsTitle}</dt>
-              <dd className="mt-0.5 font-semibold">
-                {languages.map(l => <span key={l.code} lang={l.code} className="block">{l.name}</span>)}
+              <dt className="flex items-center gap-2 text-emerald-300/80 font-semibold">
+                <i className="fa-solid fa-globe text-xs" aria-hidden="true"></i>{t.langsTitle}
+              </dt>
+              <dd className="mt-1.5 flex flex-wrap gap-1.5 font-semibold">
+                {languages.map(l => (
+                  <span key={l.code} lang={l.code} className="rounded-lg bg-white/10 px-2.5 py-0.5 text-xs text-label">
+                    {l.name}
+                  </span>
+                ))}
               </dd>
             </div>
           </dl>
-          <p className="mt-6 leading-relaxed text-label/75">{t.photos}</p>
+          <p className="mt-5 border-t border-white/10 pt-4 text-xs leading-relaxed text-label/65 sm:text-sm">{t.photos}</p>
         </footer>
       </div>
     </div>
