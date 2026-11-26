@@ -1,6 +1,6 @@
-**Đồ án Công nghệ phần mềm JAVA – NHÓM 09 **
+# Đồ án Công nghệ phần mềm JAVA – NHÓM 09
 
-Ứng dụng thuyết minh đa ngôn ngữ theo vị trí GPS tại  Thảo Cầm Viên đa tích hợp quy trình CI/CD.
+Ứng dụng thuyết minh đa ngôn ngữ theo vị trí GPS tại Thảo Cầm Viên đã tích hợp quy trình CI/CD.
 
 ## Thành viên nhóm
 
@@ -9,7 +9,8 @@
 | 1 | 3124411072 | [DƯ GIA ĐỨC]() |
 | 2 | 3124411193 | [PHAN NGỌC THẢO NGUYÊN]() |
 | 3 | 3124411339 | [PHẠM VĂN TUYÊN](https://web.facebook.com/tuyenmedia) |
-# Zoo Audio Guide – Thuyết minh Thảo Cầm Viên đa ngôn ngữ
+
+## Zoo Audio Guide – Thuyết minh Thảo Cầm Viên đa ngôn ngữ
 
 Hệ thống thuyết minh tự động cho sở thú: du khách quét mã QR trên nhãn chuồng (hoặc bật định vị để web tự nhận ra khu đang đứng) và nghe bài giới thiệu con vật bằng **tiếng Việt, Anh, Nhật, Hàn** ngay trên trình duyệt điện thoại, không cần cài app hay đăng ký.
 
