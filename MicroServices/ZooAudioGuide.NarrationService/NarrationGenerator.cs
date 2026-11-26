@@ -1,14 +1,17 @@
 using System.Security.Cryptography;
 using System.Text;
 
-public record LangResult(string Lang, string Status, string? TranslatedText, string? AudioUrl, string? Error);
+// TranslatedName để cuối, có mặc định: Backend bản cũ/mới đọc được của nhau
+public record LangResult(string Lang, string Status, string? TranslatedText, string? AudioUrl, string? Error, string? TranslatedName = null);
 
 public class NarrationGenerator(ITranslator translator, ITtsService tts,
                                 IAudioStore store, ILogger<NarrationGenerator> log)
 {
     private static readonly SemaphoreSlim Gate = new(3);   // tối đa 3 ngôn ngữ chạy cùng lúc
 
-    public async Task<LangResult> GenerateAsync(int animalId, string text, string lang)
+    // textIsFinal: chữ đã là ngôn ngữ đích (admin sửa bản dịch) nên chỉ đọc, không dịch lại
+    // keepUrls: link mp3 DB của Backend đang trỏ tới, không được xóa khi dọn bản cũ; null = Backend bản cũ không gửi
+    public async Task<LangResult> GenerateAsync(int animalId, string text, string lang, bool textIsFinal = false, string[]? keepUrls = null)
     {
         try
         {
@@ -29,7 +32,7 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
             await Gate.WaitAsync();
             try
             {
-                translated = lang == "vi" ? text : await translator.TranslateAsync(text, lang);
+                translated = lang == "vi" || textIsFinal ? text : await translator.TranslateAsync(text, lang);
                 var mp3 = await tts.SynthesizeAsync(translated, lang);
 
                 await store.UploadAsync(mp3Path, mp3, "audio/mpeg");
@@ -37,7 +40,7 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
             }
             finally { Gate.Release(); }
 
-            await CleanupOldAsync(folder, lang, hash);
+            await CleanupOldAsync(folder, lang, hash, keepUrls);
             return new(lang, "DONE", translated, url, null);
         }
         catch (Exception ex)
@@ -47,13 +50,61 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
         }
     }
 
-    // Xóa bản cũ của cùng động vật + ngôn ngữ cho khỏi đầy kho. Lỗi ở bước này không làm hỏng kết quả.
-    private async Task CleanupOldAsync(string folder, string lang, string hash)
+    // Dịch tên loài, lưu ở name-{lang}-{hash}.txt (không bắt đầu bằng "{lang}-" nên CleanupOldAsync không xoá).
+    // Lỗi trả null: audio vẫn dùng được, Backend giữ tên tiếng Việt.
+    // shortcut: file tên cũ không bị dọn khi đổi tên (vài byte mỗi lần), dọn nếu kho bắt đầu đầy
+    public async Task<string?> TranslateNameAsync(int animalId, string name, string? scientificName, string lang)
     {
+        if (lang == "vi") return null;
         try
         {
-            var old = (await store.ListAsync(folder))
-                .Where(n => n.StartsWith(lang + "-") && !n.StartsWith($"{lang}-{hash}"))
+            var hash = Convert.ToHexString(
+                SHA256.HashData(Encoding.UTF8.GetBytes(name + "|" + scientificName + "|" + lang)))[..16];
+            var path = $"animals/{animalId}/name-{lang}-{hash}.txt";
+            var cached = await store.TryReadTextAsync(path);
+            if (cached is not null) return cached;
+
+            string raw;
+            await Gate.WaitAsync();
+            try { raw = await translator.TranslateNameAsync(name, scientificName, lang); }
+            finally { Gate.Release(); }
+
+            var clean = CleanName(raw);
+            if (clean is null) return null;
+            await store.UploadAsync(path, Encoding.UTF8.GetBytes(clean), "text/plain; charset=utf-8");
+            return clean;
+        }
+        catch (Exception ex)
+        {
+            log.LogWarning(ex, "Không dịch được tên animal {Id} lang {Lang}", animalId, lang);
+            return null;
+        }
+    }
+
+    // Gemini đôi khi thêm ngoặc, in đậm, dấu chấm hoặc giải thích ở dòng sau: chỉ giữ dòng đầu, tối đa 200 ký tự
+    public static string? CleanName(string? raw)
+    {
+        var line = (raw ?? "").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault() ?? "";
+        line = line.Trim('*', '_', '`', '"', '\'', '“', '”', '「', '」', '.', '。', ' ');
+        if (line.Length == 0) return null;
+        return line.Length > 200 ? line[..200] : line;
+    }
+
+    // Xóa bản cũ của cùng động vật + ngôn ngữ cho khỏi đầy kho. Lỗi ở bước này không làm hỏng kết quả.
+    // Chừa file DB đang trỏ tới (keepUrls): Backend lưu link mới SAU khi nhận kết quả, lưu lỗi thì DB vẫn cần file cũ.
+    private async Task CleanupOldAsync(string folder, string lang, string hash, string[]? keepUrls)
+    {
+        // shortcut: Backend bản cũ không gửi keepUrls nên không biết DB đang trỏ file nào: không dọn (kho đầy dần) cho tới khi Backend được cập nhật
+        if (keepUrls is null) return;
+        try
+        {
+            var names = await store.ListAsync(folder);
+            // "en-<hash>." để chừa cả .mp3 lẫn .txt cùng tên
+            var keep = names.Where(n => keepUrls.Contains(store.GetPublicUrl($"{folder}/{n}")))
+                .Select(n => Path.GetFileNameWithoutExtension(n) + ".")
+                .ToList();
+            var old = names
+                .Where(n => n.StartsWith(lang + "-") && !n.StartsWith($"{lang}-{hash}") && !keep.Any(n.StartsWith))
                 .Select(n => $"{folder}/{n}")
                 .ToList();
             if (old.Count > 0) await store.DeleteAsync(old);

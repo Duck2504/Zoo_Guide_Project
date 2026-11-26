@@ -16,10 +16,10 @@ namespace ZooAudioGuide.API.Services
             _animalRepository = animalRepository;
         }
 
-        public async Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync()
+        public async Task<IEnumerable<AnimalDto>> GetAllAnimalsAsync(string lang = "vi")
         {
             var animals = await _animalRepository.GetAllAsync();
-            return animals.Select(a => ToDto(a));
+            return animals.Select(a => ToDto(a, lang));
         }
 
         public async Task<AnimalDto?> GetAnimalByIdAsync(int id, string lang = "vi")
@@ -36,6 +36,7 @@ namespace ZooAudioGuide.API.Services
                 ScientificName = dto.ScientificName,
                 AvatarUrl = dto.AvatarUrl
             };
+            CopyFacts(dto, animal);
 
             animal.AnimalContents.Add(new AnimalContent
             {
@@ -60,6 +61,7 @@ namespace ZooAudioGuide.API.Services
             a.ZoneId = dto.ZoneId;
             a.ScientificName = dto.ScientificName;
             a.AvatarUrl = dto.AvatarUrl;
+            CopyFacts(dto, a);
 
             var vi = a.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi");
             if (vi == null)
@@ -89,8 +91,8 @@ namespace ZooAudioGuide.API.Services
 
         // Tạo mp3 cho từng ngôn ngữ từ bài tiếng Việt trong DB, rồi lưu bản dịch + link audio vào AnimalContents.
         // Trả null nếu không có con vật; ném InvalidOperationException nếu chưa có bài tiếng Việt.
-        // Nhận generator qua tham số (không qua constructor) để các API đọc không phụ thuộc cấu hình Supabase.
-        public async Task<LangResult[]?> GenerateNarrationAsync(int id, string[] langs, NarrationGenerator narration)
+        // Nhận client qua tham số (không qua constructor) để các API đọc không phụ thuộc cấu hình microservice.
+        public async Task<LangResult[]?> GenerateNarrationAsync(int id, string[] langs, INarrationClient narration)
         {
             var a = await _animalRepository.GetByIdAsync(id);
             if (a == null) return null;
@@ -99,8 +101,14 @@ namespace ZooAudioGuide.API.Services
             if (vi == null || string.IsNullOrWhiteSpace(vi.ScriptText))
                 throw new InvalidOperationException("Con vật chưa có bài thuyết minh tiếng Việt");
 
-            // Phần gọi Gemini/edge-tts/Supabase chạy song song; phần ghi DB làm tuần tự bên dưới.
-            var results = await Task.WhenAll(langs.Select(l => narration.GenerateAsync(id, vi.ScriptText, l)));
+            // Microservice lo dịch/đọc/lưu mp3; phần ghi DB làm ở đây.
+            var sentText = vi.ScriptText;
+            var results = await narration.GenerateAsync(id, sentText, langs, name: vi.LocalName, scientificName: a.ScientificName, keepUrls: CurrentAudioUrls(a));
+
+            // Chờ microservice mất 10-30s: nếu trong lúc đó admin đã sửa (hoặc xóa) bài tiếng Việt thì audio vừa tạo là của bài cũ,
+            // không lưu gì cả (các dòng vẫn Pending do lần sửa đặt) để không đánh dấu Done nhầm.
+            if (await _animalRepository.GetVietnameseScriptAsync(id) != sentText)
+                return results.Select(r => r with { Status = "FAILED", Error = "Bài tiếng Việt vừa được sửa trong lúc tạo audio, hãy tạo lại", AudioUrl = null }).ToArray();
 
             foreach (var r in results)
             {
@@ -117,6 +125,10 @@ namespace ZooAudioGuide.API.Services
                     content = new AnimalContent { LanguageCode = r.Lang, LocalName = vi.LocalName };
                     a.AnimalContents.Add(content);
                 }
+                // Chỉ thay tên còn trống hoặc còn là bản chép tiếng Việt; tên admin đã sửa thì giữ
+                if (r.Lang != "vi" && !string.IsNullOrWhiteSpace(r.TranslatedName) &&
+                    (string.IsNullOrWhiteSpace(content.LocalName) || content.LocalName == vi.LocalName))
+                    content.LocalName = r.TranslatedName;
                 content.ScriptText = r.TranslatedText ?? vi.ScriptText;
                 content.AudioUrl = r.AudioUrl ?? "";
                 content.SyncStatus = "Done";
@@ -124,6 +136,53 @@ namespace ZooAudioGuide.API.Services
 
             await _animalRepository.SaveChangesAsync();
             return results;
+        }
+
+        public async Task<IEnumerable<AnimalContentsDto>> GetAllContentsAsync()
+        {
+            var animals = await _animalRepository.GetAllAsync();
+            return animals.Select(a => new AnimalContentsDto
+            {
+                AnimalId = a.Id,
+                Contents = a.AnimalContents.OrderBy(c => c.LanguageCode == "vi" ? 0 : 1).ThenBy(c => c.LanguageCode)
+                    .Select(c => new AnimalContentDto { LanguageCode = c.LanguageCode, LocalName = c.LocalName, ScriptText = c.ScriptText, AudioUrl = c.AudioUrl, SyncStatus = c.SyncStatus })
+                    .ToList()
+            }).ToList();
+        }
+
+        // Lưu bản dịch đã sửa rồi đọc lại đúng chữ đó (không dịch lại). Trả null nếu không có con vật hoặc chưa có dòng ngôn ngữ đó.
+        // Tiếng Việt sửa ở form chính, không qua đây.
+        public async Task<LangResult?> UpdateContentAsync(int id, string lang, AnimalContentUpdateDto dto, INarrationClient narration)
+        {
+            if (lang == "vi") throw new InvalidOperationException("Bài tiếng Việt sửa ở form chỉnh sửa con vật");
+            var a = await _animalRepository.GetByIdAsync(id);
+            var content = a?.AnimalContents.FirstOrDefault(c => c.LanguageCode == lang);
+            if (content == null) return null;
+
+            content.LocalName = dto.LocalName.Trim();
+            content.ScriptText = dto.ScriptText.Trim();
+            var r = (await narration.GenerateAsync(id, content.ScriptText, [lang], textIsFinal: true, keepUrls: CurrentAudioUrls(a!))).Single();
+            if (r.Status == "DONE")
+            {
+                content.AudioUrl = r.AudioUrl ?? "";
+                content.SyncStatus = "Done";
+            }
+            else content.SyncStatus = "Failed"; // chữ đã lưu, audio cũ không còn khớp: đánh dấu để đọc lại sau
+
+            await _animalRepository.SaveChangesAsync();
+            return r;
+        }
+
+        // Link mp3 DB đang trỏ tới: microservice không được xóa các file này khi dọn bản cũ (DB có thể lưu lỗi sau đó)
+        private static string[] CurrentAudioUrls(Animal a) =>
+            a.AnimalContents.Select(c => c.AudioUrl).Where(u => !string.IsNullOrEmpty(u)).ToArray();
+
+        private static void CopyFacts(AnimalCreateDto dto, Animal a)
+        {
+            a.ConservationStatus = dto.ConservationStatus;
+            a.Diet = dto.Diet;
+            a.Habitat = dto.Habitat;
+            a.LifespanYears = dto.LifespanYears;
         }
 
         // Lấy nội dung theo ngôn ngữ yêu cầu, không có thì dùng bản tiếng Việt.
@@ -138,13 +197,17 @@ namespace ZooAudioGuide.API.Services
                 ZoneId = a.ZoneId,
                 ScientificName = a.ScientificName,
                 AvatarUrl = a.AvatarUrl,
+                ConservationStatus = a.ConservationStatus,
+                Diet = a.Diet,
+                Habitat = a.Habitat,
+                LifespanYears = a.LifespanYears,
                 DefaultLocalName = content?.LocalName ?? "Unknown",
                 ScriptText = content?.ScriptText ?? string.Empty,
                 AudioUrl = content?.AudioUrl ?? string.Empty,
                 Latitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.Y : 10.7873,
                 Longitude = a.Zone != null && a.Zone.Location != null ? a.Zone.Location.X : 106.7055,
                 RadiusMeters = a.Zone != null ? a.Zone.Radius : 25,
-                ZoneName = a.Zone != null ? a.Zone.ZoneCode : "Khu Vực Thảo Cầm Viên"
+                ZoneName = a.Zone != null ? (a.Zone.Name ?? a.Zone.ZoneCode) : "Khu Vực Thảo Cầm Viên"
             };
         }
     }

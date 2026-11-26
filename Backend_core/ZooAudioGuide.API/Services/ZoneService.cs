@@ -28,6 +28,7 @@ namespace ZooAudioGuide.API.Services
             {
                 Id = z.Id,
                 ZoneCode = z.ZoneCode,
+                Name = z.Name,
                 Latitude = z.Location.Y, 
                 Longitude = z.Location.X,
                 Radius = z.Radius
@@ -43,6 +44,7 @@ namespace ZooAudioGuide.API.Services
             {
                 Id = zone.Id,
                 ZoneCode = zone.ZoneCode,
+                Name = zone.Name,
                 Latitude = zone.Location.Y,
                 Longitude = zone.Location.X,
                 Radius = zone.Radius
@@ -57,6 +59,7 @@ namespace ZooAudioGuide.API.Services
             var zone = new Zone
             {
                 ZoneCode = dto.ZoneCode,
+                Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name.Trim(),
                 Location = location,
                 Radius = dto.Radius
             };
@@ -68,6 +71,7 @@ namespace ZooAudioGuide.API.Services
             {
                 Id = zone.Id,
                 ZoneCode = zone.ZoneCode,
+                Name = zone.Name,
                 Latitude = zone.Location.Y,
                 Longitude = zone.Location.X,
                 Radius = zone.Radius
@@ -80,6 +84,7 @@ namespace ZooAudioGuide.API.Services
             if (zone == null) return false;
 
             zone.ZoneCode = dto.ZoneCode;
+            zone.Name = string.IsNullOrWhiteSpace(dto.Name) ? null : dto.Name.Trim();
             zone.Location = _geometryFactory.CreatePoint(new Coordinate(dto.Longitude, dto.Latitude));
             zone.Radius = dto.Radius;
 

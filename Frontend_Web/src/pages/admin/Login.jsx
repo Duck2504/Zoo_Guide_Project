@@ -39,44 +39,60 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-      <form onSubmit={handleSubmit} className="bg-white rounded-3xl shadow-sm border border-slate-100 p-8 w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-black text-slate-800">Đăng nhập quản trị</h1>
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-950 p-4 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/35 via-slate-950 to-slate-950" aria-hidden="true" />
+      <form onSubmit={handleSubmit} className="relative z-10 w-full max-w-md space-y-5 rounded-3xl border border-white/10 bg-white p-8 shadow-2xl">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg shadow-emerald-600/25">
+            <i className="fa-solid fa-leaf text-lg" aria-hidden="true"></i>
+          </div>
+          <div>
+            <span className="block text-xs font-bold uppercase tracking-wider text-emerald-700">Zoo Audio Guide</span>
+            <h1 className="text-xl font-extrabold text-slate-900">Đăng nhập quản trị</h1>
+          </div>
+        </div>
+        <p className="text-sm text-slate-500">Quản lý hồ sơ con vật, tọa độ khu vực và hệ thống thuyết minh đa ngôn ngữ.</p>
 
         <div>
-          <label htmlFor="admin-username" className="block text-sm font-bold text-slate-600 mb-1">Tài khoản</label>
+          <label htmlFor="admin-username" className="mb-1.5 block text-sm font-bold text-slate-700">Tài khoản</label>
           <input
             id="admin-username"
             type="text"
             autoComplete="username"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500"
+            placeholder="Nhập tên đăng nhập..."
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-slate-900 transition focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-700/70"
             required
           />
         </div>
 
         <div>
-          <label htmlFor="admin-password" className="block text-sm font-bold text-slate-600 mb-1">Mật khẩu</label>
+          <label htmlFor="admin-password" className="mb-1.5 block text-sm font-bold text-slate-700">Mật khẩu</label>
           <input
             id="admin-password"
             type="password"
             autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500"
+            placeholder="••••••••"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-slate-900 transition focus:border-emerald-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-700/70"
             required
           />
         </div>
 
-        {error && <p role="alert" className="text-sm text-red-600 font-bold">{error}</p>}
+        {error && (
+          <p role="alert" className="flex items-center gap-2 rounded-xl bg-red-50 px-3.5 py-2.5 text-sm font-semibold text-red-600">
+            <i className="fa-solid fa-circle-exclamation" aria-hidden="true"></i> {error}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white py-2 rounded-xl font-bold transition"
+          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 font-bold text-white shadow-lg shadow-emerald-600/25 transition hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
         >
-          {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+          {isSubmitting ? <><i className="fa-solid fa-circle-notch animate-spin" aria-hidden="true"></i> Đang đăng nhập...</> : 'Đăng nhập'}
         </button>
       </form>
     </div>

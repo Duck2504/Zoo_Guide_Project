@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging.Abstractions;
 using ZooAudioGuide.API.Models;
 using ZooAudioGuide.API.Repositories;
 using ZooAudioGuide.API.Services;
@@ -15,7 +14,7 @@ public sealed class AnimalNarrationTests
         animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Hổ", ScriptText = "Con hổ" });
         var repo = new FakeRepo(animal);
         var service = new AnimalService(repo);
-        var gen = new NarrationGenerator(new FakeTranslator(), new FakeTts(), new FakeStore(), NullLogger<NarrationGenerator>.Instance);
+        var gen = new FakeNarration();
 
         var results = await service.GenerateNarrationAsync(7, ["vi", "en", "ko"], gen);
 
@@ -35,6 +34,10 @@ public sealed class AnimalNarrationTests
         var ko = await service.GetAnimalByIdAsync(7, "ko");
         Assert.AreEqual("Con hổ", ko!.ScriptText);
         Assert.AreEqual(vi.AudioUrl, ko.AudioUrl);
+
+        // Danh sách cũng theo ngôn ngữ (dùng cho danh sách con vật trong khu)
+        var list = await service.GetAllAnimalsAsync("en");
+        Assert.AreEqual("EN:Con hổ", list.Single().ScriptText);
     }
 
     [TestMethod]
@@ -46,11 +49,13 @@ public sealed class AnimalNarrationTests
         var repo = new FakeRepo(animal);
         var service = new AnimalService(repo);
 
-        var ok = await service.UpdateAnimalAsync(3, new() { ZoneId = 2, ScientificName = "New", LocalName = "Mới", ScriptText = "Bài mới" });
+        var ok = await service.UpdateAnimalAsync(3, new() { ZoneId = 2, ScientificName = "New", LocalName = "Mới", ScriptText = "Bài mới", ConservationStatus = "EN", LifespanYears = 40 });
 
         Assert.IsTrue(ok);
         Assert.IsTrue(repo.Saved);
         Assert.AreEqual(2, animal.ZoneId);
+        Assert.AreEqual("EN", animal.ConservationStatus);
+        Assert.AreEqual(40, (await service.GetAnimalByIdAsync(3))!.LifespanYears);
         var vi = animal.AnimalContents.Single(c => c.LanguageCode == "vi");
         Assert.AreEqual("Mới", vi.LocalName);
         Assert.AreEqual("Bài mới", vi.ScriptText);
@@ -61,12 +66,99 @@ public sealed class AnimalNarrationTests
     }
 
     [TestMethod]
+    public async Task Generate_TranslatesName_ButKeepsNamesTheAdminEdited()
+    {
+        var animal = new Animal { Id = 8, ScientificName = "Pongo pygmaeus" };
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Đười ươi", ScriptText = "Bài" });
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "en", LocalName = "Đười ươi", ScriptText = "x" }); // bản chép cũ
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "ja", LocalName = "オランウータン", ScriptText = "x" }); // admin đã sửa
+        var service = new AnimalService(new FakeRepo(animal));
+        var gen = new FakeNarration { FailLangs = [] };
+
+        await service.GenerateNarrationAsync(8, ["vi", "en", "ja", "ko"], gen);
+
+        string Name(string l) => animal.AnimalContents.Single(c => c.LanguageCode == l).LocalName;
+        Assert.AreEqual("Đười ươi", gen.LastName);
+        Assert.AreEqual("Đười ươi", Name("vi"));
+        Assert.AreEqual("en:Đười ươi", Name("en"));       // bản chép được thay
+        Assert.AreEqual("オランウータン", Name("ja"));     // tên đã sửa giữ nguyên
+        Assert.AreEqual("ko:Đười ươi", Name("ko"));       // dòng mới lấy tên đã dịch
+    }
+
+    [TestMethod]
+    public async Task Generate_OldMicroservice_FallsBackToVietnameseName()
+    {
+        var animal = new Animal { Id = 9 };
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Hổ", ScriptText = "Bài" });
+        var service = new AnimalService(new FakeRepo(animal));
+
+        await service.GenerateNarrationAsync(9, ["en"], new FakeNarration { OldService = true });
+
+        Assert.AreEqual("Hổ", animal.AnimalContents.Single(c => c.LanguageCode == "en").LocalName);
+    }
+
+    [TestMethod]
+    public async Task Generate_ScriptEditedMeanwhile_SavesNothing_AndKeepsCurrentAudio()
+    {
+        var animal = new Animal { Id = 10 };
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Hổ", ScriptText = "Bài cũ", AudioUrl = "u-vi", SyncStatus = "Done" });
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "en", LocalName = "Tiger", ScriptText = "Old", AudioUrl = "", SyncStatus = "Pending" });
+        var repo = new FakeRepo(animal);
+        var service = new AnimalService(repo);
+        var vi = animal.AnimalContents.Single(c => c.LanguageCode == "vi");
+        var gen = new FakeNarration { FailLangs = [], WhileGenerating = () => { vi.ScriptText = "Bài mới"; vi.SyncStatus = "Pending"; } };
+
+        var results = await service.GenerateNarrationAsync(10, ["vi", "en"], gen);
+
+        CollectionAssert.AreEqual(new[] { "u-vi" }, gen.LastKeepUrls); // gửi link DB đang dùng để microservice không xóa
+        Assert.IsTrue(results!.All(r => r.Status == "FAILED"));
+        Assert.IsFalse(repo.Saved);
+        Assert.AreEqual("u-vi", vi.AudioUrl);
+        Assert.IsTrue(animal.AnimalContents.All(c => c.SyncStatus == "Pending"));
+        Assert.AreEqual("Old", animal.AnimalContents.Single(c => c.LanguageCode == "en").ScriptText);
+    }
+
+    [TestMethod]
     public async Task Generate_WithoutVietnameseScript_Throws()
     {
         var service = new AnimalService(new FakeRepo(new Animal { Id = 1 }));
-        var gen = new NarrationGenerator(new FakeTranslator(), new FakeTts(), new FakeStore(), NullLogger<NarrationGenerator>.Instance);
+        var gen = new FakeNarration();
 
         await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => service.GenerateNarrationAsync(1, ["vi"], gen));
+    }
+
+    [TestMethod]
+    public async Task UpdateContent_SavesEditedTranslation_AndVoicesItWithoutTranslating()
+    {
+        var animal = new Animal { Id = 4 };
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Hổ", ScriptText = "Con hổ" });
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "en", LocalName = "Tiger", ScriptText = "Old", AudioUrl = "old", SyncStatus = "Done" });
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "ko", LocalName = "호랑이", ScriptText = "옛", AudioUrl = "old-ko", SyncStatus = "Done" });
+        var repo = new FakeRepo(animal);
+        var service = new AnimalService(repo);
+        var gen = new FakeNarration();
+
+        var r = await service.UpdateContentAsync(4, "en", new() { LocalName = " Bengal tiger ", ScriptText = " The tiger. " }, gen);
+
+        Assert.AreEqual("DONE", r!.Status);
+        Assert.IsTrue(gen.LastTextIsFinal);
+        Assert.AreEqual("The tiger.", gen.LastText);
+        var en = animal.AnimalContents.Single(c => c.LanguageCode == "en");
+        Assert.AreEqual("Bengal tiger", en.LocalName);
+        Assert.AreEqual("https://cdn/animals/4/en-x.mp3", en.AudioUrl);
+        Assert.IsTrue(repo.Saved);
+
+        // Đọc lỗi: chữ vẫn lưu, audio cũ giữ nhưng đánh dấu Failed
+        await service.UpdateContentAsync(4, "ko", new() { LocalName = "호랑이", ScriptText = "새 글" }, gen);
+        var ko = animal.AnimalContents.Single(c => c.LanguageCode == "ko");
+        Assert.AreEqual("새 글", ko.ScriptText);
+        Assert.AreEqual("Failed", ko.SyncStatus);
+
+        Assert.IsNull(await service.UpdateContentAsync(4, "ja", new() { LocalName = "x", ScriptText = "y" }, gen));
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => service.UpdateContentAsync(4, "vi", new() { LocalName = "x", ScriptText = "y" }, gen));
+
+        var all = (await service.GetAllContentsAsync()).Single();
+        CollectionAssert.AreEqual(new[] { "vi", "en", "ko" }, all.Contents.Select(c => c.LanguageCode).ToArray());
     }
 
     private sealed class FakeRepo(Animal animal) : IAnimalRepository
@@ -79,25 +171,35 @@ public sealed class AnimalNarrationTests
         public Task DeleteAsync(Animal a) => Task.CompletedTask;
         public Task SaveChangesAsync() { Saved = true; return Task.CompletedTask; }
         public Task EnsureLanguageAsync(string code) { EnsuredLanguages.Add(code); return Task.CompletedTask; }
+        public Task<string?> GetVietnameseScriptAsync(int animalId) =>
+            Task.FromResult(animalId == animal.Id ? animal.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi")?.ScriptText : null);
     }
 
-    private sealed class FakeTranslator : ITranslator
+    // Giả microservice: ko lỗi, các ngôn ngữ khác trả bản dịch + link mp3
+    private sealed class FakeNarration : INarrationClient
     {
-        public Task<string> TranslateAsync(string text, string lang) =>
-            lang == "ko" ? throw new Exception("Gemini lỗi") : Task.FromResult($"{lang.ToUpper()}:{text}");
-    }
+        public bool LastTextIsFinal;
+        public string? LastText;
 
-    private sealed class FakeTts : ITtsService
-    {
-        public Task<byte[]> SynthesizeAsync(string text, string lang) => Task.FromResult(new byte[] { 1 });
-    }
+        public Task<(string? Url, string? Error)> UploadImageAsync(byte[] data, string contentType) => Task.FromResult<(string?, string?)>(("u", null));
 
-    private sealed class FakeStore : IAudioStore
-    {
-        public string GetPublicUrl(string path) => $"https://cdn/{path}";
-        public Task<string?> TryReadTextAsync(string path) => Task.FromResult<string?>(null);
-        public Task UploadAsync(string path, byte[] data, string contentType) => Task.CompletedTask;
-        public Task DeleteAsync(IEnumerable<string> paths) => Task.CompletedTask;
-        public Task<IReadOnlyList<string>> ListAsync(string folder) => Task.FromResult<IReadOnlyList<string>>([]);
+        public string? LastName;
+        public bool OldService; // microservice bản cũ: không trả tên đã dịch
+        public string[] FailLangs = ["ko"];
+        public string[]? LastKeepUrls;
+        public Action? WhileGenerating; // giả admin sửa dữ liệu trong lúc microservice đang chạy
+
+        public Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null, string[]? keepUrls = null)
+        {
+            WhileGenerating?.Invoke();
+            LastKeepUrls = keepUrls;
+            LastTextIsFinal = textIsFinal;
+            LastText = text;
+            LastName = name;
+            return Task.FromResult(langs.Select(l => FailLangs.Contains(l)
+                ? new LangResult(l, "FAILED", null, null, "Gemini lỗi")
+                : new LangResult(l, "DONE", l == "vi" || textIsFinal ? text : $"{l.ToUpper()}:{text}", $"https://cdn/animals/{animalId}/{l}-x.mp3", null,
+                                 name == null || l == "vi" || OldService ? null : $"{l}:{name}")).ToArray());
+        }
     }
 }

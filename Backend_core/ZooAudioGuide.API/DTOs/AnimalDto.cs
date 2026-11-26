@@ -6,6 +6,11 @@ namespace ZooAudioGuide.API.DTOs
         public int ZoneId { get; set; }
         public string ScientificName { get; set; } = string.Empty;
         public string AvatarUrl { get; set; } = string.Empty;
+
+        public string? ConservationStatus { get; set; }
+        public string? Diet { get; set; }
+        public string? Habitat { get; set; }
+        public int? LifespanYears { get; set; }
         
         // Trả về tên tiếng Việt để FE dễ bề hiển thị danh sách
         public string DefaultLocalName { get; set; } = string.Empty; 

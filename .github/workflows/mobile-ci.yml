@@ -1,0 +1,37 @@
+name: Mobile React Native CI
+
+on:
+  push:
+    branches: [ "main", "master", "feature/**" ]
+    paths:
+      - 'Frondend_MobileApp/**'
+      - '.github/workflows/mobile-ci.yml'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - 'Frondend_MobileApp/**'
+      - '.github/workflows/mobile-ci.yml'
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Frondend_MobileApp
+
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Thiết lập Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './Frondend_MobileApp/package.json'
+
+      - name: Cài đặt thư viện dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Kiểm tra tính hợp lệ cấu hình Expo
+        run: npx expo config --type public

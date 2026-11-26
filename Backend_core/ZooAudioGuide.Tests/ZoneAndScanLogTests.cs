@@ -16,7 +16,7 @@ public sealed class ZoneAndScanLogTests
         var repo = new FakeZoneRepo();
         var service = new ZoneService(repo);
 
-        await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z", Latitude = 10.78, Longitude = 106.70, Radius = 20 });
+        await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z", Name = "  Khu Bò sát ", Latitude = 10.78, Longitude = 106.70, Radius = 20 });
 
         var zone = repo.Added!;
         Assert.AreEqual(106.70, zone.Location.X);
@@ -26,6 +26,7 @@ public sealed class ZoneAndScanLogTests
         var dto = await service.GetZoneByIdAsync(zone.Id);
         Assert.AreEqual(10.78, dto!.Latitude);
         Assert.AreEqual(106.70, dto.Longitude);
+        Assert.AreEqual("Khu Bò sát", dto.Name); // tên được cắt khoảng trắng
     }
 
     [TestMethod]
@@ -34,13 +35,39 @@ public sealed class ZoneAndScanLogTests
         var repo = new FakeScanLogRepo(knownAnimalId: 5);
         var service = new ScanLogService(repo);
 
-        await service.RecordLogAsync(new ScanLogCreateDto { AnimalId = 999, SessionId = "s" }, new string('u', 300));
-        await service.RecordLogAsync(new ScanLogCreateDto { AnimalId = 5, SessionId = "s" }, "short");
+        await service.RecordLogAsync(new ScanLogCreateDto { AnimalId = 999, SessionId = "s", Source = "web" }, new string('u', 300));
+        await service.RecordLogAsync(new ScanLogCreateDto { AnimalId = 5, SessionId = "s", Source = "web" }, "short");
 
         Assert.IsNull(repo.Logs[0].AnimalId);
         Assert.AreEqual(255, repo.Logs[0].UserAgent!.Length);
         Assert.AreEqual(5, repo.Logs[1].AnimalId);
         Assert.AreEqual("short", repo.Logs[1].UserAgent);
+    }
+
+    [TestMethod]
+    public async Task RecordLog_SkipsBots_UnknownSources_AndRepeatsWithinWindow()
+    {
+        var repo = new FakeScanLogRepo(knownAnimalId: 5);
+        var service = new ScanLogService(repo);
+        const string phone = "Mozilla/5.0 (iPhone) Safari";
+
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "web" }, "Mozilla/5.0 HeadlessChrome/140");
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "web" }, "Googlebot/2.1");
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "web" }, "");
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "claude_check" }, phone);
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "", Source = "web" }, phone);
+        Assert.AreEqual(0, repo.Logs.Count);
+
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "web" }, phone);
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "zone" }, phone);   // tải lại: bỏ
+        await service.RecordLogAsync(new() { AnimalId = null, SessionId = "a", Source = "web_home" }, phone); // trang khác: tính
+        await service.RecordLogAsync(new() { AnimalId = null, SessionId = "a", Source = "web_home" }, phone); // trang chủ lần 2: bỏ
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "b", Source = "web" }, phone);    // khách khác: tính
+        Assert.AreEqual(3, repo.Logs.Count);
+
+        repo.Logs[0].ScannedAt -= ScanLogService.RepeatWindow; // quá 5 phút thì tính lượt mới
+        await service.RecordLogAsync(new() { AnimalId = 5, SessionId = "a", Source = "web" }, phone);
+        Assert.AreEqual(4, repo.Logs.Count);
     }
 
     private sealed class FakeZoneRepo : IZoneRepository
@@ -61,5 +88,7 @@ public sealed class ZoneAndScanLogTests
         public List<ScanLog> Logs = [];
         public Task AddLogAsync(ScanLog log) { Logs.Add(log); return Task.CompletedTask; }
         public Task<bool> AnimalExistsAsync(int animalId) => Task.FromResult(animalId == knownAnimalId);
+        public Task<bool> HasRecentAsync(string sessionId, int? animalId, DateTime since) =>
+            Task.FromResult(Logs.Any(l => l.SessionId == sessionId && l.AnimalId == animalId && l.ScannedAt >= since));
     }
 }

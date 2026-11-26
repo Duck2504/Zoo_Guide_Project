@@ -38,6 +38,8 @@ Thumbs.db
 *.doc
 *.pdf
 *Bao_Cao*
+!docs/**/*.docx
+!docs/**/*Bao_Cao*
 
 # API keys / secrets
 appsettings.Development.json
@@ -68,3 +70,6 @@ logs/*
 !logs/.gitkeep
 TestResults/
 coverage/
+
+# Ảnh chụp và báo cáo của taste-skill
+.taste-skill/
