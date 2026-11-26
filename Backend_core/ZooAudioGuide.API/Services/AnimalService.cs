@@ -102,7 +102,13 @@ namespace ZooAudioGuide.API.Services
                 throw new InvalidOperationException("Con vật chưa có bài thuyết minh tiếng Việt");
 
             // Microservice lo dịch/đọc/lưu mp3; phần ghi DB làm ở đây.
-            var results = await narration.GenerateAsync(id, vi.ScriptText, langs, name: vi.LocalName, scientificName: a.ScientificName);
+            var sentText = vi.ScriptText;
+            var results = await narration.GenerateAsync(id, sentText, langs, name: vi.LocalName, scientificName: a.ScientificName, keepUrls: CurrentAudioUrls(a));
+
+            // Chờ microservice mất 10-30s: nếu trong lúc đó admin đã sửa (hoặc xóa) bài tiếng Việt thì audio vừa tạo là của bài cũ,
+            // không lưu gì cả (các dòng vẫn Pending do lần sửa đặt) để không đánh dấu Done nhầm.
+            if (await _animalRepository.GetVietnameseScriptAsync(id) != sentText)
+                return results.Select(r => r with { Status = "FAILED", Error = "Bài tiếng Việt vừa được sửa trong lúc tạo audio, hãy tạo lại", AudioUrl = null }).ToArray();
 
             foreach (var r in results)
             {
@@ -155,7 +161,7 @@ namespace ZooAudioGuide.API.Services
 
             content.LocalName = dto.LocalName.Trim();
             content.ScriptText = dto.ScriptText.Trim();
-            var r = (await narration.GenerateAsync(id, content.ScriptText, [lang], textIsFinal: true)).Single();
+            var r = (await narration.GenerateAsync(id, content.ScriptText, [lang], textIsFinal: true, keepUrls: CurrentAudioUrls(a!))).Single();
             if (r.Status == "DONE")
             {
                 content.AudioUrl = r.AudioUrl ?? "";
@@ -166,6 +172,10 @@ namespace ZooAudioGuide.API.Services
             await _animalRepository.SaveChangesAsync();
             return r;
         }
+
+        // Link mp3 DB đang trỏ tới: microservice không được xóa các file này khi dọn bản cũ (DB có thể lưu lỗi sau đó)
+        private static string[] CurrentAudioUrls(Animal a) =>
+            a.AnimalContents.Select(c => c.AudioUrl).Where(u => !string.IsNullOrEmpty(u)).ToArray();
 
         private static void CopyFacts(AnimalCreateDto dto, Animal a)
         {

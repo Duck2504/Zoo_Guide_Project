@@ -87,7 +87,7 @@ export default function AroundYou({ geo, language, languages, zoneCount }) {
         )}
 
         {status !== 'off' && (
-          <button onClick={() => geo.setEnabled(false)} className="mt-4 min-h-10 text-sm font-semibold text-ink-soft underline underline-offset-4 hover:text-ink">
+          <button onClick={() => geo.setEnabled(false)} className="mt-4 min-h-11 text-sm font-semibold text-ink-soft underline underline-offset-4 hover:text-ink">
             {t.turnOff}
           </button>
         )}

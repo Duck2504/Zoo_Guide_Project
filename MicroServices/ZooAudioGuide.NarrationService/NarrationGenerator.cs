@@ -10,7 +10,8 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
     private static readonly SemaphoreSlim Gate = new(3);   // tối đa 3 ngôn ngữ chạy cùng lúc
 
     // textIsFinal: chữ đã là ngôn ngữ đích (admin sửa bản dịch) nên chỉ đọc, không dịch lại
-    public async Task<LangResult> GenerateAsync(int animalId, string text, string lang, bool textIsFinal = false)
+    // keepUrls: link mp3 DB của Backend đang trỏ tới, không được xóa khi dọn bản cũ; null = Backend bản cũ không gửi
+    public async Task<LangResult> GenerateAsync(int animalId, string text, string lang, bool textIsFinal = false, string[]? keepUrls = null)
     {
         try
         {
@@ -39,7 +40,7 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
             }
             finally { Gate.Release(); }
 
-            await CleanupOldAsync(folder, lang, hash);
+            await CleanupOldAsync(folder, lang, hash, keepUrls);
             return new(lang, "DONE", translated, url, null);
         }
         catch (Exception ex)
@@ -90,12 +91,20 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
     }
 
     // Xóa bản cũ của cùng động vật + ngôn ngữ cho khỏi đầy kho. Lỗi ở bước này không làm hỏng kết quả.
-    private async Task CleanupOldAsync(string folder, string lang, string hash)
+    // Chừa file DB đang trỏ tới (keepUrls): Backend lưu link mới SAU khi nhận kết quả, lưu lỗi thì DB vẫn cần file cũ.
+    private async Task CleanupOldAsync(string folder, string lang, string hash, string[]? keepUrls)
     {
+        // shortcut: Backend bản cũ không gửi keepUrls nên không biết DB đang trỏ file nào: không dọn (kho đầy dần) cho tới khi Backend được cập nhật
+        if (keepUrls is null) return;
         try
         {
-            var old = (await store.ListAsync(folder))
-                .Where(n => n.StartsWith(lang + "-") && !n.StartsWith($"{lang}-{hash}"))
+            var names = await store.ListAsync(folder);
+            // "en-<hash>." để chừa cả .mp3 lẫn .txt cùng tên
+            var keep = names.Where(n => keepUrls.Contains(store.GetPublicUrl($"{folder}/{n}")))
+                .Select(n => Path.GetFileNameWithoutExtension(n) + ".")
+                .ToList();
+            var old = names
+                .Where(n => n.StartsWith(lang + "-") && !n.StartsWith($"{lang}-{hash}") && !keep.Any(n.StartsWith))
                 .Select(n => $"{folder}/{n}")
                 .ToList();
             if (old.Count > 0) await store.DeleteAsync(old);

@@ -83,7 +83,7 @@ public class EdgeTtsService : ITtsService
         for (var attempt = 1; attempt <= 3; attempt++)
         {
             try { return await RunEdgeTtsAsync(text, voice); }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not TimeoutException) // treo thì không thử lại: mỗi lần giữ 1 suất Gate thêm 90s
             {
                 last = ex;
                 await Task.Delay(1000 * attempt);   // chờ 1s, 2s rồi thử lại
@@ -108,7 +108,14 @@ public class EdgeTtsService : ITtsService
 
             using var p = Process.Start(psi)!;
             var err = p.StandardError.ReadToEndAsync();
-            await p.WaitForExitAsync();
+            // edge-tts treo (mạng chập chờn) thì giết sau 90s, nếu không sẽ giữ mãi 1 trong 3 suất Gate
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+            try { await p.WaitForExitAsync(cts.Token); }
+            catch (OperationCanceledException)
+            {
+                try { p.Kill(entireProcessTree: true); p.WaitForExit(5000); } catch { } // có thể đã tự thoát; chờ nhả file mp3 tạm trước khi xóa
+                throw new TimeoutException("edge-tts quá 90 giây không xong");
+            }
             if (p.ExitCode != 0)
             {
                 // Chỉ lấy dòng cuối của traceback cho dễ đọc

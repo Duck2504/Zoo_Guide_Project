@@ -14,6 +14,8 @@ import {
   groupZones
 } from '../../utils/geoUtils';
 import { getZoneText } from '../../utils/zoneText';
+import { useZonePlaylist } from '../../components/ZonePlaylist';
+import PlayingBars from '../../components/PlayingBars';
 
 const translations = {
   vi: {
@@ -137,16 +139,20 @@ export default function Map() {
   const demo = searchParams.get('demo') === '1';
   const { geo } = useOutletContext();
   const zt = getZoneText(language);
+  const playlist = useZonePlaylist();
   const [map, setMap] = useState(null);
   const [selectedId, setSelectedId] = useState(focusZone ? Number(focusZone) : null);
   const [navZone, setNavZone] = useState(null); // Khu đang kích hoạt chỉ đường
   const markers = useRef({});
   const stripItems = useRef({});
+  const openedFocus = useRef(null); // khu đã tự mở popup, để không mở lại mỗi lần vẽ lại
 
   useEffect(() => {
+    let cancelled = false;
     getAnimals(language)
-      .then(setAnimals)
-      .catch(() => setAnimals('error'));
+      .then(data => { if (!cancelled) setAnimals(data); })
+      .catch(() => { if (!cancelled) setAnimals('error'); });
+    return () => { cancelled = true; };
   }, [language]);
 
   // Mỗi khu một ghim (con vật cùng khu dùng chung tọa độ của khu)
@@ -275,7 +281,7 @@ export default function Map() {
             ref={m => {
               if (!m) return;
               markers.current[zone.id] = m;
-              if (zone === focused && !m.isPopupOpen()) setTimeout(() => m.openPopup(), 0);
+              if (zone === focused && openedFocus.current !== zone.id) { openedFocus.current = zone.id; setTimeout(() => m.openPopup(), 0); }
             }}
           >
             <Popup autoPanPaddingTopLeft={[16, 170]} autoPanPaddingBottomRight={[16, 120]}>
@@ -296,7 +302,7 @@ export default function Map() {
                 <ul className="space-y-1.5">
                   {zone.animals.map(a => (
                     <li key={a.id}>
-                      <Link to={`/a/${a.id}?source=map`} className="flex min-h-10 items-center justify-between gap-3 rounded-xl bg-ink px-3 py-1.5 text-sm font-semibold !text-label no-underline transition-colors hover:bg-wall">
+                      <Link to={`/a/${a.id}?source=map`} className="flex min-h-11 items-center justify-between gap-3 rounded-xl bg-ink px-3 py-1.5 text-sm font-semibold !text-label no-underline transition-colors hover:bg-wall">
                         {a.defaultLocalName}
                         <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-300"><i className="fa-solid fa-headphones" aria-hidden="true"></i>{t.listen}</span>
                       </Link>
@@ -329,6 +335,18 @@ export default function Map() {
           </div>
           <p className="mt-1 text-xs leading-snug text-ink-soft sm:text-sm">{animals === 'error' ? t.failed : t.hint}</p>
           {demo && <p className="mt-2 rounded-xl border border-wall/30 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-wall sm:text-sm">{zt.demo}</p>}
+          {playlist.current && (
+            <div className="pointer-events-auto mt-3 flex items-center gap-3 border-t border-ink/10 pt-3">
+              <PlayingBars className="shrink-0 text-wall" />
+              <p className="min-w-0 flex-1 text-sm">
+                <span className="block text-ink-soft">{zt.nowPlaying(playlist.index + 1, playlist.total)}</span>
+                <span className="block truncate font-bold">{playlist.current.defaultLocalName}</span>
+              </p>
+              <button onClick={playlist.stop} className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-wall px-4 text-sm font-semibold text-label hover:bg-wall-deep">
+                <i className="fa-solid fa-stop" aria-hidden="true"></i>{zt.stop}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -346,7 +364,7 @@ export default function Map() {
               <button
                 onClick={() => setNavZone(null)}
                 aria-label={t.stopNav}
-                className="flex h-8 w-8 items-center justify-center rounded-xl text-ink transition-colors hover:bg-ink/10"
+                className="flex h-11 w-11 items-center justify-center rounded-xl text-ink transition-colors hover:bg-ink/10"
               >
                 <i className="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
               </button>
@@ -376,14 +394,14 @@ export default function Map() {
                 href={navMetrics.gmapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-wall px-3 text-sm font-bold !text-label no-underline shadow-sm transition-colors hover:bg-emerald-800"
+                className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-wall px-3 text-sm font-bold !text-label no-underline shadow-sm transition-colors hover:bg-emerald-800"
               >
                 <i className="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
                 {t.openGoogleMaps}
               </a>
               <button
                 onClick={() => setNavZone(null)}
-                className="flex min-h-10 items-center justify-center rounded-xl border border-ink/20 bg-white px-3 text-sm font-bold text-ink transition-colors hover:bg-ink/5"
+                className="flex min-h-11 items-center justify-center rounded-xl border border-ink/20 bg-white px-3 text-sm font-bold text-ink transition-colors hover:bg-ink/5"
               >
                 {t.stopNav}
               </button>

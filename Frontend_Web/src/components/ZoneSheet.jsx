@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
 import ZoneAnimalList from './ZoneAnimalList';
 import { getZoneText } from '../utils/zoneText';
+import { useZonePlaylist } from './ZonePlaylist';
+import PlayingBars from './PlayingBars';
 
 export default function ZoneSheet({ zone, language, open, onOpen, onClose, raised }) {
   const t = getZoneText(language);
   const startY = useRef(null);
+  const playlist = useZonePlaylist();
 
   useEffect(() => {
     if (!open) return;
@@ -16,15 +19,18 @@ export default function ZoneSheet({ zone, language, open, onOpen, onClose, raise
   if (!zone) return null;
 
   if (!open) {
+    const playing = playlist.current && playlist.zoneId === zone.id;
     return (
       <button
         onClick={onOpen}
-        aria-label={`${t.openZone}: ${zone.name}`}
+        aria-label={`${t.openZone}: ${zone.name}${playing ? `, ${t.nowPlaying(playlist.index + 1, playlist.total)}` : ''}`}
         className={`fixed right-4 z-[60] flex min-h-12 items-center gap-2 rounded-2xl border border-ink/10 bg-label/95 px-4 font-label text-base font-bold text-ink shadow-[0_14px_30px_-10px_rgb(0_0_0/0.55)] backdrop-blur-md transition-all hover:bg-white ${raised ? 'bottom-24' : 'bottom-24 lg:bottom-6'}`}
       >
         <i className="fa-solid fa-location-dot text-wall" aria-hidden="true"></i>
         <span className="max-w-[12rem] truncate">{zone.name}</span>
-        <span className="rounded-lg bg-wall px-2 py-0.5 text-xs font-bold text-label">{zone.animals.length}</span>
+        {playing
+          ? <span className="flex items-center gap-1.5 rounded-lg bg-wall px-2 py-0.5 text-xs font-bold text-label"><PlayingBars />{playlist.index + 1}/{playlist.total}</span>
+          : <span className="rounded-lg bg-wall px-2 py-0.5 text-xs font-bold text-label">{zone.animals.length}</span>}
       </button>
     );
   }
@@ -47,7 +53,7 @@ export default function ZoneSheet({ zone, language, open, onOpen, onClose, raise
             {zone.name} <span className="text-base font-medium text-ink-soft">· {t.species(zone.animals.length)}</span>
           </h2>
         </div>
-        <button onClick={onClose} aria-label={t.close} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-ink transition-colors hover:bg-ink/10">
+        <button onClick={onClose} aria-label={t.close} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink transition-colors hover:bg-ink/10">
           <i className="fa-solid fa-chevron-down text-lg" aria-hidden="true"></i>
         </button>
       </div>

@@ -15,7 +15,7 @@ const FACT_OPTIONS = {
 const SCRIPT_MIN = 600, SCRIPT_MAX = 1200;
 // Cùng một chuỗi cho QR xem trước và QR tải về để in
 const qrValue = id => `https://zooaudioguide-001-site1.ftempurl.com/a/${id}`;
-const FIELD = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10';
+const FIELD = 'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70';
 
 export default function AnimalManager() {
   const [animals, setAnimals] = useState([]);
@@ -329,7 +329,7 @@ export default function AnimalManager() {
                   onChange={event => setSearchTerm(event.target.value)}
                   placeholder="Tìm tên, mã động vật..."
                   aria-label="Tìm động vật"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70"
                 />
               </label>
               <label className="relative block sm:w-44">
@@ -338,7 +338,7 @@ export default function AnimalManager() {
                   value={selectedZone}
                   onChange={event => setSelectedZone(event.target.value)}
                   aria-label="Lọc theo khu vực"
-                  className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10"
+                  className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-9 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70"
                 >
                   <option value="all">Tất cả khu vực</option>
                   {zones.map(zone => <option key={zone} value={String(zone)}>{zoneName(zone)}</option>)}
@@ -467,12 +467,12 @@ export default function AnimalManager() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="animal-local-name" className="mb-1.5 block text-sm font-bold text-slate-700">Tên tiếng Việt <span className="text-rose-500">*</span></label>
-                  <input id="animal-local-name" type="text" value={formData.localName || ''} onChange={e => setFormData({ ...formData, localName: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                  <input id="animal-local-name" type="text" value={formData.localName || ''} onChange={e => setFormData({ ...formData, localName: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
                 </div>
                 
                 <div>
                   <label htmlFor="animal-scientific-name" className="mb-1.5 block text-sm font-bold text-slate-700">Tên khoa học <span className="text-rose-500">*</span></label>
-                  <input id="animal-scientific-name" type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                  <input id="animal-scientific-name" type="text" value={formData.scientificName || ''} onChange={e => setFormData({ ...formData, scientificName: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
                 </div>
               </div>
 
@@ -484,7 +484,7 @@ export default function AnimalManager() {
                       {zoneList.map(z => <option key={z.id} value={z.id}>{z.name ? `${z.name} (${z.zoneCode})` : z.zoneCode}</option>)}
                     </select>
                   ) : (
-                    <input id="animal-zone" type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                    <input id="animal-zone" type="number" min="1" value={formData.zoneId || ''} onChange={e => setFormData({ ...formData, zoneId: parseInt(e.target.value) || 1 })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
                   )}
                 </div>
 
@@ -495,7 +495,7 @@ export default function AnimalManager() {
                     {uploading ? 'Đang tải ảnh…' : 'Tải ảnh lên (JPG, PNG, WebP ≤ 5 MB)'}
                     <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading} onChange={e => { handleImageFile(e.target.files?.[0]); e.target.value = ''; }} />
                   </label>
-                  <input id="animal-avatar-url" type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
+                  <input id="animal-avatar-url" type="url" placeholder="https://..." value={formData.avatarUrl || ''} onChange={e => setFormData({ ...formData, avatarUrl: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" />
                 </div>
               </div>
 
@@ -531,7 +531,7 @@ export default function AnimalManager() {
                   rows="8" 
                   value={formData.scriptText || ''} 
                   onChange={e => setFormData({ ...formData, scriptText: e.target.value })} 
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" 
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" 
                   placeholder="Nhập nội dung bài thuyết minh bằng tiếng Việt..."
                   aria-describedby="animal-script-hint"
                 />
@@ -550,7 +550,7 @@ export default function AnimalManager() {
 
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
-                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 disabled:opacity-60 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 disabled:opacity-60 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-700/70">
                   <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`} aria-hidden="true"></i>{formData.id ? 'Lưu cập nhật' : 'Tạo hồ sơ'}
                 </button>
               </div>

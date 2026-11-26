@@ -45,7 +45,7 @@ narration.MapPost("/generate", async (GenerateRequest req, NarrationGenerator ge
 
     var results = await Task.WhenAll(langs.Select(async l =>
     {
-        var r = await gen.GenerateAsync(req.AnimalId, req.Text, l, req.TextIsFinal);
+        var r = await gen.GenerateAsync(req.AnimalId, req.Text, l, req.TextIsFinal, req.KeepUrls);
         return translateName && r.Status == "DONE"
             ? r with { TranslatedName = await gen.TranslateNameAsync(req.AnimalId, req.Name!.Trim(), req.ScientificName?.Trim(), l) }
             : r;
@@ -93,6 +93,7 @@ narration.MapPost("", async (NarrationRequest req, ITranslator translator, ITtsS
 app.Run();
 
 record NarrationRequest(string Text, string TargetLang);
-record GenerateRequest(int AnimalId, string Text, string[] TargetLangs, bool TextIsFinal = false, string? Name = null, string? ScientificName = null); // TextIsFinal mặc định false: Backend cũ vẫn chạy
+// TextIsFinal mặc định false, KeepUrls mặc định null (không dọn file cũ): Backend cũ vẫn chạy
+record GenerateRequest(int AnimalId, string Text, string[] TargetLangs, bool TextIsFinal = false, string? Name = null, string? ScientificName = null, string[]? KeepUrls = null);
 
 public partial class Program { }

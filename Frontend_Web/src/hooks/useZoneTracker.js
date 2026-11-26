@@ -34,6 +34,9 @@ export default function useZoneTracker(language) {
     return () => { cancelled = true; };
   }, [enabled, language]);
 
+  // Bị chặn quyền vị trí: không nhớ "đang bật" 12 giờ, lần mở sau không báo lỗi ngay
+  useEffect(() => { if (gpsError === 'denied') saveGeoOn(false); }, [gpsError]);
+
   const zones = useMemo(() => (Array.isArray(animals) ? groupZones(animals) : []), [animals]);
   const position = demoPosition || gps;
   const usable = position && (demoPosition || position.accuracy <= MAX_ACCURACY_M);

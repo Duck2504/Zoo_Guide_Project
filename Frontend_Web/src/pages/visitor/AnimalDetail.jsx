@@ -10,10 +10,10 @@ import PlayingBars from '../../components/PlayingBars';
 import { getListened, markListened } from '../../utils/listened';
 
 const translations = {
-  vi: { back: 'Quay lại', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', nextUp: 'Nghe tiếp', waking: 'Máy chủ đang khởi động, chờ chút nhé…', offline: 'Chưa kết nối được máy chủ. Kiểm tra mạng rồi thử lại.', retry: 'Thử lại', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', directionsShort: 'Chỉ đường', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
-  en: { back: 'Back', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', nextUp: 'Up next', waking: 'The server is waking up, just a moment…', offline: 'Could not reach the server. Check your connection and try again.', retry: 'Try again', about: 'About', mapShort: 'Map', scanMore: 'Scan next', directionsShort: 'Directions', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
-  ko: { back: '뒤로', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', nextUp: '다음 동물', waking: '서버를 깨우는 중입니다. 잠시만 기다려 주세요…', offline: '서버에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요.', retry: '다시 시도', about: '소개', mapShort: '지도', scanMore: '다음 스캔', directionsShort: '길찾기', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
-  ja: { back: '戻る', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', nextUp: '次の動物', waking: 'サーバーを起動しています。少々お待ちください…', offline: 'サーバーに接続できません。接続を確認してもう一度お試しください。', retry: '再試行', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', directionsShort: 'ルート案内', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
+  vi: { back: 'Quay lại', notFound: 'Không tìm thấy thông tin.', noAudio: 'Chưa có thuyết minh cho ngôn ngữ này', audioFail: 'Chưa tải được audio. Kiểm tra mạng rồi thử lại.', play: 'Phát thuyết minh', pause: 'Tạm dừng', rewind: 'Lùi 10 giây', speed: 'Tốc độ đọc', seek: 'Vị trí đang nghe', photo: 'Ảnh: Wikimedia Commons', factsTitle: 'Thông tin nhanh', facts: ['Mức bảo tồn', 'Thức ăn', 'Nơi sống', 'Tuổi thọ'], years: n => `khoảng ${n} năm`, iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' }, diet: { carnivore: 'Ăn thịt', herbivore: 'Ăn thực vật', omnivore: 'Ăn tạp' }, habitat: { rainforest: 'Rừng mưa nhiệt đới', forest: 'Rừng', savanna: 'Đồng cỏ xavan', wetland: 'Đầm lầy', coast: 'Vùng ven biển' }, listen: 'Nghe thuyết minh', nextUp: 'Nghe tiếp', waking: 'Máy chủ đang khởi động, chờ chút nhé…', offline: 'Chưa kết nối được máy chủ. Kiểm tra mạng rồi thử lại.', retry: 'Thử lại', about: 'Giới thiệu', mapShort: 'Bản đồ', scanMore: 'Quét tiếp', directionsShort: 'Chỉ đường', sameZone: z => `Cùng ${z}`, lives: z => `Sống tại `, livesEnd: '', statusIs: s => `, mức bảo tồn: ${s}.` },
+  en: { back: 'Back', notFound: 'Information not found.', noAudio: 'No audio guide in this language yet', audioFail: 'The audio did not load. Check your connection and try again.', play: 'Play audio guide', pause: 'Pause', rewind: 'Back 10 seconds', speed: 'Playback speed', seek: 'Playback position', photo: 'Photo: Wikimedia Commons', factsTitle: 'Quick facts', facts: ['Conservation', 'Diet', 'Habitat', 'Lifespan'], years: n => `about ${n} years`, iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' }, diet: { carnivore: 'Carnivore', herbivore: 'Herbivore', omnivore: 'Omnivore' }, habitat: { rainforest: 'Rainforest', forest: 'Forest', savanna: 'Savanna', wetland: 'Wetland', coast: 'Coast' }, listen: 'Listen to the guide', nextUp: 'Up next', waking: 'The server is waking up, just a moment…', offline: 'Could not reach the server. Check your connection and try again.', retry: 'Try again', about: 'About', mapShort: 'Map', scanMore: 'Scan next', directionsShort: 'Directions', sameZone: z => `Also in ${z}`, lives: z => `Lives in `, livesEnd: '', statusIs: s => `; conservation status: ${s}.` },
+  ko: { back: '뒤로', notFound: '정보를 찾을 수 없습니다.', noAudio: '이 언어의 오디오 가이드가 아직 없습니다', audioFail: '오디오를 불러오지 못했습니다. 연결을 확인하고 다시 시도하세요.', play: '오디오 재생', pause: '일시정지', rewind: '10초 뒤로', speed: '재생 속도', seek: '재생 위치', photo: '사진: Wikimedia Commons', factsTitle: '간단 정보', facts: ['보전 상태', '먹이', '서식지', '수명'], years: n => `약 ${n}년`, iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' }, diet: { carnivore: '육식', herbivore: '초식', omnivore: '잡식' }, habitat: { rainforest: '열대우림', forest: '숲', savanna: '사바나', wetland: '습지', coast: '해안' }, listen: '해설 듣기', nextUp: '다음 동물', waking: '서버를 깨우는 중입니다. 잠시만 기다려 주세요…', offline: '서버에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요.', retry: '다시 시도', about: '소개', mapShort: '지도', scanMore: '다음 스캔', directionsShort: '길찾기', sameZone: z => `${z}의 다른 동물`, lives: z => ``, livesEnd: '에서 살고 있어요', statusIs: s => `. 보전 상태: ${s}` },
+  ja: { back: '戻る', notFound: '情報が見つかりません。', noAudio: 'この言語の音声ガイドはまだありません', audioFail: '音声を読み込めませんでした。接続を確認してもう一度お試しください。', play: '音声ガイドを再生', pause: '一時停止', rewind: '10秒戻る', speed: '再生速度', seek: '再生位置', photo: '写真: Wikimedia Commons', factsTitle: '基本情報', facts: ['保全状況', '食性', '生息地', '寿命'], years: n => `約${n}年`, iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' }, diet: { carnivore: '肉食', herbivore: '草食', omnivore: '雑食' }, habitat: { rainforest: '熱帯雨林', forest: '森林', savanna: 'サバンナ', wetland: '湿地', coast: '沿岸' }, listen: '音声ガイドを聞く', nextUp: '次の動物', waking: 'サーバーを起動しています。少々お待ちください…', offline: 'サーバーに接続できません。接続を確認してもう一度お試しください。', retry: '再試行', about: '紹介', mapShort: 'マップ', scanMore: '次をスキャン', directionsShort: 'ルート案内', sameZone: z => `${z}のほかの動物`, lives: z => ``, livesEnd: 'で暮らしています', statusIs: s => `。保全状況：${s}` },
 };
 
 const SPEEDS = [1, 1.25, 0.75];
@@ -70,7 +70,7 @@ export default function AnimalDetail() {
   // 1. Tự động ghi log quét QR
   useEffect(() => {
     const logScan = async () => {
-      if (!id) return;
+      if (!/^d+$/.test(id || '')) return; // mã hỏng (vd /a/abc): không phải lượt quét con vật nào
       let sessionId = sessionStorage.getItem('zoo_session_id');
       if (!sessionId) {
         sessionId = crypto.randomUUID();
@@ -100,22 +100,27 @@ export default function AnimalDetail() {
 
   // 2. Fetch data động vật TỪ DATABASE THEO API THẬT
   useEffect(() => {
+    let cancelled = false; // đổi con/ngôn ngữ giữa chừng: bỏ kết quả của lần tải cũ
     const fetchAnimalData = async () => {
       if (!id) return;
       setIsLoading(true);
       setLoadError(null);
       
       // Reset lại audio khi đổi bài hoặc đổi ngôn ngữ
+      audioRef.current?.pause();
       setIsPlaying(false);
       setAudioFailed(false);
       setCurrentTime(0);
+      setDuration(0);
       setIsBuffering(false);
       setEnded(false);
 
       try {
         const response = await fetch(`${API}/api/animals/${id}?lang=${language}`);
+        if (cancelled) return;
         if (response.ok) {
           const data = await response.json();
+          if (cancelled) return;
           setAnimal({
             id: data.id,
             name: data.defaultLocalName || 'Đang cập nhật tên...',
@@ -132,17 +137,19 @@ export default function AnimalDetail() {
           });
         } else {
           setAnimal(null);
-          setLoadError(response.status === 404 ? 'missing' : 'network');
+          setLoadError(response.status < 500 ? 'missing' : 'network'); // 400 (mã không phải số) cũng là không có con này
         }
       } catch (error) {
+        if (cancelled) return;
         console.error("Lỗi khi tải dữ liệu động vật từ server:", error);
         setAnimal(null);
         setLoadError('network');
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     };
     fetchAnimalData();
+    return () => { cancelled = true; };
   }, [id, language, retry]);
 
   useEffect(() => {
@@ -162,6 +169,8 @@ export default function AnimalDetail() {
     return () => { document.title = siteTitle; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animalId]);
+  // Đổi ngôn ngữ (cùng con): tiêu đề tab theo tên mới
+  useEffect(() => { if (animal?.name) document.title = animal.name; }, [animal?.name]);
 
   // Các con cùng khu (ảnh thật + tên theo ngôn ngữ đang chọn) cho mục "Cùng khu"
   useEffect(() => {
@@ -233,8 +242,8 @@ export default function AnimalDetail() {
     }
   };
 
-  if (isLoading) return (
-    <div className="min-h-[100dvh] bg-wall" aria-busy="true">
+  if (isLoading && animal?.id !== Number(id)) return (
+    <div className="wall-page min-h-[100dvh] bg-wall" aria-busy="true">
       <div className="h-[40vh] w-full bg-label/10 motion-safe:animate-pulse md:h-[62vh] lg:h-[52vh]" />
       <div className="mx-auto max-w-6xl space-y-4 px-4 pt-6 sm:px-6 lg:px-8">
         <div className="h-14 w-2/3 bg-label/10 motion-safe:animate-pulse" />
@@ -244,11 +253,13 @@ export default function AnimalDetail() {
     </div>
   );
   if (!animal) return (
-    <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-wall p-8 text-center font-label text-label">
+    <div className="wall-page flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-wall p-8 text-center font-label text-label">
       <p role="alert" className="max-w-[34ch] text-xl font-bold">{loadError === 'network' ? t.offline : t.notFound}</p>
       <div className="flex flex-wrap justify-center gap-2">
         {loadError === 'network' && <button onClick={() => setRetry(r => r + 1)} className="min-h-12 bg-label px-5 text-base font-semibold text-ink">{t.retry}</button>}
-        <button onClick={() => navigate('/')} className={`min-h-12 px-5 text-base font-semibold ${loadError === 'network' ? 'border-2 border-label' : 'bg-label text-ink'}`}>{t.back}</button>
+        {loadError !== 'network' && <button onClick={openQR} className="flex min-h-12 items-center gap-2 bg-label px-5 text-base font-semibold text-ink"><i className="fa-solid fa-qrcode" aria-hidden="true"></i>{t.scanMore}</button>}
+        {loadError !== 'network' && <button onClick={() => navigate('/map')} className="flex min-h-12 items-center gap-2 border-2 border-label px-5 text-base font-semibold"><i className="fa-solid fa-map" aria-hidden="true"></i>{t.mapShort}</button>}
+        <button onClick={() => navigate('/')} className="min-h-12 border-2 border-label px-5 text-base font-semibold">{t.back}</button>
       </div>
     </div>
   );
@@ -256,8 +267,10 @@ export default function AnimalDetail() {
   const playIcon = isBuffering
     ? <i className="fa-solid fa-circle-notch motion-safe:animate-spin" aria-hidden="true"></i>
     : <i key={isPlaying ? 'pause' : 'play'} className={`icon-swap fa-solid ${isPlaying ? 'fa-pause' : 'fa-play ml-0.5'}`} aria-hidden="true"></i>;
-  const playLabel = !hasAudio ? t.noAudio : isPlaying || isBuffering ? t.pause : t.play;
-  const ctrl = 'flex min-h-10 items-center justify-center gap-2 rounded-xl bg-ink/5 px-3.5 text-sm font-bold text-ink transition-colors hover:bg-ink/10';
+  // Lúc đang tải, bấm nữa là tạm dừng nên nhãn vẫn là Tạm dừng; vòng xoay chỉ để nhìn
+  const noAudioText = audioFailed ? t.audioFail : t.noAudio;
+  const playLabel = !hasAudio ? noAudioText : isPlaying || isBuffering ? t.pause : t.play;
+  const ctrl = 'flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink/5 px-3.5 text-sm font-bold text-ink transition-colors hover:bg-ink/10';
 
   return (
     <div className="wall-page wall-ambient relative bg-wall font-label text-label">
@@ -266,11 +279,11 @@ export default function AnimalDetail() {
       <div className="relative h-[42vh] w-full overflow-hidden md:h-[60vh] lg:h-[52vh]">
         <AnimalImage src={animal.imageUrl} alt={animal.name} loading="eager" fetchPriority="high" hero className="hero-drift h-full w-full" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-wall via-wall/45 to-transparent" aria-hidden="true" />
+      </div>
         <button onClick={goBack} aria-label={t.back} className="absolute left-4 top-4 z-20 flex h-11 w-11 items-center justify-center rounded-xl bg-label/90 text-ink shadow-lg backdrop-blur-md transition-all hover:bg-white active:scale-95 sm:left-6 lg:left-8">
           <i className="fa-solid fa-arrow-left" aria-hidden="true"></i>
         </button>
         <div className="absolute right-4 top-4 z-20 sm:right-6 lg:right-8"><LanguageMenu onPhoto /></div>
-      </div>
 
       <div className="relative z-10 mx-auto -mt-8 max-w-6xl px-4 pb-32 pt-2 sm:px-6 lg:px-8">
         {/* Tên và trình phát */}
@@ -299,7 +312,7 @@ export default function AnimalDetail() {
                 {playIcon}
               </button>
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2.5 text-lg font-extrabold sm:text-xl">{hasAudio ? t.listen : t.noAudio}{isPlaying && <PlayingBars className="text-wall" />}</p>
+                <p className="flex items-center gap-2.5 text-lg font-extrabold sm:text-xl">{hasAudio ? t.listen : noAudioText}{isPlaying && <PlayingBars className="text-wall" />}</p>
                 {hasAudio && (
                   <>
                     <input
@@ -321,6 +334,11 @@ export default function AnimalDetail() {
                 )}
               </div>
             </div>
+            {audioFailed && (
+              <button onClick={() => { setAudioFailed(false); audioRef.current?.load(); }} className={`${ctrl} mt-4`}>
+                <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>{t.retry}
+              </button>
+            )}
             {hasAudio && (
               <div className="mt-4 flex gap-2">
                 <button onClick={() => seekTo(audioRef.current.currentTime - 10)} aria-label={t.rewind} className={ctrl}>
@@ -335,7 +353,7 @@ export default function AnimalDetail() {
                   <AnimalImage src={nextUp.avatarUrl} alt="" className="h-14 w-14 shrink-0 rounded-xl" />
                   <span className="min-w-0 flex-1">
                     <span className="block text-xs font-semibold uppercase tracking-wider text-emerald-200/80">{t.nextUp}</span>
-                    <span className="block truncate text-base font-bold">{nextUp.defaultLocalName}</span>
+                    <span className="block line-clamp-2 text-base font-bold leading-tight">{nextUp.defaultLocalName}</span>
                   </span>
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15">
                     <i className="fa-solid fa-play text-xs" aria-hidden="true"></i>

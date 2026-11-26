@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using ZooAudioGuide.API.Data;
 
@@ -11,6 +12,7 @@ namespace ZooAudioGuide.API.Controllers
     public class LanguagesController(ZooDbContext db) : ControllerBase
     {
         [HttpGet]
+        [OutputCache(Duration = AnimalsController.CacheSeconds, Tags = [AnimalsController.CacheTag])]
         public async Task<IActionResult> GetLanguages() =>
             Ok(await db.Languages
                 .OrderBy(l => l.Code == "vi" ? 0 : 1).ThenBy(l => l.Code)

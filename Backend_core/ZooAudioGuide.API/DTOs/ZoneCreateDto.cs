@@ -11,9 +11,11 @@ namespace ZooAudioGuide.API.DTOs
         public string? Name { get; set; }
 
         [Required]
+        [Range(-90, 90, ErrorMessage = "Vĩ độ phải trong khoảng -90 đến 90 (có thể bạn đã đảo kinh độ và vĩ độ).")]
         public double Latitude { get; set; }
 
         [Required]
+        [Range(-180, 180, ErrorMessage = "Kinh độ phải trong khoảng -180 đến 180.")]
         public double Longitude { get; set; }
 
         [Required]

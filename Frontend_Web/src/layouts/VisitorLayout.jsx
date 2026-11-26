@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
@@ -31,11 +31,21 @@ const headerLinkClass = wall => ({ isActive }) =>
 
 export default function VisitorLayout() {
   const { language } = useVisitor();
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const qrOpener = useRef(null);
-  const openQR = () => { qrOpener.current = document.activeElement; setIsQRModalOpen(true); };
-  const closeQR = () => { setIsQRModalOpen(false); qrOpener.current?.focus?.(); };
   const location = useLocation();
+  const navigate = useNavigate();
+  const isQRModalOpen = !!location.state?.qr;
+  const qrOpener = useRef(null); // nút đã mở hộp quét, để đóng hộp thì focus quay về đó
+  const openQR = () => {
+    if (isQRModalOpen) return;
+    qrOpener.current = document.activeElement;
+    navigate(location.pathname + location.search, { state: { ...location.state, qr: true } });
+  };
+  // Đóng = lùi một bước, giống bấm Back. Mở lại trang (F5) mà còn trạng thái hộp thì chỉ gỡ trạng thái, không tự bật camera.
+  const closeQR = () => { navigate(-1); qrOpener.current?.focus?.(); };
+  useEffect(() => {
+    if (location.state?.qr) navigate(location.pathname + location.search, { replace: true, state: { ...location.state, qr: undefined } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const geo = useZoneTracker(language);
   const geoEnabled = geo.enabled;
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -101,7 +111,7 @@ export default function VisitorLayout() {
               </NavLink>
               <button
                 onClick={openQR}
-                className={`ml-1 flex min-h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all active:scale-95 ${
+                className={`ml-1 flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition-all active:scale-95 ${
                   isWall
                     ? 'bg-emerald-500 text-white shadow-sm hover:bg-emerald-400'
                     : 'bg-sign text-white shadow-sm hover:bg-sign-deep'
@@ -116,7 +126,7 @@ export default function VisitorLayout() {
               aria-pressed={geoEnabled}
               aria-label={geoEnabled ? t.geoOn : t.geoOff}
               title={geoEnabled ? t.geoOn : t.geoOff}
-              className={`relative flex h-10 w-10 items-center justify-center rounded-xl border transition-all ${
+              className={`relative flex h-11 w-11 items-center justify-center rounded-xl border transition-all ${
                 isWall
                   ? (geoEnabled ? 'border-emerald-400 bg-emerald-500/20 text-emerald-300 shadow-inner' : 'border-white/20 bg-white/5 text-label hover:bg-white/10')
                   : (geoEnabled ? 'border-sign bg-sign text-white' : 'border-trail-line bg-white text-post hover:border-sign/40')

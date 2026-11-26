@@ -1,17 +1,23 @@
 import { Suspense, useState, useEffect } from 'react';
 import { Outlet, NavLink, Navigate, useNavigate } from 'react-router-dom';
 import { getAdminToken, setAdminToken, ADMIN_AUTH_EXPIRED } from '../utils/adminFetch';
+import { useDialog } from '../components/AdminFeedback';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-  const [loggedIn, setLoggedIn] = useState(() => !!getAdminToken());
-  useEffect(() => { document.documentElement.lang = 'vi'; }, []);
+  const [loggedIn] = useState(() => !!getAdminToken());
+  const [expired, setExpired] = useState(false);
+  useEffect(() => { document.documentElement.lang = 'vi'; }, []); // trang quản trị chỉ có tiếng Việt
 
+  // adminFetch báo khi server trả 401 (token hết hạn) → hiện hộp nhắc; đăng nhập ở tab khác (token chung localStorage) thì tự đóng
   useEffect(() => {
-    const onExpired = () => setLoggedIn(false);
+    const onExpired = () => setExpired(true);
+    const onStorage = () => { if (getAdminToken()) setExpired(false); };
     window.addEventListener(ADMIN_AUTH_EXPIRED, onExpired);
-    return () => window.removeEventListener(ADMIN_AUTH_EXPIRED, onExpired);
+    window.addEventListener('storage', onStorage);
+    return () => { window.removeEventListener(ADMIN_AUTH_EXPIRED, onExpired); window.removeEventListener('storage', onStorage); };
   }, []);
+  const expiredRef = useDialog(expired, () => { if (getAdminToken()) setExpired(false); });
 
   const logout = () => {
     setAdminToken('');
@@ -23,7 +29,7 @@ export default function AdminLayout() {
   const navLinkCls = ({ isActive }) =>
     `flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 text-center text-xs font-bold leading-tight transition-all lg:flex-row lg:justify-start lg:gap-3 lg:min-h-0 lg:px-4 lg:py-2.5 lg:text-left lg:text-sm ${
       isActive
-        ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-600/25'
+        ? 'bg-emerald-700 text-white shadow-lg shadow-emerald-700/25'
         : 'text-slate-400 hover:bg-white/5 hover:text-white'
     }`;
 
@@ -74,6 +80,25 @@ export default function AdminLayout() {
           <Outlet />
         </Suspense>
       </main>
+
+      {expired && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/60 p-4">
+          <div ref={expiredRef} role="alertdialog" aria-modal="true" aria-labelledby="expired-title" aria-describedby="expired-text" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <h2 id="expired-title" className="text-lg font-black text-slate-900">Phiên đăng nhập đã hết hạn</h2>
+            <p id="expired-text" className="mt-2 text-sm leading-relaxed text-slate-600">
+              Nội dung bạn đang nhập vẫn được giữ trên trang này. Hãy đăng nhập lại ở tab mới, quay lại đây rồi bấm Lưu lần nữa.
+            </p>
+            <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+              <a href="/admin/login" target="_blank" rel="noopener" className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-emerald-700 px-4 text-sm font-bold text-white hover:bg-emerald-800">
+                <i className="fa-solid fa-arrow-up-right-from-square mr-2" aria-hidden="true"></i>Đăng nhập ở tab mới
+              </a>
+              <button onClick={() => { if (getAdminToken()) setExpired(false); }} className="min-h-11 flex-1 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                Tôi đã đăng nhập lại
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

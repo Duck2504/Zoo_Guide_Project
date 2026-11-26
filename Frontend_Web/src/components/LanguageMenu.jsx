@@ -47,7 +47,7 @@ export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onP
         onClick={() => setOpen(!open)}
         aria-expanded={open}
         aria-label={`${menuLabel}: ${current?.name ?? language}`}
-        className={`flex min-h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold uppercase shadow-sm transition-all ${
+        className={`flex min-h-11 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold uppercase shadow-sm transition-all ${
           variant === 'onPhoto'
             ? 'bg-label/90 font-label text-ink backdrop-blur-md hover:bg-white'
             : 'border border-trail-line bg-white text-post hover:border-sign/40'
@@ -66,7 +66,7 @@ export default function LanguageMenu({ onPhoto = false, variant = onPhoto ? 'onP
                 lang={lang.code}
                 aria-current={language === lang.code ? 'true' : undefined}
                 onClick={() => { setLanguage(lang.code); setOpen(false); }}
-                className={`flex min-h-10 w-full items-center justify-between rounded-xl px-3.5 text-left text-sm font-semibold transition-colors ${
+                className={`flex min-h-11 w-full items-center justify-between rounded-xl px-3.5 text-left text-sm font-semibold transition-colors ${
                   language === lang.code ? 'bg-wall text-label' : 'text-ink hover:bg-ink/5'
                 }`}
               >

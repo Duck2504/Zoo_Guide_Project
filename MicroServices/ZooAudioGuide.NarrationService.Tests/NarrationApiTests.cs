@@ -213,10 +213,37 @@ public class NarrationApiTests : IClassFixture<NarrationFactory>
         Assert.Contains($"\"translatedName\":\"en:{name}\"", json);    // đã bỏ ** " . và dòng giải thích
         Assert.Equal(before + 1, _factory.Translator.NameCallCount);      // vi không dịch tên
 
-        // Đổi bài: file mp3/txt cũ bị dọn, nhưng tên vẫn lấy từ kho, không gọi Gemini lại
+        // Đổi bài: tên vẫn lấy từ kho, không gọi Gemini lại
         await _client.PostAsJsonAsync("/api/narration/generate", Body(UniqueText()));
         Assert.Equal(before + 1, _factory.Translator.NameCallCount);
         Assert.Single(_factory.Store.Files.Keys, k => k.StartsWith("animals/97/name-en-"));
+    }
+
+    // Backend lưu link mới SAU khi nhận kết quả: file DB đang trỏ tới (keepUrls) không được xóa khi dọn bản cũ
+    [Fact]
+    public async Task Generate_Cleanup_SparesFilesTheDbStillUses()
+    {
+        string[] EnFiles() => _factory.Store.Files.Keys.Where(k => k.StartsWith("animals/96/en-")).Order().ToArray();
+        async Task<string> Gen(string[]? keepUrls)
+        {
+            var res = await _client.PostAsJsonAsync("/api/narration/generate",
+                new { animalId = 96, text = UniqueText(), targetLangs = new[] { "en" }, keepUrls });
+            var json = await res.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+            return json.GetProperty("results")[0].GetProperty("audioUrl").GetString()!;
+        }
+
+        var first = await Gen(null);
+        var second = await Gen(null);            // Backend bản cũ (không gửi keepUrls): không xóa gì
+        Assert.Equal(4, EnFiles().Length);
+
+        var third = await Gen([second]);         // chừa mp3 + txt của bản DB đang dùng, xóa bản còn lại
+        Assert.Equal(4, EnFiles().Length);
+        Assert.Contains(second["https://fake/".Length..], EnFiles());
+        Assert.Contains(third["https://fake/".Length..], EnFiles());
+        Assert.DoesNotContain(first["https://fake/".Length..], EnFiles());
+
+        await Gen([]);                           // Backend mới, DB chưa có link nào: dọn hết bản cũ
+        Assert.Equal(2, EnFiles().Length);
     }
 
     [Theory]

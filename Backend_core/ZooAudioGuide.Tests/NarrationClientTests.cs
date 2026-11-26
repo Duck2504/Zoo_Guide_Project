@@ -37,6 +37,10 @@ public sealed class NarrationClientTests
 
         await c.GenerateAsync(7, "Hổ", ["en"], name: "Hổ", scientificName: "Panthera tigris");
         StringAssert.Contains(sentJson, "\"scientificName\":\"Panthera tigris\"");
+        StringAssert.Contains(sentJson, "\"keepUrls\":[]"); // luôn gửi mảng: microservice hiểu null là Backend bản cũ
+
+        await c.GenerateAsync(7, "Hổ", ["en"], keepUrls: ["https://cdn/a.mp3"]);
+        StringAssert.Contains(sentJson, "\"keepUrls\":[\"https://cdn/a.mp3\"]");
 
         Assert.AreEqual("https://x.ngrok-free.app/api/narration/generate", sent!.RequestUri!.ToString());
         Assert.AreEqual("k", sent.Headers.GetValues("X-Admin-Key").Single());

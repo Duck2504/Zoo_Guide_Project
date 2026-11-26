@@ -7,7 +7,8 @@ public interface INarrationClient
 {
     // textIsFinal: chữ đã đúng ngôn ngữ đích (bản dịch admin đã sửa), microservice chỉ đọc, không dịch lại
     // name/scientificName: có thì microservice dịch luôn tên loài sang từng ngôn ngữ
-    Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null);
+    // keepUrls: link mp3 DB đang dùng, microservice không xóa các file này khi dọn bản cũ
+    Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null, string[]? keepUrls = null);
     // Đưa ảnh con vật lên kho đám mây qua microservice; trả (link, null) hoặc (null, lý do lỗi)
     Task<(string? Url, string? Error)> UploadImageAsync(byte[] data, string contentType);
 }
@@ -45,7 +46,7 @@ public class NarrationClient(HttpClient http, IConfiguration cfg, ILogger<Narrat
         }
     }
 
-    public async Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null)
+    public async Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null, string[]? keepUrls = null)
     {
         // Mọi lỗi (chưa cấu hình, ngrok tắt, hết giờ, 4xx/5xx) đổi thành FAILED cho từng ngôn ngữ để admin thấy lý do
         LangResult[] Fail(string error) => langs.Select(l => new LangResult(l, "FAILED", null, null, error)).ToArray();
@@ -56,7 +57,7 @@ public class NarrationClient(HttpClient http, IConfiguration cfg, ILogger<Narrat
 
             using var req = new HttpRequestMessage(HttpMethod.Post, $"{baseUrl}/api/narration/generate")
             {
-                Content = JsonContent.Create(new { animalId, text, targetLangs = langs, textIsFinal, name, scientificName })
+                Content = JsonContent.Create(new { animalId, text, targetLangs = langs, textIsFinal, name, scientificName, keepUrls = keepUrls ?? [] })
             };
             req.Headers.Add("X-Admin-Key", cfg["NarrationService:ApiKey"]?.Trim() ?? "");
             req.Headers.Add("ngrok-skip-browser-warning", "1");

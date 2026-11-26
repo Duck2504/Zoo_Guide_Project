@@ -98,6 +98,27 @@ public sealed class AnimalNarrationTests
     }
 
     [TestMethod]
+    public async Task Generate_ScriptEditedMeanwhile_SavesNothing_AndKeepsCurrentAudio()
+    {
+        var animal = new Animal { Id = 10 };
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "vi", LocalName = "Hổ", ScriptText = "Bài cũ", AudioUrl = "u-vi", SyncStatus = "Done" });
+        animal.AnimalContents.Add(new AnimalContent { LanguageCode = "en", LocalName = "Tiger", ScriptText = "Old", AudioUrl = "", SyncStatus = "Pending" });
+        var repo = new FakeRepo(animal);
+        var service = new AnimalService(repo);
+        var vi = animal.AnimalContents.Single(c => c.LanguageCode == "vi");
+        var gen = new FakeNarration { FailLangs = [], WhileGenerating = () => { vi.ScriptText = "Bài mới"; vi.SyncStatus = "Pending"; } };
+
+        var results = await service.GenerateNarrationAsync(10, ["vi", "en"], gen);
+
+        CollectionAssert.AreEqual(new[] { "u-vi" }, gen.LastKeepUrls); // gửi link DB đang dùng để microservice không xóa
+        Assert.IsTrue(results!.All(r => r.Status == "FAILED"));
+        Assert.IsFalse(repo.Saved);
+        Assert.AreEqual("u-vi", vi.AudioUrl);
+        Assert.IsTrue(animal.AnimalContents.All(c => c.SyncStatus == "Pending"));
+        Assert.AreEqual("Old", animal.AnimalContents.Single(c => c.LanguageCode == "en").ScriptText);
+    }
+
+    [TestMethod]
     public async Task Generate_WithoutVietnameseScript_Throws()
     {
         var service = new AnimalService(new FakeRepo(new Animal { Id = 1 }));
@@ -150,6 +171,8 @@ public sealed class AnimalNarrationTests
         public Task DeleteAsync(Animal a) => Task.CompletedTask;
         public Task SaveChangesAsync() { Saved = true; return Task.CompletedTask; }
         public Task EnsureLanguageAsync(string code) { EnsuredLanguages.Add(code); return Task.CompletedTask; }
+        public Task<string?> GetVietnameseScriptAsync(int animalId) =>
+            Task.FromResult(animalId == animal.Id ? animal.AnimalContents.FirstOrDefault(c => c.LanguageCode == "vi")?.ScriptText : null);
     }
 
     // Giả microservice: ko lỗi, các ngôn ngữ khác trả bản dịch + link mp3
@@ -163,9 +186,13 @@ public sealed class AnimalNarrationTests
         public string? LastName;
         public bool OldService; // microservice bản cũ: không trả tên đã dịch
         public string[] FailLangs = ["ko"];
+        public string[]? LastKeepUrls;
+        public Action? WhileGenerating; // giả admin sửa dữ liệu trong lúc microservice đang chạy
 
-        public Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null)
+        public Task<LangResult[]> GenerateAsync(int animalId, string text, string[] langs, bool textIsFinal = false, string? name = null, string? scientificName = null, string[]? keepUrls = null)
         {
+            WhileGenerating?.Invoke();
+            LastKeepUrls = keepUrls;
             LastTextIsFinal = textIsFinal;
             LastText = text;
             LastName = name;

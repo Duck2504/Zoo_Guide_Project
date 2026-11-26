@@ -1,4 +1,6 @@
-using Microsoft.AspNetCore.DataProtection;
+using System.Buffers.Text;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -27,27 +29,48 @@ namespace ZooAudioGuide.API.Filters
         }
     }
 
-    // Token đăng nhập admin tạo bằng Data Protection có sẵn của ASP.NET (mã hóa + ký + hạn dùng).
-    // shortcut: khóa Data Protection lưu trong container nên mỗi lần Render deploy/restart admin phải đăng nhập lại,
-    // và chỉ đúng khi chạy 1 instance; khi scale nhiều instance thì lưu khóa ra chỗ chung (DB/blob) hoặc chuyển sang JWT.
+    // Token đăng nhập admin: "base64url(username|hạn unix)" + "." + "base64url(HMAC-SHA256)".
+    // Khóa ký suy ra từ Admin:Username + Admin:Password trong cấu hình nên Render restart/deploy không làm admin bị đăng xuất;
+    // đổi mật khẩu thì mọi token cũ hết hiệu lực. Chưa cấu hình mật khẩu thì không cấp và không nhận token nào.
+    // shortcut: khóa suy ra thẳng từ mật khẩu, token lộ có thể bị dùng để dò mật khẩu offline; khi cần thì thêm biến Admin:TokenSecret riêng.
     public static class AdminToken
     {
         public static readonly TimeSpan Lifetime = TimeSpan.FromHours(8);
-        private const string Purpose = "ZooAudioGuide.AdminLogin.v1";
+        private const string Purpose = "ZooAudioGuide.AdminLogin.v2";
 
-        private static ITimeLimitedDataProtector Protector(IServiceProvider services) =>
-            services.GetRequiredService<IDataProtectionProvider>().CreateProtector(Purpose).ToTimeLimitedDataProtector();
+        // null nếu chưa cấu hình; Trim giống AuthController (biến môi trường Render hay dính khoảng trắng)
+        private static byte[]? Key(IServiceProvider services)
+        {
+            var cfg = services.GetService<IConfiguration>();
+            var user = cfg?["Admin:Username"]?.Trim();
+            var pass = cfg?["Admin:Password"]?.Trim();
+            if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(pass)) return null;
+            return SHA256.HashData(Encoding.UTF8.GetBytes($"{Purpose}\n{user}\n{pass}"));
+        }
 
-        public static string Issue(IServiceProvider services, string username, TimeSpan? lifetime = null) =>
-            Protector(services).Protect(username, lifetime ?? Lifetime);
+        public static string Issue(IServiceProvider services, string username, TimeSpan? lifetime = null)
+        {
+            var key = Key(services) ?? throw new InvalidOperationException("Chưa cấu hình Admin:Username / Admin:Password nên không cấp token admin");
+            var exp = DateTimeOffset.UtcNow.Add(lifetime ?? Lifetime).ToUnixTimeSeconds();
+            var payload = Encoding.UTF8.GetBytes($"{username}|{exp}");
+            return Base64Url.EncodeToString(payload) + "." + Base64Url.EncodeToString(HMACSHA256.HashData(key, payload));
+        }
 
         public static bool IsValid(IServiceProvider services, string token)
         {
             if (string.IsNullOrEmpty(token)) return false;
             try
             {
-                Protector(services).Unprotect(token, out _); // ném lỗi nếu sai chữ ký, sai định dạng hoặc hết hạn
-                return true;
+                var key = Key(services);
+                if (key == null) return false;
+                var parts = token.Split('.');
+                if (parts.Length != 2) return false;
+                var payload = Base64Url.DecodeFromChars(parts[0]);
+                if (!CryptographicOperations.FixedTimeEquals(HMACSHA256.HashData(key, payload), Base64Url.DecodeFromChars(parts[1])))
+                    return false;
+                var text = Encoding.UTF8.GetString(payload);
+                var exp = long.Parse(text[(text.LastIndexOf('|') + 1)..]);
+                return DateTimeOffset.UtcNow.ToUnixTimeSeconds() < exp;
             }
             catch
             {

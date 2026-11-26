@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
 
 const translations = {
-  vi: { title: 'Quét mã QR', hint: 'Hướng camera vào mã QR gắn ở chuồng thú.', close: 'Đóng', start: 'Bật camera', starting: 'Đang bật camera…', denied: 'Bạn chưa cho phép dùng camera. Hãy cho phép trong cài đặt trình duyệt rồi thử lại.', noCamera: 'Không mở được camera trên thiết bị này.', retry: 'Thử lại', invalid: 'Mã này không phải mã của vườn. Hãy thử mã trên biển chuồng thú.' },
-  en: { title: 'Scan QR code', hint: 'Point the camera at the QR code on the enclosure sign.', close: 'Close', start: 'Turn on camera', starting: 'Starting camera…', denied: 'Camera access was not allowed. Allow it in your browser settings and try again.', noCamera: 'The camera could not be opened on this device.', retry: 'Try again', invalid: 'This code is not from the zoo. Try the code on the enclosure sign.' },
-  ko: { title: 'QR 코드 스캔', hint: '우리 표지판의 QR 코드에 카메라를 맞추세요.', close: '닫기', start: '카메라 켜기', starting: '카메라를 켜는 중…', denied: '카메라 사용이 허용되지 않았습니다. 브라우저 설정에서 허용한 뒤 다시 시도하세요.', noCamera: '이 기기에서 카메라를 열 수 없습니다.', retry: '다시 시도', invalid: '동물원 코드가 아닙니다. 우리 표지판의 코드를 사용해 보세요.' },
-  ja: { title: 'QRコードをスキャン', hint: '展示場の看板にあるQRコードにカメラを向けてください。', close: '閉じる', start: 'カメラをオン', starting: 'カメラを起動中…', denied: 'カメラの使用が許可されていません。ブラウザの設定で許可してから、もう一度お試しください。', noCamera: 'この端末ではカメラを開けませんでした。', retry: 'もう一度', invalid: '園のコードではありません。展示場の看板のコードをお試しください。' },
+  vi: { title: 'Quét mã QR', hint: 'Hướng camera vào mã QR gắn ở chuồng thú.', close: 'Đóng', start: 'Bật camera', starting: 'Đang bật camera…', denied: 'Bạn chưa cho phép dùng camera. Hãy cho phép trong cài đặt trình duyệt rồi thử lại, hoặc mở app Camera của điện thoại và hướng vào mã.', noCamera: 'Không mở được camera ở đây. Hãy mở app Camera của điện thoại và hướng vào mã.', retry: 'Thử lại', invalid: 'Mã này không phải mã của vườn. Hãy thử mã trên biển chuồng thú.' },
+  en: { title: 'Scan QR code', hint: 'Point the camera at the QR code on the enclosure sign.', close: 'Close', start: 'Turn on camera', starting: 'Starting camera…', denied: 'Camera access was not allowed. Allow it in your browser settings and try again, or point your phone’s Camera app at the code.', noCamera: 'The camera could not be opened here. Point your phone’s Camera app at the code instead.', retry: 'Try again', invalid: 'This code is not from the zoo. Try the code on the enclosure sign.' },
+  ko: { title: 'QR 코드 스캔', hint: '우리 표지판의 QR 코드에 카메라를 맞추세요.', close: '닫기', start: '카메라 켜기', starting: '카메라를 켜는 중…', denied: '카메라 사용이 허용되지 않았습니다. 브라우저 설정에서 허용한 뒤 다시 시도하거나, 휴대폰 카메라 앱으로 코드를 비추세요.', noCamera: '여기서 카메라를 열 수 없습니다. 휴대폰 카메라 앱으로 코드를 비추세요.', retry: '다시 시도', invalid: '동물원 코드가 아닙니다. 우리 표지판의 코드를 사용해 보세요.' },
+  ja: { title: 'QRコードをスキャン', hint: '展示場の看板にあるQRコードにカメラを向けてください。', close: '閉じる', start: 'カメラをオン', starting: 'カメラを起動中…', denied: 'カメラの使用が許可されていません。ブラウザの設定で許可してから、もう一度お試しいただくか、スマホのカメラアプリでコードを読み取ってください。', noCamera: 'ここではカメラを開けませんでした。スマホのカメラアプリでコードを読み取ってください。', retry: 'もう一度', invalid: '園のコードではありません。展示場の看板のコードをお試しください。' },
 };
 
 const READER_ID = 'qr-reader';
@@ -30,8 +30,9 @@ export default function QRScannerModal({ isOpen, onClose }) {
   const start = async () => {
     setState('starting');
     setInvalid(false);
+    let scanner;
     try {
-      const scanner = new Html5Qrcode(READER_ID, { verbose: false });
+      scanner = new Html5Qrcode(READER_ID, { verbose: false });
       scannerRef.current = scanner;
       await scanner.start(
         { facingMode: 'environment' },
@@ -39,18 +40,21 @@ export default function QRScannerModal({ isOpen, onClose }) {
         async (decodedText) => {
           try {
             const url = new URL(decodedText);
-            if (!/^\/(a\/\d+)?$/.test(url.pathname)) throw new Error('not ours');
+            // Chỉ nhận đường dẫn tới trang con vật hoặc trang chủ của hệ thống
+            if (!/^\/(a\/\d+\/?)?$/.test(url.pathname)) throw new Error('not ours');
             await stop();
-            onClose();
-            navigate(url.pathname + url.search);
+            navigate(url.pathname + url.search, { replace: true });
           } catch {
             setInvalid(true);
           }
         },
         () => {}
       );
+      // Hộp đã đóng (hoặc đã bật lại) trong lúc camera đang khởi động: tắt camera này luôn
+      if (scannerRef.current !== scanner) { await scanner.stop().catch(() => {}); return; }
       setState('scanning');
     } catch (err) {
+      if (scanner && scannerRef.current !== scanner) return;
       scannerRef.current = null;
       setState(/permission|notallowed/i.test(String(err?.name || err)) ? 'denied' : 'failed');
     }
@@ -83,8 +87,8 @@ export default function QRScannerModal({ isOpen, onClose }) {
   const problem = state === 'denied' ? t.denied : state === 'failed' ? t.noCamera : null;
 
   return (
-    <div className="qr-scrim fixed inset-0 z-50 flex items-end justify-center bg-wall-deep/85 backdrop-blur-xs p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title">
-      <div ref={panelRef} className="qr-sheet w-full max-w-md rounded-t-3xl bg-label font-label text-ink shadow-[0_25px_50px_-12px_rgb(0_0_0/0.6)] sm:rounded-3xl">
+    <div className="qr-scrim fixed inset-0 z-50 flex items-end justify-center bg-wall-deep/85 backdrop-blur-xs p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="qr-title" onClick={e => e.target === e.currentTarget && onClose()}>
+      <div ref={panelRef} className="qr-sheet max-h-[100dvh] w-full overflow-y-auto max-w-md rounded-t-3xl bg-label font-label text-ink shadow-[0_25px_50px_-12px_rgb(0_0_0/0.6)] sm:rounded-3xl">
         <div className="flex items-center justify-between px-6 pb-2 pt-5">
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-wall/10 text-wall">
@@ -92,13 +96,13 @@ export default function QRScannerModal({ isOpen, onClose }) {
             </span>
             <h2 id="qr-title" className="text-xl font-extrabold">{t.title}</h2>
           </div>
-          <button autoFocus onClick={onClose} aria-label={t.close} className="-mr-2 flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-ink/10">
+          <button autoFocus onClick={onClose} aria-label={t.close} className="-mr-2 flex h-11 w-11 items-center justify-center rounded-xl transition-colors hover:bg-ink/10">
             <i className="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
           </button>
         </div>
 
         <div className="p-6 pb-8 pt-3">
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-ink shadow-inner">
+          <div className="relative mx-auto aspect-square w-full max-w-[60dvh] overflow-hidden rounded-2xl bg-ink shadow-inner">
             <div id={READER_ID} className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover" />
             {state !== 'scanning' && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-label">

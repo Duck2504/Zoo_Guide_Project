@@ -8,7 +8,7 @@ export default function AnimalImage({ src, alt, className = '', loading = 'lazy'
 
   if (!src || failedSrc === src) {
     return (
-      <div role="img" aria-label={alt} className={`flex items-center justify-center bg-wall-deep text-label/60 ${className}`}>
+      <div {...(alt ? { role: 'img', 'aria-label': alt } : { 'aria-hidden': true })} className={`flex items-center justify-center bg-wall-deep text-label/60 ${className}`}>
         <i className="fa-solid fa-paw text-4xl" aria-hidden="true"></i>
       </div>
     );

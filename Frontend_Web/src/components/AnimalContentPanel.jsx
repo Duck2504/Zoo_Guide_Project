@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { API } from '../config';
 import { adminFetch } from '../utils/adminFetch';
-import { errorText } from './AdminFeedback';
+import { errorText, useDialog } from './AdminFeedback';
 
 export const ADMIN_LANGS = [
   ['vi', 'Tiếng Việt'], ['en', 'Tiếng Anh'], ['ja', 'Tiếng Nhật'], ['ko', 'Tiếng Hàn'],
@@ -44,11 +44,7 @@ export function ContentPanel({ animal, contents, onClose, onSaved, setNotice }) 
   const [drafts, setDrafts] = useState({});
   const [savingLang, setSavingLang] = useState(null);
 
-  useEffect(() => {
-    const onKey = e => { if (e.key === 'Escape') onClose(); };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const panelRef = useDialog(true, onClose);
 
   const save = async (code, content) => {
     const draft = { localName: content.localName, scriptText: content.scriptText, ...drafts[code] };
@@ -75,7 +71,7 @@ export function ContentPanel({ animal, contents, onClose, onSaved, setNotice }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" role="dialog" aria-modal="true" aria-labelledby="content-title">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
+      <div ref={panelRef} className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-5 sm:px-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">Nội dung theo ngôn ngữ</p>
@@ -111,11 +107,11 @@ export function ContentPanel({ animal, contents, onClose, onSaved, setNotice }) 
                         <label className="block text-xs font-semibold text-slate-500" htmlFor={`name-${code}`}>Tên</label>
                         <input id={`name-${code}`} lang={code} value={draft.localName ?? content.localName}
                           onChange={e => setDrafts(d => ({ ...d, [code]: { ...d[code], localName: e.target.value } }))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" />
                         <label className="block text-xs font-semibold text-slate-500" htmlFor={`text-${code}`}>Bài thuyết minh</label>
                         <textarea id={`text-${code}`} lang={code} rows="4" value={draft.scriptText ?? content.scriptText}
                           onChange={e => setDrafts(d => ({ ...d, [code]: { ...d[code], scriptText: e.target.value } }))}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm leading-6 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" />
                         <div className="flex justify-end">
                           <button onClick={() => save(code, content)} disabled={savingLang !== null || (!dirty && state === 'done')}
                             className="min-h-11 rounded-xl bg-emerald-700 px-4 text-sm font-bold text-white transition hover:bg-emerald-800 disabled:opacity-50">

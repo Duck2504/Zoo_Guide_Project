@@ -48,7 +48,7 @@ export default function ZoneAnimalList({ zone, language, onNavigate, variant = '
             >
               <AnimalImage src={a.avatarUrl} alt="" className="h-12 w-12 shrink-0 rounded-xl" />
               <span className="min-w-0 flex-1">
-                <span className={`block truncate text-sm ${wall ? 'font-bold' : 'font-semibold'}`}>{a.defaultLocalName}</span>
+                <span className={`block line-clamp-2 text-sm leading-snug ${wall ? 'font-bold' : 'font-semibold'}`}>{a.defaultLocalName}</span>
                 <span className={`block truncate italic ${wall ? 'font-latin text-[13px] text-ink-soft' : 'text-xs text-post-soft'}`}>{a.scientificName}</span>
               </span>
               {listened.has(a.id) && (

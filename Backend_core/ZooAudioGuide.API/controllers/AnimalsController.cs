@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ZooAudioGuide.API.DTOs;
@@ -12,14 +13,24 @@ namespace ZooAudioGuide.API.Controllers
     [ApiController]
     public class AnimalsController : ControllerBase
     {
-        private readonly IAnimalService _animalService;
+        // Tag chung của cache API công khai (con vật, khu, ngôn ngữ); admin sửa gì cũng xóa cả tag vì DTO con vật chứa cả thông tin khu
+        public const string CacheTag = "public-data";
+        public const int CacheSeconds = 60;
 
-        public AnimalsController(IAnimalService animalService)
+        private readonly IAnimalService _animalService;
+        private readonly IOutputCacheStore _cache;
+
+        public AnimalsController(IAnimalService animalService, IOutputCacheStore cache)
         {
             _animalService = animalService;
+            _cache = cache;
         }
 
+        // default thay vì RequestAborted: DB đã lưu rồi, admin đóng tab cũng phải xóa cache
+        private Task EvictCacheAsync() => _cache.EvictByTagAsync(CacheTag, default).AsTask();
+
         [HttpGet]
+        [OutputCache(Duration = CacheSeconds, Tags = [CacheTag], VaryByQueryKeys = ["lang"])]
         public async Task<ActionResult<IEnumerable<AnimalDto>>> GetAnimals([FromQuery] string lang = "vi")
         {
             var animals = await _animalService.GetAllAnimalsAsync(lang);
@@ -27,6 +38,7 @@ namespace ZooAudioGuide.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [OutputCache(Duration = CacheSeconds, Tags = [CacheTag], VaryByQueryKeys = ["lang"])]
         public async Task<ActionResult<AnimalDto>> GetAnimal(int id, [FromQuery] string lang = "vi")
         {
             var animal = await _animalService.GetAnimalByIdAsync(id, lang);
@@ -46,6 +58,7 @@ namespace ZooAudioGuide.API.Controllers
             {
                 var results = await _animalService.GenerateNarrationAsync(id, langs, narration);
                 if (results == null) return NotFound();
+                await EvictCacheAsync();
                 return Ok(new { animalId = id, results });
             }
             catch (InvalidOperationException ex)
@@ -68,6 +81,7 @@ namespace ZooAudioGuide.API.Controllers
             {
                 var result = await _animalService.UpdateContentAsync(id, lang, dto, narration);
                 if (result == null) return NotFound();
+                await EvictCacheAsync(); // chữ đã lưu kể cả khi đọc lỗi
                 return Ok(result);
             }
             catch (InvalidOperationException ex)
@@ -107,6 +121,7 @@ namespace ZooAudioGuide.API.Controllers
         public async Task<ActionResult<AnimalDto>> CreateAnimal(AnimalCreateDto dto)
         {
             var createdAnimal = await _animalService.CreateAnimalAsync(dto);
+            await EvictCacheAsync();
             return Ok(createdAnimal);
         }
 
@@ -116,6 +131,7 @@ namespace ZooAudioGuide.API.Controllers
         {
             var result = await _animalService.UpdateAnimalAsync(id, dto);
             if (!result) return NotFound();
+            await EvictCacheAsync();
             return NoContent();
         }
 
@@ -125,6 +141,7 @@ namespace ZooAudioGuide.API.Controllers
         {
             var result = await _animalService.DeleteAnimalAsync(id);
             if (!result) return NotFound();
+            await EvictCacheAsync();
             return NoContent();
         }
     }

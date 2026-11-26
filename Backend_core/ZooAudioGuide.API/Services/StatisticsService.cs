@@ -53,7 +53,7 @@ namespace ZooAudioGuide.API.Services
                 .ToListAsync();
 
             // Đếm theo id trước, tên lấy ở truy vấn riêng (tránh truy vấn con sau GroupBy mà SQL Server không dịch được)
-            var top = await _context.ScanLogs
+            var top = await window // trang ghi "7 ngày qua"
                 .Where(s => s.AnimalId != null)
                 .GroupBy(s => s.AnimalId!.Value)
                 .Select(g => new { Id = g.Key, Count = g.Count() })

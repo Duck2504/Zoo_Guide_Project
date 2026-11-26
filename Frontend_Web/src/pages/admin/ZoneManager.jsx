@@ -16,6 +16,7 @@ export default function ZoneManager() {
   const [error, setError] = useState(null); // State lưu lỗi trả về từ Backend
   const [loadError, setLoadError] = useState(''); // lỗi tải danh sách (khác lỗi form)
   const [searchTerm, setSearchTerm] = useState('');
+  const [saving, setSaving] = useState(false);
   const [animalCount, setAnimalCount] = useState({}); // zoneId → số con vật
   const modalRef = useDialog(isModalOpen, () => setIsModalOpen(false));
 
@@ -77,7 +78,9 @@ export default function ZoneManager() {
   // 2. Lưu form (Thêm mới / Cập nhật)
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (saving) return;
     setError(null); // Xóa lỗi cũ trước khi gọi API mới
+    setSaving(true);
 
     try {
       const isUpdate = formData.id;
@@ -109,6 +112,8 @@ export default function ZoneManager() {
     } catch (error) {
       console.error("Lỗi lưu Khu vực:", error);
       setError("Lỗi kết nối đến máy chủ.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -173,7 +178,7 @@ export default function ZoneManager() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <label className="relative block sm:w-72">
                 <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" aria-hidden="true"></i>
-                <input type="search" value={searchTerm} onChange={event => setSearchTerm(event.target.value)} placeholder="Tìm mã khu vực, tọa độ..." aria-label="Tìm khu vực" className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
+                <input type="search" value={searchTerm} onChange={event => setSearchTerm(event.target.value)} placeholder="Tìm mã khu vực, tọa độ..." aria-label="Tìm khu vực" className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" />
               </label>
               <button onClick={fetchZones} disabled={isLoading} title="Làm mới danh sách" aria-label="Làm mới danh sách" className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-50">
                 <i className={`fa-solid fa-rotate ${isLoading ? 'fa-spin' : ''}`} aria-hidden="true"></i><span className="sm:hidden">Làm mới</span>
@@ -273,11 +278,11 @@ export default function ZoneManager() {
               )}
               <div>
                 <label htmlFor="zone-code" className="mb-1.5 block text-sm font-bold text-slate-700">Mã khu vực <span className="text-rose-500">*</span></label>
-                <input id="zone-code" type="text" placeholder="Ví dụ: Z-TIGER" value={formData.zoneCode} onChange={e => setFormData({...formData, zoneCode: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                <input id="zone-code" type="text" placeholder="Ví dụ: Z-TIGER" value={formData.zoneCode} onChange={e => setFormData({...formData, zoneCode: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
               </div>
               <div>
                 <label htmlFor="zone-name" className="mb-1.5 block text-sm font-bold text-slate-700">Tên hiển thị cho du khách</label>
-                <input id="zone-name" type="text" maxLength={100} placeholder="Ví dụ: Khu Bò sát" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" />
+                <input id="zone-name" type="text" maxLength={100} placeholder="Ví dụ: Khu Bò sát" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" />
                 <p className="mt-1 text-xs text-slate-500">Hiện trên trang du khách khi họ bước vào khu. Để trống thì dùng mã khu vực.</p>
               </div>
               <div>
@@ -285,11 +290,11 @@ export default function ZoneManager() {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="zone-latitude" className="mb-1.5 block text-xs font-semibold text-slate-500">Vĩ độ (Latitude) <span className="text-rose-500">*</span></label>
-                  <input id="zone-latitude" type="number" step="any" placeholder="10.7626" value={formData.latitude} onChange={e => setFormData({...formData, latitude: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                  <input id="zone-latitude" type="number" step="any" placeholder="10.7626" value={formData.latitude} onChange={e => setFormData({...formData, latitude: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
                 </div>
                 <div>
                   <label htmlFor="zone-longitude" className="mb-1.5 block text-xs font-semibold text-slate-500">Kinh độ (Longitude) <span className="text-rose-500">*</span></label>
-                  <input id="zone-longitude" type="number" step="any" placeholder="106.6602" value={formData.longitude} onChange={e => setFormData({...formData, longitude: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                  <input id="zone-longitude" type="number" step="any" placeholder="106.6602" value={formData.longitude} onChange={e => setFormData({...formData, longitude: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
                 </div>
                 </div>
               </div>
@@ -308,14 +313,14 @@ export default function ZoneManager() {
               <div>
                 <label htmlFor="zone-radius" className="mb-1.5 block text-sm font-bold text-slate-700">Bán kính quét GPS <span className="text-rose-500">*</span></label>
                 <div className="relative">
-                  <input id="zone-radius" type="number" value={formData.radius} onChange={e => setFormData({...formData, radius: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10" required />
+                  <input id="zone-radius" type="number" value={formData.radius} onChange={e => setFormData({...formData, radius: e.target.value})} className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-12 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-700/70" required />
                   <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">m</span>
                 </div>
                 <p className="mt-1.5 text-xs text-slate-500">Khoảng cách nhận diện khu vực tính từ tọa độ đã nhập.</p>
               </div>
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
-                <button type="submit" className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20">
+                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/60 disabled:opacity-60">
                   <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`} aria-hidden="true"></i>{formData.id ? 'Lưu cập nhật' : 'Tạo khu vực'}
                 </button>
               </div>

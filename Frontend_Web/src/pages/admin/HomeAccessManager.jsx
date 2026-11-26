@@ -87,13 +87,13 @@ export default function HomeAccessManager() {
                 <div className="mt-5 flex flex-col gap-3">
                   <button
                     onClick={handleDownloadQR}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/20"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-700/70"
                   >
                     <i className="fa-solid fa-download" aria-hidden="true"></i> Tải mã QR PNG
                   </button>
                   <button
                     onClick={handleCopyLink}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-800 focus:outline-none focus:ring-4 focus:ring-emerald-700/70"
                   >
                     <i className={`fa-solid ${isCopied ? 'fa-check' : 'fa-copy'}`} aria-hidden="true"></i>
                     {isCopied ? 'Đã sao chép' : 'Sao chép liên kết'}

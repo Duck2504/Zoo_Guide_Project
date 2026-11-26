@@ -14,7 +14,7 @@ const translations = {
     orScanBody: 'Mỗi chuồng có một mã QR. Quét để mở thẳng bài thuyết minh của con vật đó, không cần bật định vị.',
     openCamera: 'Mở camera quét mã',
     featured: 'Loài nổi bật', featuredSub: n => `${n} điểm nghe trong vườn, xếp theo mức bảo tồn`,
-    listened: 'Đã nghe', allOnMap: 'Xem tất cả trên bản đồ', loadFail: 'Chưa tải được danh sách loài. Kiểm tra mạng rồi mở lại trang.',
+    listened: 'Đã nghe', allOnMap: 'Xem tất cả trên bản đồ', loadFail: 'Chưa tải được danh sách loài. Kiểm tra mạng rồi thử lại.', retry: 'Thử lại',
     iucn: { LC: 'Ít quan ngại', NT: 'Sắp bị đe dọa', VU: 'Sắp nguy cấp', EN: 'Nguy cấp', CR: 'Cực kỳ nguy cấp', EW: 'Tuyệt chủng ngoài tự nhiên' },
     hoursTitle: 'Giờ mở cửa', hours: '07:00 – 18:30, mỗi ngày', langsTitle: 'Ngôn ngữ thuyết minh',
     photos: 'Ảnh động vật: Wikimedia Commons.'
@@ -24,7 +24,7 @@ const translations = {
     orScanBody: 'Every enclosure has a QR code. Scan it to open that animal’s guide directly, no location needed.',
     openCamera: 'Open camera to scan',
     featured: 'Featured animals', featuredSub: n => `${n} listening stops in the zoo, ordered by conservation status`,
-    listened: 'Listened', allOnMap: 'See all on the map', loadFail: 'The animal list could not be loaded. Check your connection and reopen the page.',
+    listened: 'Listened', allOnMap: 'See all on the map', loadFail: 'The animal list could not be loaded. Check your connection and try again.', retry: 'Try again',
     iucn: { LC: 'Least concern', NT: 'Near threatened', VU: 'Vulnerable', EN: 'Endangered', CR: 'Critically endangered', EW: 'Extinct in the wild' },
     hoursTitle: 'Opening hours', hours: '07:00 – 18:30, daily', langsTitle: 'Guide languages',
     photos: 'Animal photos: Wikimedia Commons.'
@@ -34,7 +34,7 @@ const translations = {
     orScanBody: '各展示場にQRコードがあります。スキャンするとその動物のガイドが直接開きます。位置情報は不要です。',
     openCamera: 'カメラを開いてスキャン',
     featured: '注目の動物', featuredSub: n => `園内の音声ポイント ${n} か所（保全状況の順）`,
-    listened: '聞いた', allOnMap: '地図ですべて見る', loadFail: '動物リストを読み込めませんでした。接続を確認してページを開き直してください。',
+    listened: '聞いた', allOnMap: '地図ですべて見る', loadFail: '動物リストを読み込めませんでした。接続を確認してもう一度お試しください。', retry: '再試行',
     iucn: { LC: '低懸念', NT: '準絶滅危惧', VU: '危急', EN: '絶滅危惧', CR: '深刻な危機', EW: '野生絶滅' },
     hoursTitle: '開園時間', hours: '毎日 07:00 – 18:30', langsTitle: 'ガイドの言語',
     photos: '動物の写真：Wikimedia Commons'
@@ -44,7 +44,7 @@ const translations = {
     orScanBody: '모든 우리에 QR 코드가 있습니다. 스캔하면 해당 동물의 해설이 바로 열립니다. 위치는 필요 없습니다.',
     openCamera: '카메라 열고 스캔',
     featured: '주요 동물', featuredSub: n => `동물원 내 청취 지점 ${n}곳, 보전 상태 순`,
-    listened: '들음', allOnMap: '지도에서 모두 보기', loadFail: '동물 목록을 불러오지 못했습니다. 연결을 확인하고 페이지를 다시 여세요.',
+    listened: '들음', allOnMap: '지도에서 모두 보기', loadFail: '동물 목록을 불러오지 못했습니다. 연결을 확인하고 다시 시도하세요.', retry: '다시 시도',
     iucn: { LC: '관심대상', NT: '준위협', VU: '취약', EN: '위기', CR: '위급', EW: '야생절멸' },
     hoursTitle: '운영 시간', hours: '매일 07:00 – 18:30', langsTitle: '해설 언어',
     photos: '동물 사진: Wikimedia Commons'
@@ -62,13 +62,17 @@ export default function Home() {
   const t = translations[language] || translations['vi'];
   const [animals, setAnimals] = useState(null);
   const [listened, setListened] = useState(getListened);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
-    let sessionId = sessionStorage.getItem('zoo_session_id');
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      sessionStorage.setItem('zoo_session_id', sessionId);
-    }
+    let sessionId;
+    try { // trình duyệt chặn bộ nhớ hoặc quá cũ (không có randomUUID): bỏ qua lượt ghi, không làm hỏng trang
+      sessionId = sessionStorage.getItem('zoo_session_id');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        sessionStorage.setItem('zoo_session_id', sessionId);
+      }
+    } catch { return; }
     fetch(`${API}/api/scan-logs`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -83,7 +87,7 @@ export default function Home() {
       .then(data => { if (!cancelled) setAnimals(data); })
       .catch(() => { if (!cancelled) setAnimals('error'); });
     return () => { cancelled = true; };
-  }, [language]);
+  }, [language, retry]);
 
   useEffect(() => {
     const update = () => setListened(getListened());
@@ -143,7 +147,10 @@ export default function Home() {
               {Array.from({ length: FEATURED_COUNT }, (_, i) => <div key={i} className="h-[104px] rounded-2xl bg-label/10 motion-safe:animate-pulse" />)}
             </div>
           ) : animals === 'error' ? (
-            <p role="alert" className="mt-4 rounded-2xl bg-label p-5 text-base font-medium text-ink shadow-lg">{t.loadFail}</p>
+            <div role="alert" className="mt-4 rounded-2xl bg-label p-5 text-base font-medium text-ink shadow-lg">
+              <p>{t.loadFail}</p>
+              <button onClick={() => { setAnimals(null); setRetry(r => r + 1); }} className="mt-3 min-h-11 rounded-xl bg-wall px-5 font-semibold text-label hover:bg-wall-deep">{t.retry}</button>
+            </div>
           ) : (
             <ul className="mt-4 space-y-3">
               {featured.map((a, i) => (

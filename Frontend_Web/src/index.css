@@ -65,10 +65,11 @@ body {
 }
 .visitor-world .leaflet-popup-content { margin: 12px; }
 .visitor-world .leaflet-popup-tip { background: var(--color-label); }
+/* Nút đóng popup giữ 44px cho ngón tay */
 .visitor-world .leaflet-container a.leaflet-popup-close-button {
-  width: 36px;
-  height: 36px;
-  font: 700 20px/36px var(--font-label);
+  width: 44px;
+  height: 44px;
+  font: 700 20px/44px var(--font-label);
   color: var(--color-ink-soft);
   border-radius: 9999px;
   top: 6px;
@@ -81,7 +82,10 @@ body {
 
 /* Focus trên nền tối / sáng */
 .visitor-world .wall-page :focus-visible { outline-color: var(--color-label); }
-.visitor-world .wall-page .bg-label :focus-visible, .visitor-world .wall-page .bg-label:focus-visible { outline-color: var(--color-ink); }
+.visitor-world .wall-page .bg-label :focus-visible, .visitor-world .wall-page .bg-label:focus-visible, .visitor-world .wall-page.bg-label :focus-visible { outline-color: var(--color-ink); }
+/* Nút nhãn trắng: vòng mực vẽ vào trong (vẽ ra ngoài thì nằm trên tường tối, gần như không thấy) */
+.visitor-world .bg-label:focus-visible { outline-color: var(--color-ink); outline-offset: -3px; }
+/* Popup và ghim bản đồ nằm trên nền sáng: vòng focus màu mực mới thấy được */
 .visitor-world .leaflet-popup :focus-visible, .visitor-world .leaflet-marker-icon:focus-visible { outline-color: var(--color-ink); }
 .visitor-world .wall-page ::selection { background: var(--color-label); color: var(--color-wall); }
 .visitor-world .wall-page .bg-label ::selection { background: var(--color-wall); color: var(--color-label); }

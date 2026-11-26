@@ -36,7 +36,9 @@ builder.Services.AddHttpClient<INarrationClient, NarrationClient>(c => c.Timeout
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails(); // bắt buộc đi cùng UseExceptionHandler() bên dưới
-builder.Services.AddDataProtection(); // tạo/kiểm tra token đăng nhập admin (AdminToken)
+// Cache ngắn cho các API đọc công khai (chỉ endpoint gắn [OutputCache]); admin sửa dữ liệu thì xóa theo tag.
+// Không AddBasePolicy và không gắn [OutputCache] cho API [AdminKey]: OutputCache chạy trước filter nên sẽ trả dữ liệu admin cho bất kỳ ai.
+builder.Services.AddOutputCache();
 
 // Chống dò mật khẩu ở /api/auth/login: tối đa 5 lần/phút.
 // shortcut: sau proxy của Render mọi request chung 1 IP nên giới hạn là toàn cục (kẻ dò có thể làm admin chờ 1 phút); khi cần thì chia theo X-Forwarded-For.
@@ -44,11 +46,12 @@ builder.Services.AddRateLimiter(o =>
 {
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests; // mặc định là 503
     o.AddFixedWindowLimiter("login", w => { w.PermitLimit = 5; w.Window = TimeSpan.FromMinutes(1); w.QueueLimit = 0; });
-    // Ghi lượt quét: tối đa 60 lần/phút mỗi IP (đủ cho cả nhóm khách chung wifi), chặn script bơm số liệu.
+    // Ghi lượt quét: tối đa 600 lần/phút mỗi IP. Cả trăm khách chung wifi sở thú/NAT nhà mạng có thể chung 1 IP,
+    // nên giới hạn phải đủ cho ~100 người cùng quét; vẫn chặn được script bơm số liệu ồ ạt.
     // shortcut: IP lấy từ X-Forwarded-For nên kẻ cố ý có thể giả; lọc nguồn và lọc trùng phiên vẫn chặn phần lớn.
     o.AddPolicy("scan-log", http => RateLimitPartition.GetFixedWindowLimiter(
         http.Request.Headers["X-Forwarded-For"].ToString().Split(',')[0].Trim() is { Length: > 0 } ip ? ip : http.Connection.RemoteIpAddress?.ToString() ?? "",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 600, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 });
 
 builder.Services.AddCors(options =>
@@ -67,6 +70,7 @@ if (!app.Environment.IsDevelopment()) app.UseExceptionHandler();
 
 // 1. KÍCH HOẠT CORS
 app.UseCors("AllowFE");
+app.UseOutputCache(); // sau CORS để response lấy từ cache vẫn có header CORS
 app.UseRateLimiter(); // sau CORS để trang web đọc được lỗi 429
 
 // 2. CẤU HÌNH API DOCS & GIAO DIỆN SCALAR (Tương tự Swagger)

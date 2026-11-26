@@ -20,6 +20,7 @@ namespace ZooAudioGuide.API.Repositories
         {
             // Include thêm Zone và AnimalContents để lấy được tọa độ và tên tiếng Việt
             return await _context.Animals
+                .AsNoTracking() // chỉ để đọc (danh sách công khai, bảng nội dung của admin)
                 .Include(a => a.Zone)
                 .Include(a => a.AnimalContents)
                 .ToListAsync();
@@ -68,6 +69,16 @@ namespace ZooAudioGuide.API.Repositories
         {
             if (!await _context.Languages.AnyAsync(l => l.Code == code))
                 _context.Languages.Add(new Language { Code = code, Name = LanguageNames.GetValueOrDefault(code, code) });
+        }
+
+        // Đọc thẳng DB (không qua bản đang theo dõi trong DbContext) để biết bài tiếng Việt hiện tại; null nếu con vật/bài đã bị xóa
+        public async Task<string?> GetVietnameseScriptAsync(int animalId)
+        {
+            return await _context.AnimalContents
+                .AsNoTracking()
+                .Where(c => c.AnimalId == animalId && c.LanguageCode == "vi")
+                .Select(c => c.ScriptText)
+                .FirstOrDefaultAsync();
         }
     }
 }

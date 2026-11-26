@@ -16,7 +16,7 @@ export function ZonePlaylistProvider({ zoneId, language, children }) {
     const audio = audioRef.current;
     if (!current) { audio?.pause(); return; }
     audio.src = current.audioUrl;
-    audio.play().catch(() => setList(null));
+    audio.play().catch(e => { if (e.name === 'NotAllowedError') setList(null); }); // bài hỏng: onError đã chuyển bài
   }, [current]);
 
   const next = () => setList(l => (l && l.index + 1 < l.tracks.length ? { ...l, index: l.index + 1 } : null));
@@ -25,6 +25,7 @@ export function ZonePlaylistProvider({ zoneId, language, children }) {
     zoneId: list?.zoneId ?? null,
     current,
     index: list?.index ?? -1,
+    total: list?.tracks.length ?? 0,
     play: (id, tracks) => setList({ zoneId: id, tracks, index: 0 }),
     stop: () => setList(null),
   };
