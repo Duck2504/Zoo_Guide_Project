@@ -7,7 +7,7 @@
 | STT | MSSV | Họ và tên |
 |---:|---|---|
 | 1 | 3124411072 | [DƯ GIA ĐỨC]() |
-| 2 | 3124411193 | [Phan Ngọc Thảo Nguyên]() |
+| 2 | 3124411193 | [PHAN NGỌC THẢO NGUYÊN]() |
 | 3 | 3124411339 | [PHẠM VĂN TUYÊN](https://web.facebook.com/tuyenmedia) |
 # Zoo Audio Guide – Thuyết minh Thảo Cầm Viên đa ngôn ngữ
 
