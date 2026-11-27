@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ZooAudioGuide.API/ZooAudioGuide.API.csproj" />
+  <Project Path="ZooAudioGuide.Tests/ZooAudioGuide.Tests.csproj" />
 </Solution>
