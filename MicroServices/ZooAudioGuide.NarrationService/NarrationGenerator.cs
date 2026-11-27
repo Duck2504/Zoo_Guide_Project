@@ -18,7 +18,7 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
             var hash = Convert.ToHexString(
                 SHA256.HashData(Encoding.UTF8.GetBytes(text + "|" + lang)))[..16];
 
-            var folder = $"animals/{animalId}";
+            var folder = $"newanimals/{animalId}";
             var mp3Path = $"{folder}/{lang}-{hash}.mp3";
             var txtPath = $"{folder}/{lang}-{hash}.txt";     // lưu bản dịch cạnh file mp3
             var url = store.GetPublicUrl(mp3Path);
@@ -60,7 +60,7 @@ public class NarrationGenerator(ITranslator translator, ITtsService tts,
         {
             var hash = Convert.ToHexString(
                 SHA256.HashData(Encoding.UTF8.GetBytes(name + "|" + scientificName + "|" + lang)))[..16];
-            var path = $"animals/{animalId}/name-{lang}-{hash}.txt";
+            var path = $"newanimals/{animalId}/name-{lang}-{hash}.txt";
             var cached = await store.TryReadTextAsync(path);
             if (cached is not null) return cached;
 
