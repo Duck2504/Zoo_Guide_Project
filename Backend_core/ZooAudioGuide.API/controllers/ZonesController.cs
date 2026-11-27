@@ -45,19 +45,33 @@ namespace ZooAudioGuide.API.Controllers
         [AdminKey]
         public async Task<IActionResult> CreateZone(ZoneCreateDto dto)
         {
-            var createdZone = await _zoneService.CreateZoneAsync(dto);
-            await EvictCacheAsync();
-            return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
+            try
+            {
+                var createdZone = await _zoneService.CreateZoneAsync(dto);
+                await EvictCacheAsync();
+                return CreatedAtAction(nameof(GetZone), new { id = createdZone.Id }, createdZone);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         [AdminKey]
         public async Task<IActionResult> UpdateZone(int id, ZoneCreateDto dto)
         {
-            var result = await _zoneService.UpdateZoneAsync(id, dto);
-            if (!result) return NotFound();
-            await EvictCacheAsync();
-            return NoContent();
+            try
+            {
+                var result = await _zoneService.UpdateZoneAsync(id, dto);
+                if (!result) return NotFound();
+                await EvictCacheAsync();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]

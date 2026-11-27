@@ -30,6 +30,33 @@ public sealed class ZoneAndScanLogTests
     }
 
     [TestMethod]
+    public async Task CreateOrUpdateZone_RejectsOverlappingZones_AllowsSelfUpdateAndNonOverlapping()
+    {
+        var repo = new FakeZoneRepo();
+        var service = new ZoneService(repo);
+
+        // Khu 1: bán kính 45m tại (10.7875, 106.7052)
+        var z1 = await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z1", Name = "Khu 1", Latitude = 10.7875, Longitude = 106.7052, Radius = 45 });
+
+        // Khu mới cách tâm ~55m với bán kính 45m (55 < 90) -> đè lên nhau -> phải chặn
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z2", Name = "Khu 2", Latitude = 10.7880, Longitude = 106.7052, Radius = 45 }));
+
+        // Khu 2 cách tâm ~111m (0.001 độ vĩ) với bán kính 45m (111 >= 90) -> hợp lệ
+        var z2 = await service.CreateZoneAsync(new ZoneCreateDto { ZoneCode = "Z2", Name = "Khu 2", Latitude = 10.7885, Longitude = 106.7052, Radius = 45 });
+
+        // Cập nhật chính Khu 2 tại vị trí không đè lên Khu 1 -> hợp lệ (không tự đụng chính mình)
+        var updatedOk = await service.UpdateZoneAsync(z2.Id, new ZoneCreateDto { ZoneCode = "Z2", Name = "Khu 2 mới", Latitude = 10.7886, Longitude = 106.7052, Radius = 45 });
+        Assert.IsTrue(updatedOk);
+
+        // Cập nhật Khu 2 tăng bán kính lên 80m (80 + 45 = 125 > ~122m) -> đè Khu 1 -> phải chặn
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            service.UpdateZoneAsync(z2.Id, new ZoneCreateDto { ZoneCode = "Z2", Name = "Khu 2 mới", Latitude = 10.7886, Longitude = 106.7052, Radius = 80 }));
+        Assert.AreEqual(2, (await repo.GetAllAsync()).Count());
+        Assert.AreEqual(1, z1.Id);
+    }
+
+    [TestMethod]
     public async Task RecordLog_UnknownAnimalBecomesNull_KnownKept_UserAgentCut()
     {
         var repo = new FakeScanLogRepo(knownAnimalId: 5);
@@ -72,13 +99,14 @@ public sealed class ZoneAndScanLogTests
 
     private sealed class FakeZoneRepo : IZoneRepository
     {
-        public Zone? Added;
-        public IQueryable<Zone> GetZonesWithDetails() => Enumerable.Empty<Zone>().AsQueryable();
-        public Task<IEnumerable<Zone>> GetAllAsync() => Task.FromResult<IEnumerable<Zone>>(Added is null ? [] : [Added]);
-        public Task<Zone?> GetByIdAsync(int id) => Task.FromResult(Added?.Id == id ? Added : null);
-        public Task AddAsync(Zone zone) { zone.Id = 1; Added = zone; return Task.CompletedTask; }
+        public List<Zone> Zones = [];
+        public Zone? Added => Zones.LastOrDefault();
+        public IQueryable<Zone> GetZonesWithDetails() => Zones.AsQueryable();
+        public Task<IEnumerable<Zone>> GetAllAsync() => Task.FromResult<IEnumerable<Zone>>(Zones);
+        public Task<Zone?> GetByIdAsync(int id) => Task.FromResult(Zones.FirstOrDefault(z => z.Id == id));
+        public Task AddAsync(Zone zone) { zone.Id = Zones.Count + 1; Zones.Add(zone); return Task.CompletedTask; }
         public Task UpdateAsync(Zone zone) => Task.CompletedTask;
-        public Task DeleteAsync(Zone zone) => Task.CompletedTask;
+        public Task DeleteAsync(Zone zone) { Zones.Remove(zone); return Task.CompletedTask; }
         public Task SaveChangesAsync() => Task.CompletedTask;
         public Task<bool> HasAnimalsAsync(int zoneId) => Task.FromResult(false);
     }

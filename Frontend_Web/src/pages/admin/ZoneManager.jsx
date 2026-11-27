@@ -51,6 +51,19 @@ export default function ZoneManager() {
     ? Math.round(zones.reduce((total, zone) => total + (Number(zone.radius) || 0), 0) / zones.length)
     : 0;
 
+  // Kiểm tra nhanh các cặp khu đang có trên bản đồ xem có khu nào bị đè lên nhau không
+  const existingOverlaps = {};
+  for (let i = 0; i < zones.length; i++) {
+    for (let j = i + 1; j < zones.length; j++) {
+      const a = zones[i], b = zones[j];
+      const d = calculateDistance(a.latitude, a.longitude, b.latitude, b.longitude);
+      if (d < (Number(a.radius) || 0) + (Number(b.radius) || 0)) {
+        (existingOverlaps[a.id] ??= []).push(b.name || b.zoneCode);
+        (existingOverlaps[b.id] ??= []).push(a.name || a.zoneCode);
+      }
+    }
+  }
+
   // 1. Lấy danh sách Khu vực
   const fetchZones = async () => {
     setIsLoading(true);
@@ -80,6 +93,10 @@ export default function ZoneManager() {
     e.preventDefault();
     if (saving) return;
     setError(null); // Xóa lỗi cũ trước khi gọi API mới
+    if (overlaps.length > 0) {
+      setError(`2 khu vực không được đè lên nhau: đang giao với ${overlaps.map(({ z, d }) => `${z.name || z.zoneCode} (tâm cách ${Math.round(d)} m)`).join(', ')}. Hãy dời tâm hoặc giảm bán kính.`);
+      return;
+    }
     setSaving(true);
 
     try {
@@ -235,6 +252,12 @@ export default function ZoneManager() {
                       <span className="inline-flex items-center gap-2 rounded-lg bg-sky-50 px-3 py-2 text-sm font-bold text-sky-800">
                         <i className="fa-solid fa-bullseye text-xs text-sky-600" aria-hidden="true"></i>{zone.radius} m
                       </span>
+                      {existingOverlaps[zone.id] && (
+                        <p className="mt-1.5 inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 text-xs font-semibold text-rose-700">
+                          <i className="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                          Đè lên: {existingOverlaps[zone.id].join(', ')}
+                        </p>
+                      )}
                     </td>
                     <td className="px-5 py-4 text-sm font-semibold text-slate-700">
                       {animalCount[zone.id] ? `${animalCount[zone.id]} con` : <span className="text-amber-700">Chưa có con nào</span>}
@@ -301,13 +324,15 @@ export default function ZoneManager() {
               <Suspense fallback={<div className="h-64 rounded-xl bg-slate-100" />}>
                 <ZonePicker
                   lat={formLat} lng={formLng} radius={formRadius} others={otherZones}
+                  hasOverlap={overlaps.length > 0}
+                  overlapIds={overlaps.map(({ z }) => z.id)}
                   onPick={(lat, lng) => setFormData(f => ({ ...f, latitude: lat.toFixed(6), longitude: lng.toFixed(6) }))}
                 />
               </Suspense>
               {overlaps.length > 0 && (
-                <p role="alert" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-                  <i className="fa-solid fa-triangle-exclamation mr-2" aria-hidden="true"></i>
-                  Khu này chồng lên {overlaps.map(({ z, d }) => `${z.name || z.zoneCode} (tâm cách ${Math.round(d)} m)`).join(', ')}. Khách đứng ở phần chồng nhau có thể bị nhận nhầm khu: dời tâm hoặc giảm bán kính.
+                <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
+                  <i className="fa-solid fa-circle-exclamation mr-2" aria-hidden="true"></i>
+                  <strong>Không thể lưu (đè khu vực):</strong> Đang giao với {overlaps.map(({ z, d }) => `${z.name || z.zoneCode} (tâm cách ${Math.round(d)} m, cần ≥ ${formRadius + (Number(z.radius) || 0)} m)`).join(', ')}. Hãy dời tâm hoặc giảm bán kính.
                 </p>
               )}
               <div>
@@ -320,7 +345,7 @@ export default function ZoneManager() {
               </div>
               <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-600 transition hover:bg-slate-50">Hủy</button>
-                <button type="submit" disabled={saving} className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/60 disabled:opacity-60">
+                <button type="submit" disabled={saving || overlaps.length > 0} className="rounded-xl bg-emerald-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-800 focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-700/60 disabled:cursor-not-allowed disabled:opacity-50">
                   <i className={`fa-solid ${formData.id ? 'fa-floppy-disk' : 'fa-plus'} mr-2`} aria-hidden="true"></i>{formData.id ? 'Lưu cập nhật' : 'Tạo khu vực'}
                 </button>
               </div>
