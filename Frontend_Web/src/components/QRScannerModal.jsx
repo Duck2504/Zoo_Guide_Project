@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
+import { grantAccess, isZooQrUrl } from '../utils/qrAccess';
 import { useNavigate } from 'react-router-dom';
 import { useVisitor } from '../context/VisitorContext';
 
@@ -38,15 +39,12 @@ export default function QRScannerModal({ isOpen, onClose }) {
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 240, height: 240 } },
         async (decodedText) => {
-          try {
-            const url = new URL(decodedText);
-            // Chỉ nhận đường dẫn tới trang con vật hoặc trang chủ của hệ thống
-            if (!/^\/(a\/\d+\/?)?$/.test(url.pathname)) throw new Error('not ours');
-            await stop();
-            navigate(url.pathname + url.search, { replace: true });
-          } catch {
-            setInvalid(true);
-          }
+          // Chỉ nhận link trang con vật hoặc trang chủ của vườn
+          if (!isZooQrUrl(decodedText, window.location.host)) { setInvalid(true); return; }
+          const url = new URL(decodedText);
+          await stop();
+          grantAccess();
+          navigate(url.pathname + url.search, { replace: true });
         },
         () => {}
       );
