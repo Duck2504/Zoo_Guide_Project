@@ -13,12 +13,7 @@ export default function AroundYou({ geo, language, languages, zoneCount }) {
 
   return (
     <section aria-labelledby="locate-title" className="rounded-3xl border border-ink/5 bg-label p-5 text-ink shadow-[0_22px_48px_-16px_rgb(0_0_0/0.5)] sm:p-7">
-      <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
-        <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
-        GPS Smart Audio Guide
-      </div>
-
-      <h1 id="locate-title" className="mt-3 text-[2rem] font-extrabold leading-[1.06] tracking-[-0.02em] text-balance text-ink sm:text-5xl lg:text-[3.75rem] lg:leading-[1.02]">
+      <h1 id="locate-title" className="text-[2rem] font-extrabold leading-[1.06] tracking-[-0.02em] text-balance text-ink sm:text-5xl lg:text-[3.75rem] lg:leading-[1.02]">
         {t.heroTitle}
       </h1>
       <p className="mt-3 font-latin text-base italic text-ink-soft lg:text-lg">
