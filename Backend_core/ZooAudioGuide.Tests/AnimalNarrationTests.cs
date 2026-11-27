@@ -198,7 +198,7 @@ public sealed class AnimalNarrationTests
             LastName = name;
             return Task.FromResult(langs.Select(l => FailLangs.Contains(l)
                 ? new LangResult(l, "FAILED", null, null, "Gemini lỗi")
-                : new LangResult(l, "DONE", l == "vi" || textIsFinal ? text : $"{l.ToUpper()}:{text}", $"https://cdn/animals/{animalId}/{l}-x.mp3", null,
+                : new LangResult(l, "DONE", l == "vi" || textIsFinal ? text : $"{l.ToUpper()}:{text}", $"https://cdn/newanimals/{animalId}/{l}-x.mp3", null,
                                  name == null || l == "vi" || OldService ? null : $"{l}:{name}")).ToArray());
         }
     }
