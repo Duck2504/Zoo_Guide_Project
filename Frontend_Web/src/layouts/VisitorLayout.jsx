@@ -7,12 +7,13 @@ import useZoneTracker from '../hooks/useZoneTracker';
 import ZoneSheet from '../components/ZoneSheet';
 import { ZonePlaylistProvider } from '../components/ZonePlaylist';
 import LanguageMenu from '../components/LanguageMenu';
+import { ACCESS_EVENT, accessLeft } from '../utils/qrAccess';
 
 const translations = {
-  vi: { title: 'Thảo Cầm Viên', subtitle: 'Audio Guide', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', scanShort: 'Quét mã', nav: 'Điều hướng', geoOn: 'Đang theo dõi vị trí (bấm để tắt)', geoOff: 'Bật định vị để xem con vật quanh bạn' },
-  en: { title: 'Saigon Zoo', subtitle: 'Audio Guide', home: 'Home', map: 'Map', scan: 'Scan QR code', scanShort: 'Scan', nav: 'Navigation', geoOn: 'Tracking your location (tap to stop)', geoOff: 'Turn on location to see animals around you' },
-  ko: { title: '사이공 동물원', subtitle: 'Audio Guide', home: '홈', map: '지도', scan: 'QR 스캔', scanShort: '스캔', nav: '탐색', geoOn: '위치 추적 중 (눌러서 끄기)', geoOff: '위치를 켜고 주변 동물 보기' },
-  ja: { title: 'サイゴン動植物園', subtitle: 'Audio Guide', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', scanShort: 'スキャン', nav: 'ナビゲーション', geoOn: '現在地を追跡中（タップで停止）', geoOff: '位置情報をオンにして近くの動物を見る' },
+  vi: { title: 'Thảo Cầm Viên', subtitle: 'Audio Guide', home: 'Trang chủ', map: 'Bản đồ', scan: 'Quét mã QR', scanShort: 'Quét mã', nav: 'Điều hướng', geoOn: 'Đang theo dõi vị trí (bấm để tắt)', geoOff: 'Bật định vị để xem con vật quanh bạn', lockTitle: 'Quét mã QR để tiếp tục', lockBody: 'Mỗi lần quét mã được dùng 1 phút. Hãy quét mã QR trên biển chuồng thú hoặc ở cổng để nghe tiếp.', rescan: 'Quét lại mã QR' },
+  en: { title: 'Saigon Zoo', subtitle: 'Audio Guide', home: 'Home', map: 'Map', scan: 'Scan QR code', scanShort: 'Scan', nav: 'Navigation', geoOn: 'Tracking your location (tap to stop)', geoOff: 'Turn on location to see animals around you', lockTitle: 'Scan a QR code to continue', lockBody: 'Each scan gives you 1 minute. Scan the QR code on an enclosure sign or at the gate to keep listening.', rescan: 'Scan QR code again' },
+  ko: { title: '사이공 동물원', subtitle: 'Audio Guide', home: '홈', map: '지도', scan: 'QR 스캔', scanShort: '스캔', nav: '탐색', geoOn: '위치 추적 중 (눌러서 끄기)', geoOff: '위치를 켜고 주변 동물 보기', lockTitle: '계속하려면 QR 코드를 스캔하세요', lockBody: '한 번 스캔하면 1분 동안 이용할 수 있습니다. 계속 들으려면 우리 표지판이나 입구의 QR 코드를 스캔하세요.', rescan: 'QR 코드 다시 스캔' },
+  ja: { title: 'サイゴン動植物園', subtitle: 'Audio Guide', home: 'ホーム', map: 'マップ', scan: 'QRスキャン', scanShort: 'スキャン', nav: 'ナビゲーション', geoOn: '現在地を追跡中（タップで停止）', geoOff: '位置情報をオンにして近くの動物を見る', lockTitle: '続けるにはQRコードをスキャンしてください', lockBody: '1回のスキャンで1分間ご利用いただけます。続けて聞くには、展示場の看板か入口のQRコードをスキャンしてください。', rescan: 'QRコードを再スキャン' },
 };
 
 const tabClass = wall => ({ isActive }) =>
@@ -73,15 +74,74 @@ export default function VisitorLayout() {
     return () => document.removeEventListener('play', onPlay, true);
   }, []);
 
+  // Hết 1 phút sau lần quét mã: dừng mọi audio và khóa app tới khi quét lại
+  const [locked, setLocked] = useState(() => accessLeft() === 0);
+  const rescanRef = useRef(null);
+  useEffect(() => {
+    let timer;
+    const check = () => {
+      clearTimeout(timer);
+      const left = accessLeft();
+      setLocked(!left);
+      if (left) timer = setTimeout(check, left + 50);
+      else document.querySelectorAll('audio').forEach(a => a.pause());
+    };
+    // Điện thoại tắt màn hình có thể hoãn hẹn giờ: audio còn chạy thì tự kiểm tra lại
+    const guard = e => { if (!accessLeft()) { e.target.pause(); setLocked(true); } };
+    check();
+    window.addEventListener(ACCESS_EVENT, check);
+    document.addEventListener('visibilitychange', check);
+    document.addEventListener('play', guard, true);
+    document.addEventListener('timeupdate', guard, true);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener(ACCESS_EVENT, check);
+      document.removeEventListener('visibilitychange', check);
+      document.removeEventListener('play', guard, true);
+      document.removeEventListener('timeupdate', guard, true);
+    };
+  }, []);
+  useEffect(() => { if (locked && !isQRModalOpen) rescanRef.current?.focus(); }, [locked, isQRModalOpen]);
+
   const zoneId = geo.zone?.id ?? null;
   useEffect(() => {
     if (zoneId == null) { setSheetOpen(false); return; }
+    if (locked) return;
     navigator.vibrate?.(150);
     const audioPlaying = [...document.querySelectorAll('audio')].some(a => !a.paused);
     if (!seenZones.current.has(zoneId) && isDetailPage && !audioPlaying) setSheetOpen(true);
     seenZones.current.add(zoneId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoneId]);
+
+  const qrModal = isQRModalOpen && (
+    <Suspense fallback={null}>
+      <QRScannerModal isOpen onClose={closeQR} />
+    </Suspense>
+  );
+
+  if (locked) return (
+    <ZonePlaylistProvider zoneId={zoneId} language={language}>
+      <div className="visitor-world font-trail bg-wall wall-ambient min-h-[100dvh] w-full max-w-md md:max-w-3xl mx-auto relative flex flex-col">
+        <div className="flex justify-end p-4"><LanguageMenu variant="wall" /></div>
+        <main className="flex flex-1 flex-col items-center justify-center gap-5 px-6 pb-16 text-center font-label text-label">
+          <span className="flex h-20 w-20 items-center justify-center rounded-3xl bg-white/10 text-4xl" aria-hidden="true">
+            <i className="fa-solid fa-qrcode"></i>
+          </span>
+          <h1 className="text-2xl font-extrabold text-white">{t.lockTitle}</h1>
+          <p className="max-w-sm text-base leading-relaxed text-label/85">{t.lockBody}</p>
+          <button
+            ref={rescanRef}
+            onClick={openQR}
+            className="flex min-h-12 items-center gap-2 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 px-6 text-base font-semibold text-white shadow-lg shadow-emerald-950/50 transition-transform active:scale-95"
+          >
+            <i className="fa-solid fa-qrcode" aria-hidden="true"></i> {t.rescan}
+          </button>
+        </main>
+        {qrModal}
+      </div>
+    </ZonePlaylistProvider>
+  );
 
   return (
     <ZonePlaylistProvider zoneId={zoneId} language={language}>
@@ -179,11 +239,7 @@ export default function VisitorLayout() {
         />
       )}
 
-      {isQRModalOpen && (
-        <Suspense fallback={null}>
-          <QRScannerModal isOpen onClose={closeQR} />
-        </Suspense>
-      )}
+      {qrModal}
     </div>
     </ZonePlaylistProvider>
   );
